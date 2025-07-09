@@ -37,6 +37,15 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Test database connection first
+  try {
+    const { testConnection } = await import("./db");
+    await testConnection();
+  } catch (error) {
+    console.error('Failed to connect to database:', error);
+    process.exit(1);
+  }
+
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

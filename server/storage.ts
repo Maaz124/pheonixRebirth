@@ -92,8 +92,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getPhase(id: number): Promise<Phase | undefined> {
-    const [phase] = await db.select().from(phases).where(eq(phases.id, id));
-    return phase || undefined;
+    try {
+      const [phase] = await db.select().from(phases).where(eq(phases.id, id));
+      return phase || undefined;
+    } catch (error) {
+      console.error('Error fetching phase:', error);
+      throw error;
+    }
   }
 
   async createPhase(insertPhase: InsertPhase): Promise<Phase> {
@@ -107,9 +112,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserProgressForPhase(userId: number, phaseId: number): Promise<UserProgress | undefined> {
-    const [progress] = await db.select().from(userProgress)
-      .where(and(eq(userProgress.userId, userId), eq(userProgress.phaseId, phaseId)));
-    return progress || undefined;
+    try {
+      const [progress] = await db.select().from(userProgress)
+        .where(and(eq(userProgress.userId, userId), eq(userProgress.phaseId, phaseId)));
+      return progress || undefined;
+    } catch (error) {
+      console.error('Error fetching user progress for phase:', error);
+      throw error;
+    }
   }
 
   async updateUserProgress(userId: number, phaseId: number, updates: Partial<InsertUserProgress>): Promise<UserProgress | undefined> {
@@ -126,7 +136,12 @@ export class DatabaseStorage implements IStorage {
 
   // Exercise operations
   async getExercisesForPhase(phaseId: number): Promise<Exercise[]> {
-    return await db.select().from(exercises).where(eq(exercises.phaseId, phaseId));
+    try {
+      return await db.select().from(exercises).where(eq(exercises.phaseId, phaseId));
+    } catch (error) {
+      console.error('Error fetching exercises for phase:', error);
+      throw error;
+    }
   }
 
   async getExercise(id: number): Promise<Exercise | undefined> {
@@ -206,7 +221,12 @@ export class DatabaseStorage implements IStorage {
 
   // Assessment operations
   async getAssessmentsForPhase(phaseId: number): Promise<Assessment[]> {
-    return await db.select().from(assessments).where(eq(assessments.phaseId, phaseId));
+    try {
+      return await db.select().from(assessments).where(eq(assessments.phaseId, phaseId));
+    } catch (error) {
+      console.error('Error fetching assessments for phase:', error);
+      throw error;
+    }
   }
 
   async getAssessment(id: number): Promise<Assessment | undefined> {
