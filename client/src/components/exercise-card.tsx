@@ -66,6 +66,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
 
   const renderContent = () => {
     const content = exercise.content as any;
+    console.log('Exercise content:', exercise.title, content);
     
     if (exercise.type === 'educational') {
       return (
@@ -332,19 +333,23 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
             <div className="space-y-4">
               <h4 className="font-medium text-gray-900 flex items-center">
                 <MessageCircle className="mr-2" size={16} />
-                Reflection Prompts
+                Reflective Space
               </h4>
+              <p className="text-sm text-gray-600 mb-4">This is your private space for reflection. Take as much time as you need.</p>
               {content.prompts.map((prompt: string, index: number) => (
                 <div key={index} className="space-y-2">
                   <Label className="text-sm font-medium text-gray-700">{prompt}</Label>
                   <Textarea
-                    placeholder="Take your time to reflect..."
-                    className="min-h-[80px]"
+                    placeholder="Write your thoughts here... This is your private reflection space."
+                    className="min-h-[100px] resize-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     value={responses[`prompt_${index}`] || ""}
-                    onChange={(e) => setResponses({
-                      ...responses,
-                      [`prompt_${index}`]: e.target.value
-                    })}
+                    onChange={(e) => {
+                      console.log('Reflection textarea onChange:', e.target.value);
+                      setResponses({
+                        ...responses,
+                        [`prompt_${index}`]: e.target.value
+                      });
+                    }}
                   />
                 </div>
               ))}
@@ -458,24 +463,28 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
               </div>
             )}
             
-            {content.practiceQuestions && (
+            {content.practiceQuestions && Array.isArray(content.practiceQuestions) && (
               <div className="bg-gray-50 rounded-lg p-4">
                 <h4 className="font-medium text-gray-900 mb-3 flex items-center">
                   <MessageCircle className="mr-2" size={16} />
-                  Reflection Questions
+                  Reflective Space
                 </h4>
+                <p className="text-sm text-gray-600 mb-4">Take your time to reflect on these questions. Your thoughts are private and help with your healing journey.</p>
                 <div className="space-y-4">
                   {content.practiceQuestions.map((question: string, index: number) => (
                     <div key={index} className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700">{question}</Label>
                       <Textarea
-                        placeholder="Take time to reflect on this question..."
-                        className="min-h-[80px]"
+                        placeholder="Write your thoughts here... This is your private space for reflection."
+                        className="min-h-[100px] resize-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                         value={responses[`reflection_${index}`] || ""}
-                        onChange={(e) => setResponses({
-                          ...responses,
-                          [`reflection_${index}`]: e.target.value
-                        })}
+                        onChange={(e) => {
+                          console.log('Textarea onChange triggered:', e.target.value);
+                          setResponses({
+                            ...responses,
+                            [`reflection_${index}`]: e.target.value
+                          });
+                        }}
                       />
                     </div>
                   ))}
@@ -519,17 +528,24 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
             
             {content.questions && (
               <div className="space-y-4">
+                <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                  <MessageCircle className="mr-2" size={16} />
+                  Additional Questions
+                </h4>
                 {content.questions.map((question: string, index: number) => (
                   <div key={index} className="space-y-2">
                     <Label className="text-sm font-medium text-gray-700">{question}</Label>
                     <Textarea
-                      placeholder="Your response..."
-                      className="min-h-[60px]"
+                      placeholder="Share your thoughts here..."
+                      className="min-h-[80px] resize-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                       value={responses[`question_${index}`] || ""}
-                      onChange={(e) => setResponses({
-                        ...responses,
-                        [`question_${index}`]: e.target.value
-                      })}
+                      onChange={(e) => {
+                        console.log('Question textarea onChange:', e.target.value);
+                        setResponses({
+                          ...responses,
+                          [`question_${index}`]: e.target.value
+                        });
+                      }}
                     />
                   </div>
                 ))}
