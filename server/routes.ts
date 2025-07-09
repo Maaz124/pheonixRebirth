@@ -32,6 +32,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get specific phase
+  app.get("/api/phases/:phaseId", async (req, res) => {
+    try {
+      const phaseId = parseInt(req.params.phaseId);
+      const phase = await storage.getPhase(phaseId);
+      if (!phase) {
+        return res.status(404).json({ message: "Phase not found" });
+      }
+      res.json(phase);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch phase" });
+    }
+  });
+
   // Get user progress for all phases
   app.get("/api/user/progress", async (req, res) => {
     try {
