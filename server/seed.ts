@@ -163,6 +163,14 @@ async function seed() {
       content: {
         neuroscience: "Trauma lives in the body. Progressive muscle relaxation helps release chronic tension patterns and teaches your nervous system the difference between tension and relaxation.",
         technique: "Tense each muscle group for 5 seconds, then release and notice the contrast",
+        instructions: [
+          "Find a comfortable position lying down or sitting in a chair",
+          "Start with your feet and work your way up your body",
+          "Tense each muscle group for exactly 5 seconds",
+          "Release suddenly and notice the feeling of relaxation",
+          "Take 10-20 seconds to notice the contrast before moving to the next group",
+          "Focus on the feeling of tension leaving your body"
+        ],
         sequence: [
           "Feet and calves - curl toes, tense calves",
           "Thighs and glutes - squeeze tight",
@@ -170,6 +178,19 @@ async function seed() {
           "Hands and arms - make fists, tense arms",
           "Shoulders - lift toward ears",
           "Face - scrunch forehead, close eyes tight, clench jaw"
+        ],
+        tips: [
+          "Don't tense so hard that you cause pain",
+          "Breathe normally throughout the exercise",
+          "If you have injuries, skip those muscle groups",
+          "Practice in a quiet, comfortable environment",
+          "Use this before bed to improve sleep quality"
+        ],
+        variations: [
+          "Quick version: 3 seconds tension, 10 seconds relaxation",
+          "Extended version: 8 seconds tension, 30 seconds relaxation",
+          "Sitting version: Focus on upper body only",
+          "Mini version: Just hands, shoulders, and face for quick relief"
         ],
         benefits: [
           "Reduces cortisol (stress hormone) levels",
@@ -188,17 +209,39 @@ async function seed() {
       type: "interactive",
       content: {
         neuroscience: "Cold water activates the dive response, rapidly switching your nervous system from sympathetic (fight/flight) to parasympathetic (rest/digest). This technique can stop panic attacks within minutes.",
+        instructions: [
+          "Choose your preferred method based on location and intensity needed",
+          "Start with lukewarm water if you're sensitive to cold",
+          "Apply cold water for 30 seconds to 2 minutes maximum",
+          "Focus on your breathing while using the technique",
+          "Notice the immediate calming effect on your nervous system",
+          "Follow up with gentle breathing exercises"
+        ],
         methods: [
           "Cold water on wrists and face",
           "Hold ice cubes in your hands",
           "Splash cold water on face and neck",
           "Take a cold shower (if available)"
         ],
+        tips: [
+          "Keep a water bottle in the fridge for quick access",
+          "Use this technique during the peak of panic or overwhelm",
+          "Practice when calm so you remember during crisis",
+          "Combine with breathing exercises for enhanced effect",
+          "Keep ice packs or cold packs handy for emergencies"
+        ],
+        variations: [
+          "Gentle version: Cool (not cold) water for sensitive individuals",
+          "Intense version: Ice water for severe panic attacks",
+          "Portable version: Cold water bottle on pulse points",
+          "Shower version: Alternate between warm and cold water"
+        ],
         science: "The trigeminal nerve in your face connects directly to your vagus nerve. Cold water stimulation sends immediate calming signals to your brain.",
         safetyNotes: [
           "Don't use if you have heart conditions",
           "Start with lukewarm water if very sensitive",
-          "Use for 30 seconds to 2 minutes maximum"
+          "Use for 30 seconds to 2 minutes maximum",
+          "Stop if you feel dizzy or lightheaded"
         ],
         timeEstimate: "2-3 minutes"
       },
@@ -211,11 +254,32 @@ async function seed() {
       type: "interactive",
       content: {
         neuroscience: "Bilateral stimulation activates both brain hemispheres simultaneously, mimicking REM sleep patterns. This helps process traumatic memories and reduces emotional charge.",
+        instructions: [
+          "Choose the technique that feels most comfortable for you",
+          "Start slowly and gently - this isn't about intensity",
+          "Focus on the alternating, rhythmic movement",
+          "Notice any emotions or sensations that arise",
+          "Continue until you feel a sense of calm or completion",
+          "Take a few deep breaths when finished"
+        ],
         techniques: [
           "Butterfly hug: Cross arms over chest, alternately tap shoulders",
           "March in place: Lift knees, touch with opposite hand",
           "Figure-8 breathing: Trace infinity symbol with finger while breathing",
           "Alternating heel-toe walking"
+        ],
+        tips: [
+          "Use when you feel emotionally stuck or overwhelmed",
+          "Practice daily for 2-3 minutes as nervous system maintenance",
+          "Combine with mindful breathing for enhanced effect",
+          "Use during or after difficult conversations",
+          "Trust your body's natural rhythm"
+        ],
+        variations: [
+          "Seated version: Alternate tapping knees with opposite hands",
+          "Lying down: Cross arms and alternate tapping sides of body",
+          "Walking version: Natural cross-lateral arm swinging",
+          "Eye movements: Look left-right while breathing deeply"
         ],
         applications: [
           "When feeling overwhelmed by memories",
@@ -235,6 +299,14 @@ async function seed() {
       type: "assessment",
       content: {
         neuroscience: "Your window of tolerance is the zone where you can handle stress without becoming overwhelmed (hyperarousal) or shutting down (hypoarousal). Trauma narrows this window.",
+        instructions: [
+          "Read through each category and notice which resonates most",
+          "Rate your current state on a scale of 1-10",
+          "Identify your personal patterns and triggers",
+          "Notice what helps you return to your window",
+          "Create a personal plan for staying in your optimal zone",
+          "Practice this assessment regularly to build awareness"
+        ],
         hyperarousal: [
           "Racing thoughts",
           "Rapid heartbeat",
@@ -256,10 +328,25 @@ async function seed() {
           "Difficulty concentrating",
           "Feeling hopeless"
         ],
+        tips: [
+          "Use this assessment several times throughout the day",
+          "Notice patterns in your window of tolerance",
+          "Identify specific triggers that push you out of your window",
+          "Practice self-compassion when you're outside your window",
+          "Remember that your window can expand with practice"
+        ],
+        variations: [
+          "Quick check-in: Simple 1-10 scale assessment",
+          "Detailed version: Journal about each category",
+          "Body scan version: Focus on physical sensations",
+          "Relationship version: Notice how others affect your window"
+        ],
         practiceQuestions: [
           "Where am I right now on this spectrum?",
           "What helps me return to my window?",
-          "What are my early warning signs?"
+          "What are my early warning signs?",
+          "What situations push me out of my window?",
+          "What does my optimal zone feel like in my body?"
         ],
         timeEstimate: "15 minutes"
       },
