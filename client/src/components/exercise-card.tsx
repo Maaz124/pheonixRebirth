@@ -65,6 +65,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
   };
 
   const renderInteractivePractice = (content: any, title: string) => {
+    console.log('Rendering interactive practice for:', title);
     // Inner Critic Transformation
     if (title === "The Inner Critic Transformation") {
       return (
@@ -487,6 +488,11 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
           </TabsContent>
           
           <TabsContent value="practice" className="space-y-4">
+            <div className="debug-info bg-gray-100 p-2 rounded text-xs mb-4">
+              <p><strong>Debug:</strong> Exercise: {exercise.title}</p>
+              <p><strong>Type:</strong> {exercise.type}</p>
+              <p><strong>Has renderInteractivePractice:</strong> {typeof renderInteractivePractice === 'function' ? 'Yes' : 'No'}</p>
+            </div>
             {renderInteractivePractice(content, exercise.title)}
           </TabsContent>
           
