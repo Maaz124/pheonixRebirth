@@ -6,9 +6,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   BookOpen, Play, CheckCircle2, Clock, Lightbulb,
-  Heart, Brain, Target, MessageCircle 
+  Heart, Brain, Target, MessageCircle, Eye, Activity
 } from "lucide-react";
 import type { Exercise } from "@shared/schema";
 
@@ -25,25 +26,34 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'reading':
-        return <BookOpen className="phoenix-text-primary" size={20} />;
-      case 'practice':
-        return <Play className="phoenix-text-accent" size={20} />;
+      case 'educational':
+        return <BookOpen className="text-blue-600" size={20} />;
+      case 'interactive':
+        return <Play className="text-teal-600" size={20} />;
       case 'assessment':
-        return <Brain className="phoenix-text-secondary" size={20} />;
+        return <Brain className="text-purple-600" size={20} />;
+      case 'planning':
+        return <Target className="text-green-600" size={20} />;
       case 'reflection':
-        return <Heart className="phoenix-text-warning" size={20} />;
+        return <Heart className="text-pink-600" size={20} />;
+      case 'reading':
+        return <BookOpen className="text-blue-600" size={20} />;
+      case 'practice':
+        return <Play className="text-teal-600" size={20} />;
       default:
-        return <Target className="phoenix-text-gray" size={20} />;
+        return <Activity className="text-gray-600" size={20} />;
     }
   };
 
   const getTypeBadge = (type: string) => {
     const variants = {
+      educational: "bg-blue-50 text-blue-700",
+      interactive: "bg-teal-50 text-teal-700",
+      assessment: "bg-purple-50 text-purple-700",
+      planning: "bg-green-50 text-green-700",
+      reflection: "bg-pink-50 text-pink-700",
       reading: "bg-blue-50 text-blue-700",
-      practice: "bg-teal-50 text-teal-700", 
-      assessment: "bg-pink-50 text-pink-700",
-      reflection: "bg-yellow-50 text-yellow-700"
+      practice: "bg-teal-50 text-teal-700"
     };
     return variants[type as keyof typeof variants] || "bg-gray-50 text-gray-700";
   };
@@ -56,6 +66,61 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
 
   const renderContent = () => {
     const content = exercise.content as any;
+    
+    if (exercise.type === 'educational') {
+      return (
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="neuroscience">Neuroscience</TabsTrigger>
+            <TabsTrigger value="practice">Practice</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="overview" className="space-y-4">
+            {content.keyPoints && (
+              <div className="bg-blue-50 rounded-lg p-4">
+                <h4 className="font-medium text-blue-900 mb-3 flex items-center">
+                  <Lightbulb className="mr-2" size={16} />
+                  Key Learning Points
+                </h4>
+                <ul className="space-y-2">
+                  {content.keyPoints.map((point: string, index: number) => (
+                    <li key={index} className="text-blue-800 text-sm flex items-start">
+                      <span className="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                      {point}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="neuroscience" className="space-y-4">
+            {content.neuroscience && (
+              <div className="bg-purple-50 rounded-lg p-4">
+                <h4 className="font-medium text-purple-900 mb-3 flex items-center">
+                  <Brain className="mr-2" size={16} />
+                  The Science Behind It
+                </h4>
+                <p className="text-purple-800 text-sm leading-relaxed">{content.neuroscience}</p>
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="practice" className="space-y-4">
+            {content.practicalApplication && (
+              <div className="bg-green-50 rounded-lg p-4">
+                <h4 className="font-medium text-green-900 mb-3 flex items-center">
+                  <Target className="mr-2" size={16} />
+                  Try This Today
+                </h4>
+                <p className="text-green-800 text-sm leading-relaxed">{content.practicalApplication}</p>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      );
+    }
     
     if (exercise.type === 'reading') {
       return (
@@ -78,6 +143,134 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
             </div>
           )}
         </div>
+      );
+    }
+
+    if (exercise.type === 'interactive') {
+      return (
+        <Tabs defaultValue="instructions" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="instructions">Instructions</TabsTrigger>
+            <TabsTrigger value="neuroscience">Why It Works</TabsTrigger>
+            <TabsTrigger value="tips">Tips & Variations</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="instructions" className="space-y-4">
+            {content.steps && (
+              <div className="bg-teal-50 rounded-lg p-4">
+                <h4 className="font-medium text-teal-900 mb-3 flex items-center">
+                  <Play className="mr-2" size={16} />
+                  Step-by-Step Instructions
+                </h4>
+                <ol className="space-y-2">
+                  {content.steps.map((step: string, index: number) => (
+                    <li key={index} className="text-teal-800 text-sm flex items-start">
+                      <span className="w-6 h-6 bg-teal-200 text-teal-900 rounded-full text-xs flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+                        {index + 1}
+                      </span>
+                      {step}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
+            
+            {content.instructions && (
+              <div className="bg-teal-50 rounded-lg p-4">
+                <h4 className="font-medium text-teal-900 mb-3 flex items-center">
+                  <Play className="mr-2" size={16} />
+                  Instructions
+                </h4>
+                <p className="text-teal-800 text-sm leading-relaxed">{content.instructions}</p>
+              </div>
+            )}
+            
+            {content.visualization && (
+              <div className="bg-indigo-50 rounded-lg p-4">
+                <h4 className="font-medium text-indigo-900 mb-3 flex items-center">
+                  <Eye className="mr-2" size={16} />
+                  Visualization
+                </h4>
+                <p className="text-indigo-800 text-sm leading-relaxed">{content.visualization}</p>
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="neuroscience" className="space-y-4">
+            {content.neuroscience && (
+              <div className="bg-purple-50 rounded-lg p-4">
+                <h4 className="font-medium text-purple-900 mb-3 flex items-center">
+                  <Brain className="mr-2" size={16} />
+                  The Science Behind It
+                </h4>
+                <p className="text-purple-800 text-sm leading-relaxed">{content.neuroscience}</p>
+              </div>
+            )}
+            
+            {content.science && (
+              <div className="bg-purple-50 rounded-lg p-4">
+                <h4 className="font-medium text-purple-900 mb-3 flex items-center">
+                  <Brain className="mr-2" size={16} />
+                  Additional Science
+                </h4>
+                <p className="text-purple-800 text-sm leading-relaxed">{content.science}</p>
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="tips" className="space-y-4">
+            {content.tips && (
+              <div className="bg-yellow-50 rounded-lg p-4">
+                <h4 className="font-medium text-yellow-900 mb-3 flex items-center">
+                  <Lightbulb className="mr-2" size={16} />
+                  Helpful Tips
+                </h4>
+                <ul className="space-y-2">
+                  {content.tips.map((tip: string, index: number) => (
+                    <li key={index} className="text-yellow-800 text-sm flex items-start">
+                      <span className="w-2 h-2 bg-yellow-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                      {tip}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            {content.progressions && (
+              <div className="bg-green-50 rounded-lg p-4">
+                <h4 className="font-medium text-green-900 mb-3 flex items-center">
+                  <Target className="mr-2" size={16} />
+                  Progressions
+                </h4>
+                <ul className="space-y-2">
+                  {content.progressions.map((progression: string, index: number) => (
+                    <li key={index} className="text-green-800 text-sm flex items-start">
+                      <span className="w-2 h-2 bg-green-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                      {progression}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            {content.whenToUse && (
+              <div className="bg-blue-50 rounded-lg p-4">
+                <h4 className="font-medium text-blue-900 mb-3 flex items-center">
+                  <Clock className="mr-2" size={16} />
+                  When to Use This
+                </h4>
+                <ul className="space-y-2">
+                  {content.whenToUse.map((when: string, index: number) => (
+                    <li key={index} className="text-blue-800 text-sm flex items-start">
+                      <span className="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                      {when}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       );
     }
 
@@ -163,51 +356,207 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
 
     if (exercise.type === 'assessment') {
       return (
-        <div className="space-y-4">
-          {content.questions && (
-            <div className="space-y-4">
-              {content.questions.map((question: string, index: number) => (
-                <div key={index} className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">{question}</Label>
-                  <Textarea
-                    placeholder="Your response..."
-                    className="min-h-[60px]"
-                    value={responses[`question_${index}`] || ""}
-                    onChange={(e) => setResponses({
-                      ...responses,
-                      [`question_${index}`]: e.target.value
-                    })}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
+        <Tabs defaultValue="assessment" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="assessment">Assessment</TabsTrigger>
+            <TabsTrigger value="understanding">Understanding</TabsTrigger>
+          </TabsList>
           
-          {content.categories && (
-            <div className="space-y-4">
-              <h4 className="font-medium text-gray-900">Rate each area (1-10):</h4>
-              {content.categories.map((category: string, index: number) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex justify-between">
-                    <Label className="text-sm font-medium text-gray-700">{category} Boundaries</Label>
-                    <span className="text-sm text-gray-600">{responses[`category_${index}`] || 5}/10</span>
-                  </div>
-                  <Slider
-                    value={[responses[`category_${index}`] || 5]}
-                    onValueChange={(value) => setResponses({
-                      ...responses,
-                      [`category_${index}`]: value[0]
-                    })}
-                    max={10}
-                    min={1}
-                    step={1}
-                    className="w-full"
-                  />
+          <TabsContent value="assessment" className="space-y-4">
+            {content.hyperarousal && (
+              <div className="bg-red-50 rounded-lg p-4">
+                <h4 className="font-medium text-red-900 mb-3 flex items-center">
+                  <Activity className="mr-2" size={16} />
+                  Hyperarousal Signs
+                </h4>
+                <ul className="space-y-2">
+                  {content.hyperarousal.map((sign: string, index: number) => (
+                    <li key={index} className="text-red-800 text-sm flex items-start">
+                      <span className="w-2 h-2 bg-red-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                      {sign}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            {content.windowOfTolerance && (
+              <div className="bg-green-50 rounded-lg p-4">
+                <h4 className="font-medium text-green-900 mb-3 flex items-center">
+                  <Target className="mr-2" size={16} />
+                  Window of Tolerance
+                </h4>
+                <ul className="space-y-2">
+                  {content.windowOfTolerance.map((sign: string, index: number) => (
+                    <li key={index} className="text-green-800 text-sm flex items-start">
+                      <span className="w-2 h-2 bg-green-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                      {sign}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            {content.hypoarousal && (
+              <div className="bg-blue-50 rounded-lg p-4">
+                <h4 className="font-medium text-blue-900 mb-3 flex items-center">
+                  <Activity className="mr-2" size={16} />
+                  Hypoarousal Signs
+                </h4>
+                <ul className="space-y-2">
+                  {content.hypoarousal.map((sign: string, index: number) => (
+                    <li key={index} className="text-blue-800 text-sm flex items-start">
+                      <span className="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                      {sign}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            {content.practiceQuestions && (
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                  <MessageCircle className="mr-2" size={16} />
+                  Reflect on These Questions
+                </h4>
+                <div className="space-y-3">
+                  {content.practiceQuestions.map((question: string, index: number) => (
+                    <div key={index} className="space-y-2">
+                      <Label className="text-sm font-medium text-gray-700">{question}</Label>
+                      <Textarea
+                        placeholder="Take time to reflect..."
+                        className="min-h-[60px]"
+                        value={responses[`reflection_${index}`] || ""}
+                        onChange={(e) => setResponses({
+                          ...responses,
+                          [`reflection_${index}`]: e.target.value
+                        })}
+                      />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </div>
+            )}
+            
+            {content.questions && (
+              <div className="space-y-4">
+                {content.questions.map((question: string, index: number) => (
+                  <div key={index} className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">{question}</Label>
+                    <Textarea
+                      placeholder="Your response..."
+                      className="min-h-[60px]"
+                      value={responses[`question_${index}`] || ""}
+                      onChange={(e) => setResponses({
+                        ...responses,
+                        [`question_${index}`]: e.target.value
+                      })}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="understanding" className="space-y-4">
+            {content.neuroscience && (
+              <div className="bg-purple-50 rounded-lg p-4">
+                <h4 className="font-medium text-purple-900 mb-3 flex items-center">
+                  <Brain className="mr-2" size={16} />
+                  The Science Behind This Assessment
+                </h4>
+                <p className="text-purple-800 text-sm leading-relaxed">{content.neuroscience}</p>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      );
+    }
+    
+    if (exercise.type === 'planning') {
+      return (
+        <Tabs defaultValue="planning" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="planning">Create Your Plan</TabsTrigger>
+            <TabsTrigger value="science">Why This Works</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="planning" className="space-y-4">
+            {content.protocolSteps && (
+              <div className="bg-green-50 rounded-lg p-4">
+                <h4 className="font-medium text-green-900 mb-3 flex items-center">
+                  <Target className="mr-2" size={16} />
+                  Your Protocol Steps
+                </h4>
+                <ol className="space-y-2">
+                  {content.protocolSteps.map((step: string, index: number) => (
+                    <li key={index} className="text-green-800 text-sm flex items-start">
+                      <span className="w-6 h-6 bg-green-200 text-green-900 rounded-full text-xs flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+                        {index + 1}
+                      </span>
+                      {step}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
+            
+            {content.techniques && (
+              <div className="bg-blue-50 rounded-lg p-4">
+                <h4 className="font-medium text-blue-900 mb-3 flex items-center">
+                  <Heart className="mr-2" size={16} />
+                  Choose Your Techniques
+                </h4>
+                <div className="space-y-3">
+                  {content.techniques.map((technique: string, index: number) => (
+                    <div key={index} className="space-y-2">
+                      <Label className="text-sm font-medium text-blue-700">{technique}</Label>
+                      <Textarea
+                        placeholder="Write your specific approach..."
+                        className="min-h-[60px]"
+                        value={responses[`technique_${index}`] || ""}
+                        onChange={(e) => setResponses({
+                          ...responses,
+                          [`technique_${index}`]: e.target.value
+                        })}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {content.practicePlan && (
+              <div className="bg-yellow-50 rounded-lg p-4">
+                <h4 className="font-medium text-yellow-900 mb-3 flex items-center">
+                  <Clock className="mr-2" size={16} />
+                  Your Practice Plan
+                </h4>
+                <ul className="space-y-2">
+                  {content.practicePlan.map((step: string, index: number) => (
+                    <li key={index} className="text-yellow-800 text-sm flex items-start">
+                      <span className="w-2 h-2 bg-yellow-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                      {step}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="science" className="space-y-4">
+            {content.neuroscience && (
+              <div className="bg-purple-50 rounded-lg p-4">
+                <h4 className="font-medium text-purple-900 mb-3 flex items-center">
+                  <Brain className="mr-2" size={16} />
+                  The Science Behind It
+                </h4>
+                <p className="text-purple-800 text-sm leading-relaxed">{content.neuroscience}</p>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       );
     }
 
