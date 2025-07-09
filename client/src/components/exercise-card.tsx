@@ -64,6 +64,294 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
     setIsSubmitting(false);
   };
 
+  const renderInteractivePractice = (content: any, title: string) => {
+    // Inner Critic Transformation
+    if (title === "The Inner Critic Transformation") {
+      return (
+        <div className="space-y-6">
+          <div className="bg-gradient-to-br from-teal-50 to-blue-50 rounded-lg p-6">
+            <h4 className="font-medium text-teal-900 mb-4 flex items-center">
+              <Heart className="mr-2" size={16} />
+              Interactive RAIN Practice
+            </h4>
+            <p className="text-teal-800 text-sm mb-4">Practice transforming self-criticism with the RAIN technique:</p>
+            
+            <div className="space-y-4">
+              <div className="bg-white rounded-lg p-4">
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  1. Recognize: What critical thought are you having right now?
+                </Label>
+                <Textarea
+                  placeholder="Example: 'I'm such an idiot for making that mistake...'"
+                  className="min-h-[80px] resize-none"
+                  value={responses.critic_thought || ""}
+                  onChange={(e) => setResponses({...responses, critic_thought: e.target.value})}
+                />
+              </div>
+              
+              <div className="bg-white rounded-lg p-4">
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  2. Allow: What are you feeling in your body right now?
+                </Label>
+                <Textarea
+                  placeholder="Example: 'Tension in my chest, shoulders tight, feeling heavy...'"
+                  className="min-h-[80px] resize-none"
+                  value={responses.body_feelings || ""}
+                  onChange={(e) => setResponses({...responses, body_feelings: e.target.value})}
+                />
+              </div>
+              
+              <div className="bg-white rounded-lg p-4">
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  3. Investigate: What do you need right now?
+                </Label>
+                <Textarea
+                  placeholder="Example: 'I need compassion, understanding, a moment to breathe...'"
+                  className="min-h-[80px] resize-none"
+                  value={responses.needs || ""}
+                  onChange={(e) => setResponses({...responses, needs: e.target.value})}
+                />
+              </div>
+              
+              <div className="bg-white rounded-lg p-4">
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  4. Nurture: Write a compassionate response to yourself
+                </Label>
+                <Textarea
+                  placeholder="Example: 'It's okay to make mistakes. I'm learning and growing. May I be kind to myself...'"
+                  className="min-h-[100px] resize-none"
+                  value={responses.compassionate_response || ""}
+                  onChange={(e) => setResponses({...responses, compassionate_response: e.target.value})}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Somatic Self-Compassion Practice
+    if (title === "Somatic Self-Compassion Practice") {
+      return (
+        <div className="space-y-6">
+          <div className="bg-gradient-to-br from-pink-50 to-orange-50 rounded-lg p-6">
+            <h4 className="font-medium text-pink-900 mb-4 flex items-center">
+              <Activity className="mr-2" size={16} />
+              Body-Based Compassion Practice
+            </h4>
+            
+            <div className="space-y-4">
+              <div className="bg-white rounded-lg p-4">
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Body Scan: Where do you feel stress or tension in your body?
+                </Label>
+                <Textarea
+                  placeholder="Example: 'Tight shoulders, clenched jaw, butterflies in stomach...'"
+                  className="min-h-[80px] resize-none"
+                  value={responses.body_scan || ""}
+                  onChange={(e) => setResponses({...responses, body_scan: e.target.value})}
+                />
+              </div>
+              
+              <div className="bg-white rounded-lg p-4">
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Soothing Touch: Rate your comfort level (1-10)
+                </Label>
+                <Slider
+                  value={[responses.comfort_level || 5]}
+                  onValueChange={(value) => setResponses({...responses, comfort_level: value[0]})}
+                  max={10}
+                  min={1}
+                  step={1}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-sm text-gray-600 mt-1">
+                  <span>Uncomfortable</span>
+                  <span>Very Comfortable</span>
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-lg p-4">
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Reflection: How did the soothing touch feel?
+                </Label>
+                <Textarea
+                  placeholder="Example: 'Calming, strange at first, made me feel cared for...'"
+                  className="min-h-[80px] resize-none"
+                  value={responses.touch_reflection || ""}
+                  onChange={(e) => setResponses({...responses, touch_reflection: e.target.value})}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Shame Resilience Building
+    if (title === "Shame Resilience Building") {
+      return (
+        <div className="space-y-6">
+          <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-lg p-6">
+            <h4 className="font-medium text-red-900 mb-4 flex items-center">
+              <Target className="mr-2" size={16} />
+              Shame Resilience Practice
+            </h4>
+            
+            <div className="space-y-4">
+              <div className="bg-white rounded-lg p-4">
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Shame Trigger: What situation recently triggered shame for you?
+                </Label>
+                <Textarea
+                  placeholder="Example: 'Made a mistake at work and everyone saw...'"
+                  className="min-h-[80px] resize-none"
+                  value={responses.shame_trigger || ""}
+                  onChange={(e) => setResponses({...responses, shame_trigger: e.target.value})}
+                />
+              </div>
+              
+              <div className="bg-white rounded-lg p-4">
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Physical Sensations: How did shame feel in your body?
+                </Label>
+                <Textarea
+                  placeholder="Example: 'Face flushed, wanted to hide, stomach dropped...'"
+                  className="min-h-[80px] resize-none"
+                  value={responses.shame_sensations || ""}
+                  onChange={(e) => setResponses({...responses, shame_sensations: e.target.value})}
+                />
+              </div>
+              
+              <div className="bg-white rounded-lg p-4">
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Reality Check: What would you tell a friend in this situation?
+                </Label>
+                <Textarea
+                  placeholder="Example: 'Everyone makes mistakes, you're still a good person...'"
+                  className="min-h-[100px] resize-none"
+                  value={responses.reality_check || ""}
+                  onChange={(e) => setResponses({...responses, reality_check: e.target.value})}
+                />
+              </div>
+              
+              <div className="bg-white rounded-lg p-4">
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Reaching Out: Who could you share this with for support?
+                </Label>
+                <Textarea
+                  placeholder="Example: 'My best friend, therapist, support group...'"
+                  className="min-h-[80px] resize-none"
+                  value={responses.support_network || ""}
+                  onChange={(e) => setResponses({...responses, support_network: e.target.value})}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Emotional Validation Practice
+    if (title === "Emotional Validation Practice") {
+      return (
+        <div className="space-y-6">
+          <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-6">
+            <h4 className="font-medium text-blue-900 mb-4 flex items-center">
+              <MessageCircle className="mr-2" size={16} />
+              Emotional Validation Practice
+            </h4>
+            
+            <div className="space-y-4">
+              <div className="bg-white rounded-lg p-4">
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Current Emotion: What are you feeling right now?
+                </Label>
+                <RadioGroup
+                  value={responses.current_emotion || ""}
+                  onValueChange={(value) => setResponses({...responses, current_emotion: value})}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="anger" id="anger" />
+                    <Label htmlFor="anger">Anger</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="sadness" id="sadness" />
+                    <Label htmlFor="sadness">Sadness</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="fear" id="fear" />
+                    <Label htmlFor="fear">Fear</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="shame" id="shame" />
+                    <Label htmlFor="shame">Shame</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="joy" id="joy" />
+                    <Label htmlFor="joy">Joy</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="other" id="other" />
+                    <Label htmlFor="other">Other</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              
+              <div className="bg-white rounded-lg p-4">
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Validation: Why is this emotion valid and important?
+                </Label>
+                <Textarea
+                  placeholder="Example: 'My anger is valid because my boundary was crossed...'"
+                  className="min-h-[100px] resize-none"
+                  value={responses.emotion_validation || ""}
+                  onChange={(e) => setResponses({...responses, emotion_validation: e.target.value})}
+                />
+              </div>
+              
+              <div className="bg-white rounded-lg p-4">
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Self-Compassion: What do you need right now?
+                </Label>
+                <Textarea
+                  placeholder="Example: 'I need to be gentle with myself, take some time to process...'"
+                  className="min-h-[100px] resize-none"
+                  value={responses.self_care_need || ""}
+                  onChange={(e) => setResponses({...responses, self_care_need: e.target.value})}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Default for other interactive exercises
+    return (
+      <div className="bg-teal-50 rounded-lg p-6">
+        <h4 className="font-medium text-teal-900 mb-4 flex items-center">
+          <Play className="mr-2" size={16} />
+          Interactive Practice
+        </h4>
+        <p className="text-teal-800 text-sm mb-4">
+          This exercise includes interactive elements. Follow the instructions to complete the practice.
+        </p>
+        <div className="bg-white rounded-lg p-4">
+          <Label className="text-sm font-medium text-gray-700 mb-2 block">
+            Reflection Notes:
+          </Label>
+          <Textarea
+            placeholder="Use this space to reflect on your practice..."
+            className="min-h-[120px] resize-none"
+            value={responses.reflection_notes || ""}
+            onChange={(e) => setResponses({...responses, reflection_notes: e.target.value})}
+          />
+        </div>
+      </div>
+    );
+  };
+
   const renderContent = () => {
     const content = exercise.content as any;
     console.log('Exercise content:', exercise.title, content);
@@ -150,8 +438,9 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
     if (exercise.type === 'interactive') {
       return (
         <Tabs defaultValue="instructions" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="instructions">Instructions</TabsTrigger>
+            <TabsTrigger value="practice">Practice</TabsTrigger>
             <TabsTrigger value="neuroscience">Why It Works</TabsTrigger>
             <TabsTrigger value="tips">Tips & Variations</TabsTrigger>
           </TabsList>
@@ -195,6 +484,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                 <p className="text-indigo-800 text-sm leading-relaxed">{content.visualization}</p>
               </div>
             )}
+          </TabsContent>
+          
+          <TabsContent value="practice" className="space-y-4">
+            {renderInteractivePractice(content, exercise.title)}
           </TabsContent>
           
           <TabsContent value="neuroscience" className="space-y-4">
