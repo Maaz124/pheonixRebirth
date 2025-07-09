@@ -17,22 +17,22 @@ export default function PhasePage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: phase } = useQuery<Phase>({
+  const { data: phase, isLoading: phaseLoading, error: phaseError } = useQuery<Phase>({
     queryKey: ['/api/phases', phaseIdNum],
     enabled: !!phaseIdNum,
   });
 
-  const { data: progress } = useQuery<UserProgress>({
+  const { data: progress, isLoading: progressLoading } = useQuery<UserProgress>({
     queryKey: ['/api/user/progress', phaseIdNum],
     enabled: !!phaseIdNum,
   });
 
-  const { data: exercises = [] } = useQuery<Exercise[]>({
+  const { data: exercises = [], isLoading: exercisesLoading } = useQuery<Exercise[]>({
     queryKey: ['/api/phases', phaseIdNum, 'exercises'],
     enabled: !!phaseIdNum,
   });
 
-  const { data: assessments = [] } = useQuery<Assessment[]>({
+  const { data: assessments = [], isLoading: assessmentsLoading } = useQuery<Assessment[]>({
     queryKey: ['/api/phases', phaseIdNum, 'assessments'],
     enabled: !!phaseIdNum,
   });
@@ -162,11 +162,25 @@ export default function PhasePage() {
     return content[phaseIdNum as keyof typeof content] || content[1];
   };
 
-  if (!phase) {
+  // Show loading state
+  if (phaseLoading || progressLoading || exercisesLoading || assessmentsLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-lg text-gray-600">Loading Phase {phaseIdNum}...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (phaseError || !phase) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Phase not found</h1>
+          <p className="text-gray-600 mb-4">Unable to load Phase {phaseIdNum}</p>
           <Link href="/">
             <Button>Return Home</Button>
           </Link>
