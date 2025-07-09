@@ -5,7 +5,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
-import { Lightbulb, Brain, CheckCircle2 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Lightbulb, Brain, CheckCircle2, ArrowLeft, ArrowRight, MessageCircle } from "lucide-react";
 import type { Assessment } from "@shared/schema";
 
 interface InteractiveAssessmentProps {
@@ -21,9 +23,18 @@ export function InteractiveAssessment({ assessment, onSubmit }: InteractiveAsses
 
   const questions = assessment.questions as any[];
   const progress = ((currentQuestion + 1) / questions.length) * 100;
+  const currentQ = questions[currentQuestion];
 
-  const handleResponseChange = (questionId: string, answer: string | number) => {
+  const handleResponseChange = (questionId: string, answer: string | number | string[]) => {
     setResponses({ ...responses, [questionId]: answer });
+  };
+
+  const handleCheckboxChange = (questionId: string, option: string, checked: boolean) => {
+    const currentAnswers = (responses[questionId] as string[]) || [];
+    const updatedAnswers = checked 
+      ? [...currentAnswers, option]
+      : currentAnswers.filter(answer => answer !== option);
+    setResponses({ ...responses, [questionId]: updatedAnswers });
   };
 
   const handleNext = () => {
@@ -209,7 +220,16 @@ export function InteractiveAssessment({ assessment, onSubmit }: InteractiveAsses
   }
 
   const question = questions[currentQuestion];
-  const hasResponse = responses[question.id];
+  const hasResponse = () => {
+    const response = responses[question.id];
+    if (question.type === 'checkbox') {
+      return response && Array.isArray(response) && response.length > 0;
+    }
+    if (question.type === 'text') {
+      return response && response.toString().trim().length > 0;
+    }
+    return response !== undefined && response !== null && response !== '';
+  };
 
   return (
     <Card className="p-8">
@@ -255,7 +275,7 @@ export function InteractiveAssessment({ assessment, onSubmit }: InteractiveAsses
         {question.type === 'scale' && (
           <div className="space-y-4">
             <div className="text-center">
-              <span className="text-3xl font-bold phoenix-text-primary">
+              <span className="text-3xl font-bold text-purple-600">
                 {responses[question.id] || Math.floor((question.max + question.min) / 2)}
               </span>
             </div>
@@ -268,9 +288,48 @@ export function InteractiveAssessment({ assessment, onSubmit }: InteractiveAsses
               className="w-full"
             />
             <div className="flex justify-between text-sm text-gray-500">
-              <span>{question.min}</span>
-              <span>{question.max}</span>
+              <span>{question.labels?.[0] || question.min}</span>
+              <span>{question.labels?.[1] || question.max}</span>
             </div>
+          </div>
+        )}
+
+        {question.type === 'text' && (
+          <Textarea
+            placeholder="Take your time to reflect and share your thoughts..."
+            value={responses[question.id] || ""}
+            onChange={(e) => handleResponseChange(question.id, e.target.value)}
+            className="min-h-[120px] resize-none"
+          />
+        )}
+
+        {question.type === 'checkbox' && question.options && (
+          <div className="space-y-3">
+            <p className="text-sm text-gray-600 mb-3">Select all that apply:</p>
+            {question.options.map((option: string, index: number) => (
+              <label key={index} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                <Checkbox
+                  checked={(responses[question.id] as string[])?.includes(option) || false}
+                  onCheckedChange={(checked) => handleCheckboxChange(question.id, option, checked as boolean)}
+                />
+                <span className="text-gray-700 flex-1">{option}</span>
+              </label>
+            ))}
+            {responses[question.id] && responses[question.id].length > 0 && (
+              <p className="text-xs text-gray-500 mt-2">
+                {responses[question.id].length} item(s) selected
+              </p>
+            )}
+          </div>
+        )}
+
+        {question.neuroscience && (
+          <div className="bg-purple-50 rounded-lg p-4 mt-6 border border-purple-100">
+            <div className="flex items-center text-purple-700 text-sm font-medium mb-2">
+              <Brain className="mr-2" size={14} />
+              The Science Behind This Question
+            </div>
+            <p className="text-purple-600 text-sm leading-relaxed">{question.neuroscience}</p>
           </div>
         )}
       </div>
@@ -286,7 +345,7 @@ export function InteractiveAssessment({ assessment, onSubmit }: InteractiveAsses
 
         <Button
           onClick={handleNext}
-          disabled={!hasResponse || isSubmitting}
+          disabled={!hasResponse() || isSubmitting}
           className="phoenix-bg-primary hover:phoenix-bg-secondary text-white"
         >
           {isSubmitting ? "Submitting..." : 

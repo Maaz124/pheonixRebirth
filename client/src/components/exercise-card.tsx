@@ -363,20 +363,40 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
           </TabsList>
           
           <TabsContent value="assessment" className="space-y-4">
+            <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-4 mb-6">
+              <h4 className="font-medium text-purple-900 mb-2 flex items-center">
+                <Brain className="mr-2" size={16} />
+                Window of Tolerance Self-Assessment
+              </h4>
+              <p className="text-sm text-purple-700">Check the symptoms that apply to you right now. This helps identify which nervous system state you're in.</p>
+            </div>
+            
             {content.hyperarousal && (
               <div className="bg-red-50 rounded-lg p-4">
                 <h4 className="font-medium text-red-900 mb-3 flex items-center">
                   <Activity className="mr-2" size={16} />
-                  Hyperarousal Signs
+                  HYPERAROUSAL (Fight/Flight Zone)
                 </h4>
-                <ul className="space-y-2">
+                <p className="text-xs text-red-600 mb-3">When your nervous system is activated beyond your window:</p>
+                <div className="space-y-2">
                   {content.hyperarousal.map((sign: string, index: number) => (
-                    <li key={index} className="text-red-800 text-sm flex items-start">
-                      <span className="w-2 h-2 bg-red-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      {sign}
-                    </li>
+                    <label key={index} className="flex items-center space-x-3 text-sm text-red-800 cursor-pointer hover:bg-red-100 p-2 rounded">
+                      <input
+                        type="checkbox"
+                        checked={responses.hyperarousal?.includes(sign) || false}
+                        onChange={(e) => {
+                          const current = responses.hyperarousal || [];
+                          const updated = e.target.checked 
+                            ? [...current, sign]
+                            : current.filter((s: string) => s !== sign);
+                          setResponses({...responses, hyperarousal: updated});
+                        }}
+                        className="rounded border-red-300 text-red-600 focus:ring-red-500"
+                      />
+                      <span>{sign}</span>
+                    </label>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
             
@@ -384,16 +404,28 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
               <div className="bg-green-50 rounded-lg p-4">
                 <h4 className="font-medium text-green-900 mb-3 flex items-center">
                   <Target className="mr-2" size={16} />
-                  Window of Tolerance
+                  WINDOW OF TOLERANCE (Optimal Zone)
                 </h4>
-                <ul className="space-y-2">
+                <p className="text-xs text-green-600 mb-3">When your nervous system is balanced and regulated:</p>
+                <div className="space-y-2">
                   {content.windowOfTolerance.map((sign: string, index: number) => (
-                    <li key={index} className="text-green-800 text-sm flex items-start">
-                      <span className="w-2 h-2 bg-green-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      {sign}
-                    </li>
+                    <label key={index} className="flex items-center space-x-3 text-sm text-green-800 cursor-pointer hover:bg-green-100 p-2 rounded">
+                      <input
+                        type="checkbox"
+                        checked={responses.windowOfTolerance?.includes(sign) || false}
+                        onChange={(e) => {
+                          const current = responses.windowOfTolerance || [];
+                          const updated = e.target.checked 
+                            ? [...current, sign]
+                            : current.filter((s: string) => s !== sign);
+                          setResponses({...responses, windowOfTolerance: updated});
+                        }}
+                        className="rounded border-green-300 text-green-600 focus:ring-green-500"
+                      />
+                      <span>{sign}</span>
+                    </label>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
             
@@ -401,16 +433,28 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
               <div className="bg-blue-50 rounded-lg p-4">
                 <h4 className="font-medium text-blue-900 mb-3 flex items-center">
                   <Activity className="mr-2" size={16} />
-                  Hypoarousal Signs
+                  HYPOAROUSAL (Freeze/Shutdown Zone)
                 </h4>
-                <ul className="space-y-2">
+                <p className="text-xs text-blue-600 mb-3">When your nervous system shuts down to protect you:</p>
+                <div className="space-y-2">
                   {content.hypoarousal.map((sign: string, index: number) => (
-                    <li key={index} className="text-blue-800 text-sm flex items-start">
-                      <span className="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                      {sign}
-                    </li>
+                    <label key={index} className="flex items-center space-x-3 text-sm text-blue-800 cursor-pointer hover:bg-blue-100 p-2 rounded">
+                      <input
+                        type="checkbox"
+                        checked={responses.hypoarousal?.includes(sign) || false}
+                        onChange={(e) => {
+                          const current = responses.hypoarousal || [];
+                          const updated = e.target.checked 
+                            ? [...current, sign]
+                            : current.filter((s: string) => s !== sign);
+                          setResponses({...responses, hypoarousal: updated});
+                        }}
+                        className="rounded border-blue-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span>{sign}</span>
+                    </label>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
             
@@ -418,15 +462,15 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
               <div className="bg-gray-50 rounded-lg p-4">
                 <h4 className="font-medium text-gray-900 mb-3 flex items-center">
                   <MessageCircle className="mr-2" size={16} />
-                  Reflect on These Questions
+                  Reflection Questions
                 </h4>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {content.practiceQuestions.map((question: string, index: number) => (
                     <div key={index} className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700">{question}</Label>
                       <Textarea
-                        placeholder="Take time to reflect..."
-                        className="min-h-[60px]"
+                        placeholder="Take time to reflect on this question..."
+                        className="min-h-[80px]"
                         value={responses[`reflection_${index}`] || ""}
                         onChange={(e) => setResponses({
                           ...responses,
@@ -435,6 +479,40 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       />
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+            
+            {(responses.hyperarousal?.length > 0 || responses.windowOfTolerance?.length > 0 || responses.hypoarousal?.length > 0) && (
+              <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-4 mt-6">
+                <h4 className="font-medium text-purple-900 mb-3 flex items-center">
+                  <Brain className="mr-2" size={16} />
+                  Your Current Assessment
+                </h4>
+                
+                {responses.hyperarousal?.length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-sm text-red-700 font-medium mb-1">Hyperarousal signs: {responses.hyperarousal.length}</p>
+                    <p className="text-xs text-red-600">Your nervous system may be in fight/flight mode. Consider grounding techniques.</p>
+                  </div>
+                )}
+                
+                {responses.windowOfTolerance?.length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-sm text-green-700 font-medium mb-1">Window of tolerance signs: {responses.windowOfTolerance.length}</p>
+                    <p className="text-xs text-green-600">Great! These indicate your nervous system is in a regulated state.</p>
+                  </div>
+                )}
+                
+                {responses.hypoarousal?.length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-sm text-blue-700 font-medium mb-1">Hypoarousal signs: {responses.hypoarousal.length}</p>
+                    <p className="text-xs text-blue-600">Your nervous system may be in shutdown mode. Gentle movement can help.</p>
+                  </div>
+                )}
+                
+                <div className="text-xs text-purple-600 mt-3 pt-3 border-t border-purple-200">
+                  💡 Remember: All responses are normal. This assessment helps you understand your current state so you can choose the right tools.
                 </div>
               </div>
             )}
