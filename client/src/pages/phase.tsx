@@ -26,6 +26,10 @@ export default function PhasePage() {
     intention: ""
   });
   const [isSaving, setIsSaving] = useState(false);
+  
+  // Navigation state
+  const [activeTab, setActiveTab] = useState("overview");
+  const [selectedExerciseId, setSelectedExerciseId] = useState<number | null>(null);
 
   const { data: phase, isLoading: phaseLoading, error: phaseError } = useQuery<Phase>({
     queryKey: ['/api/phases', phaseIdNum],
@@ -162,6 +166,63 @@ export default function PhasePage() {
       ...prev,
       [field]: value
     }));
+  };
+
+  // Navigation helpers
+  const handleNavigateToExercise = (exerciseId: number) => {
+    setSelectedExerciseId(exerciseId);
+    setActiveTab("exercises");
+    
+    // Scroll to exercise after tab switch
+    setTimeout(() => {
+      const exerciseElement = document.getElementById(`exercise-${exerciseId}`);
+      if (exerciseElement) {
+        exerciseElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
+
+  const handleNavigateToTab = (tab: string) => {
+    setActiveTab(tab);
+    setSelectedExerciseId(null);
+  };
+
+  // Get navigation items based on actual exercises
+  const getNavigationItems = () => {
+    if (!exercises.length) return [];
+    
+    return [
+      {
+        id: exercises.find(e => e.title.includes("Understanding"))?.id || 1,
+        title: "Understanding Your System",
+        icon: "🧠",
+        description: "Learn about nervous system states"
+      },
+      {
+        id: exercises.find(e => e.title.includes("Grounding"))?.id || 2,
+        title: "Grounding Techniques",
+        icon: "🌱",
+        description: "5-4-3-2-1 grounding method"
+      },
+      {
+        id: exercises.find(e => e.title.includes("Breathing"))?.id || 3,
+        title: "Breathing Regulation",
+        icon: "💨",
+        description: "Box breathing exercises"
+      },
+      {
+        id: exercises.find(e => e.title.includes("Muscle"))?.id || 4,
+        title: "Muscle Relaxation",
+        icon: "💪",
+        description: "Progressive relaxation practice"
+      },
+      {
+        id: exercises.find(e => e.title.includes("Assessment"))?.id || 7,
+        title: "Window Assessment",
+        icon: "📊",
+        description: "Tolerance window evaluation"
+      }
+    ];
   };
 
   const getPhaseContent = () => {
@@ -321,7 +382,7 @@ export default function PhasePage() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">
-            <Tabs defaultValue="overview" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid grid-cols-4 w-full mb-8">
                 <TabsTrigger value="overview" className="flex items-center space-x-2">
                   <BookOpen size={16} />
@@ -386,11 +447,16 @@ export default function PhasePage() {
                   
                   {exercises.length > 0 ? (
                     exercises.map((exercise) => (
-                      <ExerciseCard
-                        key={exercise.id}
-                        exercise={exercise}
-                        onComplete={handleExerciseComplete}
-                      />
+                      <div 
+                        key={exercise.id} 
+                        id={`exercise-${exercise.id}`}
+                        className={selectedExerciseId === exercise.id ? "ring-2 ring-blue-500 rounded-lg" : ""}
+                      >
+                        <ExerciseCard
+                          exercise={exercise}
+                          onComplete={handleExerciseComplete}
+                        />
+                      </div>
                     ))
                   ) : (
                     <Card className="p-8 text-center">
@@ -504,38 +570,86 @@ export default function PhasePage() {
           <div className="space-y-6">
             {/* Phase Navigation */}
             <Card className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Phase Navigation</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Navigation</h3>
               <div className="space-y-2">
-                <Button variant="ghost" className="w-full justify-start phoenix-text-primary">
-                  📖 Understanding Boundaries
+                {getNavigationItems().map((item) => (
+                  <Button 
+                    key={item.id}
+                    variant="ghost" 
+                    className={`w-full justify-start text-left h-auto p-3 ${
+                      selectedExerciseId === item.id 
+                        ? "phoenix-bg-primary phoenix-text-white" 
+                        : "phoenix-text-gray hover:phoenix-text-primary hover:bg-gray-50"
+                    }`}
+                    onClick={() => handleNavigateToExercise(item.id)}
+                  >
+                    <div className="flex items-start space-x-3">
+                      <span className="text-lg mt-0.5">{item.icon}</span>
+                      <div className="text-left">
+                        <div className="font-medium text-sm">{item.title}</div>
+                        <div className="text-xs opacity-75 mt-0.5">{item.description}</div>
+                      </div>
+                    </div>
+                  </Button>
+                ))}
+              </div>
+              
+              <div className="border-t pt-4 mt-4 space-y-2">
+                <Button 
+                  variant="ghost" 
+                  className={`w-full justify-start ${
+                    activeTab === "assessments" 
+                      ? "phoenix-bg-primary phoenix-text-white" 
+                      : "phoenix-text-gray hover:phoenix-text-primary"
+                  }`}
+                  onClick={() => handleNavigateToTab("assessments")}
+                >
+                  📋 Assessments
                 </Button>
-                <Button variant="ghost" className="w-full justify-start phoenix-text-gray">
-                  🎯 Setting Personal Limits
-                </Button>
-                <Button variant="ghost" className="w-full justify-start phoenix-text-gray">
-                  💬 Communicating Boundaries
-                </Button>
-                <Button variant="ghost" className="w-full justify-start phoenix-text-gray">
-                  🛡️ Maintaining Boundaries
+                <Button 
+                  variant="ghost" 
+                  className={`w-full justify-start ${
+                    activeTab === "reflect" 
+                      ? "phoenix-bg-primary phoenix-text-white" 
+                      : "phoenix-text-gray hover:phoenix-text-primary"
+                  }`}
+                  onClick={() => handleNavigateToTab("reflect")}
+                >
+                  💭 Reflection Space
                 </Button>
               </div>
             </Card>
 
-            {/* Quick Resources */}
+            {/* Quick Tools */}
             <Card className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Resources</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Tools</h3>
               <div className="space-y-3">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => handleNavigateToExercise(exercises.find(e => e.title.includes("Grounding"))?.id || 2)}
+                >
+                  🆘 Emergency Grounding
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => handleNavigateToExercise(exercises.find(e => e.title.includes("Breathing"))?.id || 3)}
+                >
+                  💨 Quick Breathing
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => handleNavigateToExercise(exercises.find(e => e.title.includes("Cold"))?.id || 5)}
+                >
+                  ❄️ Cold Water Reset
+                </Button>
                 <Link href="/resources">
                   <Button variant="outline" className="w-full">
-                    📋 Boundary Worksheet
+                    📚 All Resources
                   </Button>
                 </Link>
-                <Button variant="outline" className="w-full">
-                  🎧 Guided Meditation
-                </Button>
-                <Button variant="outline" className="w-full">
-                  📱 Practice Scripts
-                </Button>
               </div>
             </Card>
 
