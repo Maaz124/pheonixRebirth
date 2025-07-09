@@ -1,21 +1,31 @@
 import { useParams } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ExerciseCard } from "@/components/exercise-card";
 import { InteractiveAssessment } from "@/components/interactive-assessment";
-import { ArrowLeft, Lightbulb, BookOpen, Target, Heart } from "lucide-react";
+import { ArrowLeft, Lightbulb, BookOpen, Target, Heart, Save } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import type { Phase, UserProgress, Exercise, Assessment } from "@shared/schema";
+import type { Phase, UserProgress, Exercise, Assessment, JournalEntry, InsertJournalEntry } from "@shared/schema";
 
 export default function PhasePage() {
   const { phaseId } = useParams<{ phaseId: string }>();
   const phaseIdNum = parseInt(phaseId || "0");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Reflection state
+  const [reflections, setReflections] = useState({
+    wins: "",
+    challenges: "",
+    intention: ""
+  });
+  const [isSaving, setIsSaving] = useState(false);
 
   const { data: phase, isLoading: phaseLoading, error: phaseError } = useQuery<Phase>({
     queryKey: ['/api/phases', phaseIdNum],
@@ -36,6 +46,36 @@ export default function PhasePage() {
     queryKey: ['/api/phases', phaseIdNum, 'assessments'],
     enabled: !!phaseIdNum,
   });
+
+  // Load existing journal entries for this phase
+  const { data: journalEntries = [] } = useQuery<JournalEntry[]>({
+    queryKey: ['/api/user/journal'],
+    enabled: !!phaseIdNum,
+  });
+
+  // Find today's reflection entry
+  useEffect(() => {
+    const today = new Date().toDateString();
+    const todayReflection = journalEntries.find(entry => 
+      entry.phaseId === phaseIdNum && 
+      new Date(entry.createdAt).toDateString() === today &&
+      entry.title?.includes('Daily Reflection')
+    );
+    
+    if (todayReflection && todayReflection.content) {
+      try {
+        const parsed = JSON.parse(todayReflection.content);
+        setReflections({
+          wins: parsed.wins || "",
+          challenges: parsed.challenges || "", 
+          intention: parsed.intention || ""
+        });
+      } catch (e) {
+        // If content isn't JSON, treat as regular text
+        setReflections(prev => ({ ...prev, wins: todayReflection.content }));
+      }
+    }
+  }, [journalEntries, phaseIdNum]);
 
   const completeExerciseMutation = useMutation({
     mutationFn: async ({ exerciseId, responses }: { exerciseId: number; responses?: any }) => {
@@ -76,6 +116,52 @@ export default function PhasePage() {
 
   const handleAssessmentSubmit = (assessmentId: number, responses: any) => {
     submitAssessmentMutation.mutate({ assessmentId, responses });
+  };
+
+  // Save reflection mutation
+  const saveReflectionMutation = useMutation({
+    mutationFn: async (reflectionData: InsertJournalEntry) => {
+      const response = await apiRequest('POST', '/api/user/journal', reflectionData);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/user/journal'] });
+      toast({
+        title: "Reflection saved!",
+        description: "Your thoughts have been safely stored.",
+      });
+      setIsSaving(false);
+    },
+    onError: () => {
+      toast({
+        title: "Failed to save",
+        description: "Please try again.",
+        variant: "destructive"
+      });
+      setIsSaving(false);
+    }
+  });
+
+  const handleSaveReflection = () => {
+    setIsSaving(true);
+    const today = new Date();
+    const reflectionContent = JSON.stringify(reflections);
+    
+    saveReflectionMutation.mutate({
+      title: `Daily Reflection - Phase ${phaseIdNum}`,
+      content: reflectionContent,
+      phaseId: phaseIdNum,
+      mood: null,
+      energyLevel: null,
+      isPrivate: true
+    });
+  };
+
+  const handleReflectionChange = (field: string, value: string) => {
+    setReflections(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   const getPhaseContent = () => {
@@ -347,33 +433,68 @@ export default function PhasePage() {
 
               <TabsContent value="reflect">
                 <Card className="p-8">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Reflection Space</h2>
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900">Reflection Space</h2>
+                    <Button 
+                      onClick={handleSaveReflection}
+                      disabled={isSaving || saveReflectionMutation.isPending}
+                      className="phoenix-bg-primary hover:phoenix-bg-secondary text-white"
+                    >
+                      <Save className="mr-2" size={16} />
+                      {isSaving ? 'Saving...' : 'Save'}
+                    </Button>
+                  </div>
                   
                   <div className="space-y-6">
                     <div className="bg-pink-50 rounded-lg p-6">
                       <h3 className="font-semibold text-pink-900 mb-3">Today's Wins</h3>
                       <p className="text-pink-800 text-sm mb-4">What felt good today? Even small moments count.</p>
-                      <div className="h-20 bg-white rounded border border-pink-200"></div>
+                      <Textarea
+                        placeholder="Write about your wins today... What made you feel proud or accomplished?"
+                        className="min-h-[80px] resize-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 bg-white"
+                        value={reflections.wins}
+                        onChange={(e) => handleReflectionChange('wins', e.target.value)}
+                      />
                     </div>
                     
                     <div className="bg-blue-50 rounded-lg p-6">
                       <h3 className="font-semibold text-blue-900 mb-3">Challenges & Learning</h3>
                       <p className="text-blue-800 text-sm mb-4">What was difficult? What did it teach you about yourself?</p>
-                      <div className="h-20 bg-white rounded border border-blue-200"></div>
+                      <Textarea
+                        placeholder="Reflect on your challenges... What patterns did you notice? What insights emerged?"
+                        className="min-h-[80px] resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                        value={reflections.challenges}
+                        onChange={(e) => handleReflectionChange('challenges', e.target.value)}
+                      />
                     </div>
                     
                     <div className="bg-green-50 rounded-lg p-6">
                       <h3 className="font-semibold text-green-900 mb-3">Tomorrow's Intention</h3>
                       <p className="text-green-800 text-sm mb-4">How will you apply what you learned today?</p>
-                      <div className="h-20 bg-white rounded border border-green-200"></div>
+                      <Textarea
+                        placeholder="Set your intention for tomorrow... How will you use today's insights?"
+                        className="min-h-[80px] resize-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
+                        value={reflections.intention}
+                        onChange={(e) => handleReflectionChange('intention', e.target.value)}
+                      />
                     </div>
                   </div>
                   
-                  <Link href="/journal">
-                    <Button className="w-full mt-6 phoenix-bg-primary hover:phoenix-bg-secondary text-white">
-                      Continue in Full Journal
+                  <div className="flex space-x-4 mt-6">
+                    <Button 
+                      onClick={handleSaveReflection}
+                      disabled={isSaving || saveReflectionMutation.isPending}
+                      className="flex-1 phoenix-bg-primary hover:phoenix-bg-secondary text-white"
+                    >
+                      <Save className="mr-2" size={16} />
+                      {isSaving ? 'Saving Reflection...' : 'Save Reflection'}
                     </Button>
-                  </Link>
+                    <Link href="/journal" className="flex-1">
+                      <Button variant="outline" className="w-full">
+                        Continue in Full Journal
+                      </Button>
+                    </Link>
+                  </div>
                 </Card>
               </TabsContent>
             </Tabs>
