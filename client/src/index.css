@@ -76,6 +76,10 @@
   background-color: var(--phoenix-neutral);
 }
 
+.text-phoenix-gray {
+  color: var(--phoenix-gray);
+}
+
 .phoenix-text-primary {
   color: var(--phoenix-primary);
 }

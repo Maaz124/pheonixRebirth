@@ -88,12 +88,18 @@ export default function Home() {
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {phases.sort((a, b) => a.order - b.order).map((phase) => {
-              const progress = userProgress.find(p => p.phaseId === phase.id);
-              return (
-                <PhaseCard key={phase.id} phase={phase} progress={progress} />
-              );
-            })}
+            {phases.length > 0 ? (
+              phases.sort((a, b) => a.order - b.order).map((phase) => {
+                const progress = userProgress.find(p => p.phaseId === phase.id);
+                return (
+                  <PhaseCard key={phase.id} phase={phase} progress={progress} />
+                );
+              })
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-500">Loading phases...</p>
+              </div>
+            )}
           </div>
         </div>
       </section>

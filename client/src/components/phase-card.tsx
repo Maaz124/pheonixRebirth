@@ -109,7 +109,7 @@ export function PhaseCard({ phase, progress }: PhaseCardProps) {
             </Button>
           </Link>
         ) : (
-          <Button disabled className="text-phoenix-gray text-sm font-medium">
+          <Button disabled variant="outline" className="text-gray-400 text-sm font-medium border-gray-200">
             Locked
           </Button>
         )}
