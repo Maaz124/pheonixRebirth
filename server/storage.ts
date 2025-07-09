@@ -190,7 +190,250 @@ export class MemStorage implements IStorage {
       this.journalEntries.set(index + 1, journalEntry);
     });
 
-    this.currentId = 100; // Start from 100 for new entries
+    // Initialize exercises for each phase
+    this.initializeExercises();
+    
+    // Initialize assessments for each phase
+    this.initializeAssessments();
+    
+    this.currentId = 1000; // Start from 1000 for new entries
+  }
+
+  private initializeExercises() {
+    const exerciseData = [
+      // Phase 1: Pause the Panic
+      {
+        phaseId: 1,
+        title: "Understanding Your Nervous System",
+        description: "Learn how trauma affects your body's alarm system",
+        content: {
+          type: "reading",
+          text: "Your nervous system is like a smoke detector that's become overly sensitive. Understanding this helps normalize your reactions.",
+          keyPoints: [
+            "The autonomic nervous system controls fight/flight responses",
+            "Trauma can make this system hypervigilant",
+            "Recognition is the first step to regulation"
+          ]
+        },
+        type: "reading",
+        order: 1
+      },
+      {
+        phaseId: 1,
+        title: "5-4-3-2-1 Grounding Technique",
+        description: "Quick grounding exercise for overwhelming moments",
+        content: {
+          type: "practice",
+          instructions: [
+            "Name 5 things you can see",
+            "Name 4 things you can touch",
+            "Name 3 things you can hear",
+            "Name 2 things you can smell",
+            "Name 1 thing you can taste"
+          ],
+          duration: "2-3 minutes"
+        },
+        type: "practice",
+        order: 2
+      },
+      {
+        phaseId: 1,
+        title: "Box Breathing Exercise",
+        description: "Regulate your nervous system through controlled breathing",
+        content: {
+          type: "practice",
+          instructions: [
+            "Breathe in for 4 counts",
+            "Hold for 4 counts",
+            "Breathe out for 4 counts",
+            "Hold for 4 counts",
+            "Repeat 4-8 times"
+          ],
+          duration: "3-5 minutes"
+        },
+        type: "practice",
+        order: 3
+      },
+      
+      // Phase 2: Heal the Hurt
+      {
+        phaseId: 2,
+        title: "Identifying Trauma Responses",
+        description: "Recognize your unique trauma patterns",
+        content: {
+          type: "assessment",
+          questions: [
+            "When stressed, do you tend to fight, flee, freeze, or fawn?",
+            "What situations trigger your strongest reactions?",
+            "How does trauma show up in your body?"
+          ]
+        },
+        type: "assessment",
+        order: 1
+      },
+      {
+        phaseId: 2,
+        title: "Inner Child Meditation",
+        description: "Connect with your younger self with compassion",
+        content: {
+          type: "practice",
+          script: "Imagine your younger self who first experienced hurt. What would you say to comfort her?",
+          duration: "10-15 minutes"
+        },
+        type: "practice",
+        order: 2
+      },
+      
+      // Phase 3: Own Your Narrative
+      {
+        phaseId: 3,
+        title: "Rewriting Your Story",
+        description: "Transform victim stories into survivor strength",
+        content: {
+          type: "exercise",
+          prompts: [
+            "What challenges have made you stronger?",
+            "What would you tell someone facing similar struggles?",
+            "How has your experience given you unique wisdom?"
+          ]
+        },
+        type: "reflection",
+        order: 1
+      },
+      
+      // Phase 4: Empower Your Boundaries  
+      {
+        phaseId: 4,
+        title: "Boundary Assessment",
+        description: "Evaluate your current boundary patterns",
+        content: {
+          type: "assessment",
+          categories: ["Physical", "Emotional", "Mental", "Spiritual", "Time", "Material"]
+        },
+        type: "assessment",
+        order: 1
+      },
+      {
+        phaseId: 4,
+        title: "Boundary Scripts Practice",
+        description: "Practice saying no with confidence",
+        content: {
+          type: "practice",
+          scenarios: [
+            "A friend asks for money you can't afford to lend",
+            "Your boss asks you to work late again",
+            "Someone makes an inappropriate comment"
+          ],
+          scripts: [
+            "I'm not able to do that right now",
+            "That doesn't work for me",
+            "I need to think about it"
+          ]
+        },
+        type: "practice",
+        order: 2
+      }
+    ];
+
+    exerciseData.forEach((exercise, index) => {
+      const exerciseObj: Exercise = { 
+        id: index + 200, 
+        ...exercise,
+        content: exercise.content as any
+      };
+      this.exercises.set(index + 200, exerciseObj);
+    });
+  }
+
+  private initializeAssessments() {
+    const assessmentData = [
+      {
+        phaseId: 1,
+        title: "Nervous System Awareness Check",
+        description: "Understand your current stress response patterns",
+        questions: [
+          {
+            id: "stress1",
+            question: "When faced with conflict, my typical response is:",
+            type: "radio",
+            options: [
+              "I get angry and fight back",
+              "I try to escape or avoid the situation", 
+              "I freeze up and can't respond",
+              "I try to please everyone to avoid conflict"
+            ]
+          },
+          {
+            id: "stress2", 
+            question: "How often do you feel on edge or hypervigilant?",
+            type: "radio",
+            options: [
+              "Almost constantly",
+              "Several times a week",
+              "Occasionally",
+              "Rarely"
+            ]
+          }
+        ],
+        scoringRubric: {
+          fightResponse: ["I get angry and fight back"],
+          flightResponse: ["I try to escape or avoid the situation"],
+          freezeResponse: ["I freeze up and can't respond"],
+          fawnResponse: ["I try to please everyone to avoid conflict"]
+        }
+      },
+      {
+        phaseId: 4,
+        title: "Boundary Readiness Assessment",
+        description: "Evaluate your comfort with setting and maintaining boundaries",
+        questions: [
+          {
+            id: "boundary1",
+            question: "When someone asks you to do something you don't want to do:",
+            type: "radio",
+            options: [
+              "I usually say yes even when I don't want to",
+              "I feel guilty but sometimes say no", 
+              "I can say no without feeling guilty",
+              "I struggle to even recognize I don't want to do it"
+            ]
+          },
+          {
+            id: "boundary2",
+            question: "How do you feel when someone is upset with you?",
+            type: "radio", 
+            options: [
+              "I feel responsible and need to fix it immediately",
+              "I feel uncomfortable but can manage it",
+              "I understand it's their emotion to process",
+              "I get angry at them for being upset"
+            ]
+          },
+          {
+            id: "boundary3",
+            question: "Rate your comfort level with saying 'no' (1-10):",
+            type: "scale",
+            min: 1,
+            max: 10
+          }
+        ],
+        scoringRubric: {
+          lowBoundaries: [0, 3],
+          developingBoundaries: [4, 6], 
+          healthyBoundaries: [7, 10]
+        }
+      }
+    ];
+
+    assessmentData.forEach((assessment, index) => {
+      const assessmentObj: Assessment = {
+        id: index + 300,
+        ...assessment,
+        questions: assessment.questions as any,
+        scoringRubric: assessment.scoringRubric as any
+      };
+      this.assessments.set(index + 300, assessmentObj);
+    });
   }
 
   // User operations
@@ -208,6 +451,7 @@ export class MemStorage implements IStorage {
       ...insertUser, 
       id,
       createdAt: new Date(),
+      currentPhase: insertUser.currentPhase || 1,
     };
     this.users.set(id, user);
     return user;
@@ -233,7 +477,11 @@ export class MemStorage implements IStorage {
 
   async createPhase(insertPhase: InsertPhase): Promise<Phase> {
     const id = this.currentId++;
-    const phase: Phase = { ...insertPhase, id };
+    const phase: Phase = { 
+      ...insertPhase, 
+      id,
+      isLocked: insertPhase.isLocked !== undefined ? insertPhase.isLocked : true,
+    };
     this.phases.set(id, phase);
     return phase;
   }
@@ -267,6 +515,9 @@ export class MemStorage implements IStorage {
       ...insertProgress, 
       id,
       updatedAt: new Date(),
+      completedAt: insertProgress.completedAt || null,
+      exercisesCompleted: insertProgress.exercisesCompleted || 0,
+      totalExercises: insertProgress.totalExercises || 0,
     };
     this.userProgress.set(`${insertProgress.userId}-${insertProgress.phaseId}`, progress);
     return progress;
@@ -314,6 +565,8 @@ export class MemStorage implements IStorage {
       ...insertProgress, 
       id,
       completedAt: insertProgress.isCompleted ? new Date() : null,
+      isCompleted: insertProgress.isCompleted || false,
+      responses: insertProgress.responses || null,
     };
     this.userExerciseProgress.set(`${insertProgress.userId}-${insertProgress.exerciseId}`, progress);
     return progress;
@@ -337,6 +590,11 @@ export class MemStorage implements IStorage {
       id,
       createdAt: new Date(),
       updatedAt: new Date(),
+      title: insertEntry.title || null,
+      mood: insertEntry.mood || null,
+      energyLevel: insertEntry.energyLevel || null,
+      phaseId: insertEntry.phaseId || null,
+      isPrivate: insertEntry.isPrivate !== undefined ? insertEntry.isPrivate : true,
     };
     this.journalEntries.set(id, entry);
     return entry;
@@ -374,7 +632,13 @@ export class MemStorage implements IStorage {
 
   async createResource(insertResource: InsertResource): Promise<Resource> {
     const id = this.currentId++;
-    const resource: Resource = { ...insertResource, id };
+    const resource: Resource = { 
+      ...insertResource, 
+      id,
+      content: insertResource.content || null,
+      url: insertResource.url || null,
+      phaseId: insertResource.phaseId || null,
+    };
     this.resources.set(id, resource);
     return resource;
   }
@@ -390,7 +654,11 @@ export class MemStorage implements IStorage {
 
   async createAssessment(insertAssessment: InsertAssessment): Promise<Assessment> {
     const id = this.currentId++;
-    const assessment: Assessment = { ...insertAssessment, id };
+    const assessment: Assessment = { 
+      ...insertAssessment, 
+      id,
+      scoringRubric: insertAssessment.scoringRubric || null,
+    };
     this.assessments.set(id, assessment);
     return assessment;
   }
@@ -410,6 +678,8 @@ export class MemStorage implements IStorage {
       ...insertResult, 
       id,
       completedAt: new Date(),
+      score: insertResult.score || null,
+      interpretation: insertResult.interpretation || null,
     };
     this.userAssessmentResults.set(`${insertResult.userId}-${insertResult.assessmentId}`, result);
     return result;

@@ -36,13 +36,13 @@ export function Navigation() {
           <div className="hidden md:flex items-center space-x-6">
             {navItems.map((item) => (
               <Link key={item.href} href={item.href}>
-                <a className={`transition-colors ${
+                <span className={`transition-colors cursor-pointer ${
                   location === item.href 
                     ? "phoenix-text-primary" 
                     : "phoenix-text-gray hover:phoenix-text-primary"
                 }`}>
                   {item.label}
-                </a>
+                </span>
               </Link>
             ))}
           </div>

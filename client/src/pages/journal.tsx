@@ -26,6 +26,52 @@ export default function Journal() {
     phaseId: 4,
   });
 
+  const journalPrompts = [
+    {
+      category: "Self-Compassion",
+      prompts: [
+        "What would I say to comfort a friend going through this same situation?",
+        "How can I show myself kindness today?",
+        "What does my inner critic sound like, and how can I respond with compassion?"
+      ]
+    },
+    {
+      category: "Boundary Practice",
+      prompts: [
+        "What boundary did I honor today, even if it was small?",
+        "When did I feel my energy drain today, and what boundary might have helped?",
+        "What would it feel like to say no without guilt?"
+      ]
+    },
+    {
+      category: "Trauma Recovery",
+      prompts: [
+        "What felt safe and secure in my body today?",
+        "How did I take care of my nervous system today?",
+        "What triggered me today, and how did I respond with self-care?"
+      ]
+    },
+    {
+      category: "Growth & Reflection",
+      prompts: [
+        "What am I learning about myself in this phase?",
+        "How have I grown since starting this journey?",
+        "What strength am I discovering that I didn't know I had?"
+      ]
+    }
+  ];
+
+  const moodOptions = [
+    { value: "overwhelmed", label: "Overwhelmed", emoji: "😰", color: "red" },
+    { value: "anxious", label: "Anxious", emoji: "😟", color: "yellow" },
+    { value: "sad", label: "Sad", emoji: "😢", color: "blue" },
+    { value: "neutral", label: "Neutral", emoji: "😐", color: "gray" },
+    { value: "peaceful", label: "Peaceful", emoji: "😌", color: "green" },
+    { value: "hopeful", label: "Hopeful", emoji: "🙂", color: "teal" },
+    { value: "grateful", label: "Grateful", emoji: "😊", color: "purple" },
+    { value: "empowered", label: "Empowered", emoji: "💪", color: "orange" }
+  ];
+
   const { data: entries = [] } = useQuery<JournalEntry[]>({
     queryKey: ['/api/user/journal'],
   });
