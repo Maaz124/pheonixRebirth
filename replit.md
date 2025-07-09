@@ -30,10 +30,11 @@ This is a full-stack web application built with a modern TypeScript stack, featu
 
 ### Backend Architecture
 - **Runtime**: Node.js with Express.js framework
-- **Database**: PostgreSQL with Drizzle ORM
+- **Database**: PostgreSQL with Drizzle ORM (Migrated from in-memory storage on 2025-07-09)
 - **Database Provider**: Neon Database (serverless PostgreSQL)
 - **API Design**: RESTful endpoints with JSON responses
 - **Middleware**: Express middleware for logging, error handling, and request parsing
+- **Storage**: DatabaseStorage implementation replacing MemStorage for persistent data
 
 ### Database Schema
 The application uses a comprehensive schema designed around the 7-phase recovery program:

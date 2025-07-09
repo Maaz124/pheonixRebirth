@@ -9,10 +9,10 @@ import {
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Current user endpoint (for demo, always return user ID 1)
+  // Current user endpoint (for demo, always return user ID 2)
   app.get("/api/user/current", async (req, res) => {
     try {
-      const user = await storage.getUser(1);
+      const user = await storage.getUser(2);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -35,7 +35,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user progress for all phases
   app.get("/api/user/progress", async (req, res) => {
     try {
-      const progress = await storage.getUserProgress(1);
+      const progress = await storage.getUserProgress(2);
       res.json(progress);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch user progress" });
@@ -46,7 +46,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/user/progress/:phaseId", async (req, res) => {
     try {
       const phaseId = parseInt(req.params.phaseId);
-      const progress = await storage.getUserProgressForPhase(1, phaseId);
+      const progress = await storage.getUserProgressForPhase(2, phaseId);
       if (!progress) {
         return res.status(404).json({ message: "Progress not found" });
       }
@@ -62,7 +62,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const phaseId = parseInt(req.params.phaseId);
       const updates = insertUserProgressSchema.partial().parse(req.body);
       
-      const progress = await storage.updateUserProgress(1, phaseId, updates);
+      const progress = await storage.updateUserProgress(2, phaseId, updates);
       if (!progress) {
         return res.status(404).json({ message: "Progress not found" });
       }
@@ -103,11 +103,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const exerciseId = parseInt(req.params.exerciseId);
       const updates = insertUserExerciseProgressSchema.partial().parse(req.body);
       
-      const progress = await storage.updateUserExerciseProgress(1, exerciseId, updates);
+      const progress = await storage.updateUserExerciseProgress(2, exerciseId, updates);
       if (!progress) {
         // Create new progress entry if it doesn't exist
         const newProgress = await storage.createUserExerciseProgress({
-          userId: 1,
+          userId: 2,
           exerciseId,
           ...updates,
         });
@@ -137,7 +137,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user journal entries
   app.get("/api/user/journal", async (req, res) => {
     try {
-      const entries = await storage.getUserJournalEntries(1);
+      const entries = await storage.getUserJournalEntries(2);
       res.json(entries);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch journal entries" });
@@ -149,7 +149,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const entryData = insertJournalEntrySchema.parse({
         ...req.body,
-        userId: 1,
+        userId: 2,
       });
       
       const entry = await storage.createJournalEntry(entryData);
@@ -206,7 +206,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const assessmentId = parseInt(req.params.assessmentId);
       const resultData = insertUserAssessmentResultSchema.parse({
         ...req.body,
-        userId: 1,
+        userId: 2,
         assessmentId,
       });
       
@@ -220,7 +220,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user assessment results
   app.get("/api/user/assessments", async (req, res) => {
     try {
-      const results = await storage.getUserAssessmentResults(1);
+      const results = await storage.getUserAssessmentResults(2);
       res.json(results);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch assessment results" });

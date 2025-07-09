@@ -1,11 +1,8 @@
-import { 
-  users, phases, userProgress, exercises, userExerciseProgress, 
-  journalEntries, resources, assessments, userAssessmentResults,
-  type User, type InsertUser, type Phase, type InsertPhase,
-  type UserProgress, type InsertUserProgress, type Exercise, type InsertExercise,
-  type UserExerciseProgress, type InsertUserExerciseProgress,
-  type JournalEntry, type InsertJournalEntry, type Resource, type InsertResource,
-  type Assessment, type InsertAssessment, type UserAssessmentResult, type InsertUserAssessmentResult
+import type { 
+  User, InsertUser, Phase, InsertPhase, UserProgress, InsertUserProgress,
+  Exercise, InsertExercise, UserExerciseProgress, InsertUserExerciseProgress,
+  JournalEntry, InsertJournalEntry, Resource, InsertResource,
+  Assessment, InsertAssessment, UserAssessmentResult, InsertUserAssessmentResult
 } from "@shared/schema";
 
 export interface IStorage {
@@ -60,630 +57,183 @@ export interface IStorage {
   createUserAssessmentResult(result: InsertUserAssessmentResult): Promise<UserAssessmentResult>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User> = new Map();
-  private phases: Map<number, Phase> = new Map();
-  private userProgress: Map<string, UserProgress> = new Map(); // key: `${userId}-${phaseId}`
-  private exercises: Map<number, Exercise> = new Map();
-  private userExerciseProgress: Map<string, UserExerciseProgress> = new Map(); // key: `${userId}-${exerciseId}`
-  private journalEntries: Map<number, JournalEntry> = new Map();
-  private resources: Map<number, Resource> = new Map();
-  private assessments: Map<number, Assessment> = new Map();
-  private userAssessmentResults: Map<string, UserAssessmentResult> = new Map(); // key: `${userId}-${assessmentId}`
-  
-  private currentId = 1;
+import { db } from "./db";
+import { eq, and } from "drizzle-orm";
+import { 
+  users, phases, userProgress, exercises, userExerciseProgress,
+  journalEntries, resources, assessments, userAssessmentResults
+} from "@shared/schema";
 
-  constructor() {
-    this.initializeData();
-  }
-
-  private initializeData() {
-    // Create demo user
-    const user: User = {
-      id: 1,
-      username: "sarah.m",
-      password: "password",
-      name: "Sarah M.",
-      initials: "SM",
-      currentPhase: 4,
-      createdAt: new Date(),
-    };
-    this.users.set(1, user);
-
-    // Initialize PHOENIX phases
-    const phaseData = [
-      { letter: "P", name: "Pause the Panic", description: "Regulate the nervous system, create emotional safety", order: 1, isLocked: false },
-      { letter: "H", name: "Heal the Hurt", description: "Identify emotional wounds and trauma patterns", order: 2, isLocked: false },
-      { letter: "O", name: "Own Your Narrative", description: "Reframe your story with self-worth and power", order: 3, isLocked: false },
-      { letter: "E", name: "Empower Your Boundaries", description: "Learn how to say no, without shame", order: 4, isLocked: false },
-      { letter: "N", name: "Nurture the Brain", description: "Neuroscience of trauma, dopamine, hormones, sleep", order: 5, isLocked: true },
-      { letter: "I", name: "Integrate the Inner Self", description: "Align body, belief, and spiritual truth", order: 6, isLocked: true },
-      { letter: "X", name: "eXpress Your New Identity", description: "Step into leadership, peace, and purpose", order: 7, isLocked: true },
-    ];
-
-    phaseData.forEach((phase, index) => {
-      const phaseObj: Phase = { id: index + 1, ...phase };
-      this.phases.set(index + 1, phaseObj);
-    });
-
-    // Initialize user progress
-    for (let i = 1; i <= 7; i++) {
-      const status = i <= 3 ? 'completed' : i === 4 ? 'in_progress' : 'locked';
-      const exercisesCompleted = i <= 3 ? [8, 6, 5][i - 1] : i === 4 ? 2 : 0;
-      const totalExercises = [8, 6, 5, 7, 7, 6, 8][i - 1];
-      
-      const progress: UserProgress = {
-        id: i,
-        userId: 1,
-        phaseId: i,
-        status,
-        exercisesCompleted,
-        totalExercises,
-        completedAt: status === 'completed' ? new Date() : null,
-        updatedAt: new Date(),
-      };
-      this.userProgress.set(`1-${i}`, progress);
-    }
-
-    // Initialize resources
-    const resourceData = [
-      { category: "mindfulness", title: "Body Scan Meditation", description: "Guided body awareness practice", type: "exercise" },
-      { category: "mindfulness", title: "Breathing Techniques", description: "Various breathing exercises for regulation", type: "exercise" },
-      { category: "mindfulness", title: "Loving-Kindness Practice", description: "Cultivating self-compassion", type: "exercise" },
-      { category: "cbt", title: "Thought Record Sheets", description: "Track and challenge negative thoughts", type: "worksheet" },
-      { category: "cbt", title: "Cognitive Distortions Guide", description: "Identify common thinking patterns", type: "reading" },
-      { category: "cbt", title: "Behavioral Activation", description: "Plan meaningful activities", type: "exercise" },
-      { category: "nlp", title: "Anchoring Techniques", description: "Create positive emotional anchors", type: "exercise" },
-      { category: "nlp", title: "Reframing Exercises", description: "Change perspective on experiences", type: "exercise" },
-      { category: "nlp", title: "Timeline Therapy", description: "Heal past experiences", type: "exercise" },
-      { category: "trauma", title: "Grounding Techniques", description: "Return to present moment awareness", type: "exercise" },
-      { category: "trauma", title: "Safety Planning", description: "Create emotional safety strategies", type: "worksheet" },
-      { category: "trauma", title: "Somatic Exercises", description: "Body-based trauma release", type: "exercise" },
-      { category: "worksheets", title: "Boundary Setting Worksheet", description: "Define and practice boundaries", type: "worksheet" },
-      { category: "worksheets", title: "Emotion Tracking Journal", description: "Monitor emotional patterns", type: "worksheet" },
-      { category: "worksheets", title: "Values Clarification", description: "Identify core values", type: "worksheet" },
-      { category: "videos", title: "Boundary Setting Practice", description: "Guided boundary visualization", type: "video" },
-      { category: "videos", title: "Trauma & the Brain", description: "Understanding trauma's impact", type: "video" },
-      { category: "videos", title: "Self-Compassion Training", description: "Develop self-kindness", type: "video" },
-    ];
-
-    resourceData.forEach((resource, index) => {
-      const resourceObj: Resource = { 
-        id: index + 1, 
-        ...resource,
-        content: null,
-        url: null,
-        phaseId: null,
-      };
-      this.resources.set(index + 1, resourceObj);
-    });
-
-    // Initialize sample journal entries
-    const journalData = [
-      {
-        userId: 1,
-        title: "Boundary Practice",
-        content: "I practiced saying no to a social event today. It felt scary at first, but also empowering. I'm learning that my needs matter too...",
-        mood: "hopeful",
-        energyLevel: 7,
-        phaseId: 4,
-        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // yesterday
-      },
-      {
-        userId: 1,
-        title: "Self-Compassion",
-        content: "Working on being kinder to myself. The inner critic was loud today, but I used the grounding technique and it helped...",
-        mood: "peaceful",
-        energyLevel: 5,
-        phaseId: 3,
-        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-      },
-    ];
-
-    journalData.forEach((entry, index) => {
-      const journalEntry: JournalEntry = {
-        id: index + 1,
-        ...entry,
-        isPrivate: true,
-        updatedAt: entry.createdAt,
-      };
-      this.journalEntries.set(index + 1, journalEntry);
-    });
-
-    // Initialize exercises for each phase
-    this.initializeExercises();
-    
-    // Initialize assessments for each phase
-    this.initializeAssessments();
-    
-    this.currentId = 1000; // Start from 1000 for new entries
-  }
-
-  private initializeExercises() {
-    const exerciseData = [
-      // Phase 1: Pause the Panic
-      {
-        phaseId: 1,
-        title: "Understanding Your Nervous System",
-        description: "Learn how trauma affects your body's alarm system",
-        content: {
-          type: "reading",
-          text: "Your nervous system is like a smoke detector that's become overly sensitive. Understanding this helps normalize your reactions.",
-          keyPoints: [
-            "The autonomic nervous system controls fight/flight responses",
-            "Trauma can make this system hypervigilant",
-            "Recognition is the first step to regulation"
-          ]
-        },
-        type: "reading",
-        order: 1
-      },
-      {
-        phaseId: 1,
-        title: "5-4-3-2-1 Grounding Technique",
-        description: "Quick grounding exercise for overwhelming moments",
-        content: {
-          type: "practice",
-          instructions: [
-            "Name 5 things you can see",
-            "Name 4 things you can touch",
-            "Name 3 things you can hear",
-            "Name 2 things you can smell",
-            "Name 1 thing you can taste"
-          ],
-          duration: "2-3 minutes"
-        },
-        type: "practice",
-        order: 2
-      },
-      {
-        phaseId: 1,
-        title: "Box Breathing Exercise",
-        description: "Regulate your nervous system through controlled breathing",
-        content: {
-          type: "practice",
-          instructions: [
-            "Breathe in for 4 counts",
-            "Hold for 4 counts",
-            "Breathe out for 4 counts",
-            "Hold for 4 counts",
-            "Repeat 4-8 times"
-          ],
-          duration: "3-5 minutes"
-        },
-        type: "practice",
-        order: 3
-      },
-      
-      // Phase 2: Heal the Hurt
-      {
-        phaseId: 2,
-        title: "Identifying Trauma Responses",
-        description: "Recognize your unique trauma patterns",
-        content: {
-          type: "assessment",
-          questions: [
-            "When stressed, do you tend to fight, flee, freeze, or fawn?",
-            "What situations trigger your strongest reactions?",
-            "How does trauma show up in your body?"
-          ]
-        },
-        type: "assessment",
-        order: 1
-      },
-      {
-        phaseId: 2,
-        title: "Inner Child Meditation",
-        description: "Connect with your younger self with compassion",
-        content: {
-          type: "practice",
-          script: "Imagine your younger self who first experienced hurt. What would you say to comfort her?",
-          duration: "10-15 minutes"
-        },
-        type: "practice",
-        order: 2
-      },
-      
-      // Phase 3: Own Your Narrative
-      {
-        phaseId: 3,
-        title: "Rewriting Your Story",
-        description: "Transform victim stories into survivor strength",
-        content: {
-          type: "exercise",
-          prompts: [
-            "What challenges have made you stronger?",
-            "What would you tell someone facing similar struggles?",
-            "How has your experience given you unique wisdom?"
-          ]
-        },
-        type: "reflection",
-        order: 1
-      },
-      
-      // Phase 4: Empower Your Boundaries  
-      {
-        phaseId: 4,
-        title: "Boundary Assessment",
-        description: "Evaluate your current boundary patterns",
-        content: {
-          type: "assessment",
-          categories: ["Physical", "Emotional", "Mental", "Spiritual", "Time", "Material"]
-        },
-        type: "assessment",
-        order: 1
-      },
-      {
-        phaseId: 4,
-        title: "Boundary Scripts Practice",
-        description: "Practice saying no with confidence",
-        content: {
-          type: "practice",
-          scenarios: [
-            "A friend asks for money you can't afford to lend",
-            "Your boss asks you to work late again",
-            "Someone makes an inappropriate comment"
-          ],
-          scripts: [
-            "I'm not able to do that right now",
-            "That doesn't work for me",
-            "I need to think about it"
-          ]
-        },
-        type: "practice",
-        order: 2
-      }
-    ];
-
-    exerciseData.forEach((exercise, index) => {
-      const exerciseObj: Exercise = { 
-        id: index + 200, 
-        ...exercise,
-        content: exercise.content as any
-      };
-      this.exercises.set(index + 200, exerciseObj);
-    });
-  }
-
-  private initializeAssessments() {
-    const assessmentData = [
-      {
-        phaseId: 1,
-        title: "Nervous System Awareness Check",
-        description: "Understand your current stress response patterns",
-        questions: [
-          {
-            id: "stress1",
-            question: "When faced with conflict, my typical response is:",
-            type: "radio",
-            options: [
-              "I get angry and fight back",
-              "I try to escape or avoid the situation", 
-              "I freeze up and can't respond",
-              "I try to please everyone to avoid conflict"
-            ]
-          },
-          {
-            id: "stress2", 
-            question: "How often do you feel on edge or hypervigilant?",
-            type: "radio",
-            options: [
-              "Almost constantly",
-              "Several times a week",
-              "Occasionally",
-              "Rarely"
-            ]
-          }
-        ],
-        scoringRubric: {
-          fightResponse: ["I get angry and fight back"],
-          flightResponse: ["I try to escape or avoid the situation"],
-          freezeResponse: ["I freeze up and can't respond"],
-          fawnResponse: ["I try to please everyone to avoid conflict"]
-        }
-      },
-      {
-        phaseId: 4,
-        title: "Boundary Readiness Assessment",
-        description: "Evaluate your comfort with setting and maintaining boundaries",
-        questions: [
-          {
-            id: "boundary1",
-            question: "When someone asks you to do something you don't want to do:",
-            type: "radio",
-            options: [
-              "I usually say yes even when I don't want to",
-              "I feel guilty but sometimes say no", 
-              "I can say no without feeling guilty",
-              "I struggle to even recognize I don't want to do it"
-            ]
-          },
-          {
-            id: "boundary2",
-            question: "How do you feel when someone is upset with you?",
-            type: "radio", 
-            options: [
-              "I feel responsible and need to fix it immediately",
-              "I feel uncomfortable but can manage it",
-              "I understand it's their emotion to process",
-              "I get angry at them for being upset"
-            ]
-          },
-          {
-            id: "boundary3",
-            question: "Rate your comfort level with saying 'no' (1-10):",
-            type: "scale",
-            min: 1,
-            max: 10
-          }
-        ],
-        scoringRubric: {
-          lowBoundaries: [0, 3],
-          developingBoundaries: [4, 6], 
-          healthyBoundaries: [7, 10]
-        }
-      }
-    ];
-
-    assessmentData.forEach((assessment, index) => {
-      const assessmentObj: Assessment = {
-        id: index + 300,
-        ...assessment,
-        questions: assessment.questions as any,
-        scoringRubric: assessment.scoringRubric as any
-      };
-      this.assessments.set(index + 300, assessmentObj);
-    });
-  }
-
+export class DatabaseStorage implements IStorage {
   // User operations
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(user => user.username === username);
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentId++;
-    const user: User = { 
-      ...insertUser, 
-      id,
-      createdAt: new Date(),
-      currentPhase: insertUser.currentPhase || 1,
-    };
-    this.users.set(id, user);
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
   async updateUser(id: number, updates: Partial<InsertUser>): Promise<User | undefined> {
-    const user = this.users.get(id);
-    if (!user) return undefined;
-    
-    const updatedUser = { ...user, ...updates };
-    this.users.set(id, updatedUser);
-    return updatedUser;
+    const [user] = await db.update(users).set(updates).where(eq(users.id, id)).returning();
+    return user || undefined;
   }
 
   // Phase operations
   async getAllPhases(): Promise<Phase[]> {
-    return Array.from(this.phases.values()).sort((a, b) => a.order - b.order);
+    return await db.select().from(phases).orderBy(phases.order);
   }
 
   async getPhase(id: number): Promise<Phase | undefined> {
-    return this.phases.get(id);
+    const [phase] = await db.select().from(phases).where(eq(phases.id, id));
+    return phase || undefined;
   }
 
   async createPhase(insertPhase: InsertPhase): Promise<Phase> {
-    const id = this.currentId++;
-    const phase: Phase = { 
-      ...insertPhase, 
-      id,
-      isLocked: insertPhase.isLocked !== undefined ? insertPhase.isLocked : true,
-    };
-    this.phases.set(id, phase);
+    const [phase] = await db.insert(phases).values(insertPhase).returning();
     return phase;
   }
 
   // User progress operations
   async getUserProgress(userId: number): Promise<UserProgress[]> {
-    return Array.from(this.userProgress.values()).filter(progress => progress.userId === userId);
+    return await db.select().from(userProgress).where(eq(userProgress.userId, userId));
   }
 
   async getUserProgressForPhase(userId: number, phaseId: number): Promise<UserProgress | undefined> {
-    return this.userProgress.get(`${userId}-${phaseId}`);
+    const [progress] = await db.select().from(userProgress)
+      .where(and(eq(userProgress.userId, userId), eq(userProgress.phaseId, phaseId)));
+    return progress || undefined;
   }
 
   async updateUserProgress(userId: number, phaseId: number, updates: Partial<InsertUserProgress>): Promise<UserProgress | undefined> {
-    const key = `${userId}-${phaseId}`;
-    const progress = this.userProgress.get(key);
-    if (!progress) return undefined;
-
-    const updatedProgress = { 
-      ...progress, 
-      ...updates, 
-      updatedAt: new Date() 
-    };
-    this.userProgress.set(key, updatedProgress);
-    return updatedProgress;
+    const [progress] = await db.update(userProgress).set(updates)
+      .where(and(eq(userProgress.userId, userId), eq(userProgress.phaseId, phaseId)))
+      .returning();
+    return progress || undefined;
   }
 
   async createUserProgress(insertProgress: InsertUserProgress): Promise<UserProgress> {
-    const id = this.currentId++;
-    const progress: UserProgress = { 
-      ...insertProgress, 
-      id,
-      updatedAt: new Date(),
-      completedAt: insertProgress.completedAt || null,
-      exercisesCompleted: insertProgress.exercisesCompleted || 0,
-      totalExercises: insertProgress.totalExercises || 0,
-    };
-    this.userProgress.set(`${insertProgress.userId}-${insertProgress.phaseId}`, progress);
+    const [progress] = await db.insert(userProgress).values(insertProgress).returning();
     return progress;
   }
 
   // Exercise operations
   async getExercisesForPhase(phaseId: number): Promise<Exercise[]> {
-    return Array.from(this.exercises.values())
-      .filter(exercise => exercise.phaseId === phaseId)
-      .sort((a, b) => a.order - b.order);
+    return await db.select().from(exercises).where(eq(exercises.phaseId, phaseId));
   }
 
   async getExercise(id: number): Promise<Exercise | undefined> {
-    return this.exercises.get(id);
+    const [exercise] = await db.select().from(exercises).where(eq(exercises.id, id));
+    return exercise || undefined;
   }
 
   async createExercise(insertExercise: InsertExercise): Promise<Exercise> {
-    const id = this.currentId++;
-    const exercise: Exercise = { ...insertExercise, id };
-    this.exercises.set(id, exercise);
+    const [exercise] = await db.insert(exercises).values(insertExercise).returning();
     return exercise;
   }
 
   // User exercise progress operations
   async getUserExerciseProgress(userId: number, exerciseId: number): Promise<UserExerciseProgress | undefined> {
-    return this.userExerciseProgress.get(`${userId}-${exerciseId}`);
+    const [progress] = await db.select().from(userExerciseProgress)
+      .where(and(eq(userExerciseProgress.userId, userId), eq(userExerciseProgress.exerciseId, exerciseId)));
+    return progress || undefined;
   }
 
   async updateUserExerciseProgress(userId: number, exerciseId: number, updates: Partial<InsertUserExerciseProgress>): Promise<UserExerciseProgress | undefined> {
-    const key = `${userId}-${exerciseId}`;
-    const progress = this.userExerciseProgress.get(key);
-    if (!progress) return undefined;
-
-    const updatedProgress = { ...progress, ...updates };
-    if (updates.isCompleted) {
-      updatedProgress.completedAt = new Date();
-    }
-    this.userExerciseProgress.set(key, updatedProgress);
-    return updatedProgress;
+    const [progress] = await db.update(userExerciseProgress).set(updates)
+      .where(and(eq(userExerciseProgress.userId, userId), eq(userExerciseProgress.exerciseId, exerciseId)))
+      .returning();
+    return progress || undefined;
   }
 
   async createUserExerciseProgress(insertProgress: InsertUserExerciseProgress): Promise<UserExerciseProgress> {
-    const id = this.currentId++;
-    const progress: UserExerciseProgress = { 
-      ...insertProgress, 
-      id,
-      completedAt: insertProgress.isCompleted ? new Date() : null,
-      isCompleted: insertProgress.isCompleted || false,
-      responses: insertProgress.responses || null,
-    };
-    this.userExerciseProgress.set(`${insertProgress.userId}-${insertProgress.exerciseId}`, progress);
+    const [progress] = await db.insert(userExerciseProgress).values(insertProgress).returning();
     return progress;
   }
 
   // Journal operations
   async getUserJournalEntries(userId: number): Promise<JournalEntry[]> {
-    return Array.from(this.journalEntries.values())
-      .filter(entry => entry.userId === userId)
-      .sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime());
+    return await db.select().from(journalEntries)
+      .where(eq(journalEntries.userId, userId))
+      .orderBy(journalEntries.createdAt);
   }
 
   async getJournalEntry(id: number): Promise<JournalEntry | undefined> {
-    return this.journalEntries.get(id);
+    const [entry] = await db.select().from(journalEntries).where(eq(journalEntries.id, id));
+    return entry || undefined;
   }
 
   async createJournalEntry(insertEntry: InsertJournalEntry): Promise<JournalEntry> {
-    const id = this.currentId++;
-    const entry: JournalEntry = { 
-      ...insertEntry, 
-      id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      title: insertEntry.title || null,
-      mood: insertEntry.mood || null,
-      energyLevel: insertEntry.energyLevel || null,
-      phaseId: insertEntry.phaseId || null,
-      isPrivate: insertEntry.isPrivate !== undefined ? insertEntry.isPrivate : true,
-    };
-    this.journalEntries.set(id, entry);
+    const [entry] = await db.insert(journalEntries).values(insertEntry).returning();
     return entry;
   }
 
   async updateJournalEntry(id: number, updates: Partial<InsertJournalEntry>): Promise<JournalEntry | undefined> {
-    const entry = this.journalEntries.get(id);
-    if (!entry) return undefined;
-
-    const updatedEntry = { 
-      ...entry, 
-      ...updates, 
-      updatedAt: new Date() 
-    };
-    this.journalEntries.set(id, updatedEntry);
-    return updatedEntry;
+    const [entry] = await db.update(journalEntries).set(updates).where(eq(journalEntries.id, id)).returning();
+    return entry || undefined;
   }
 
   async deleteJournalEntry(id: number): Promise<boolean> {
-    return this.journalEntries.delete(id);
+    const result = await db.delete(journalEntries).where(eq(journalEntries.id, id));
+    return result.rowCount > 0;
   }
 
   // Resource operations
   async getAllResources(): Promise<Resource[]> {
-    return Array.from(this.resources.values());
+    return await db.select().from(resources);
   }
 
   async getResourcesByCategory(category: string): Promise<Resource[]> {
-    return Array.from(this.resources.values()).filter(resource => resource.category === category);
+    return await db.select().from(resources).where(eq(resources.category, category));
   }
 
   async getResource(id: number): Promise<Resource | undefined> {
-    return this.resources.get(id);
+    const [resource] = await db.select().from(resources).where(eq(resources.id, id));
+    return resource || undefined;
   }
 
   async createResource(insertResource: InsertResource): Promise<Resource> {
-    const id = this.currentId++;
-    const resource: Resource = { 
-      ...insertResource, 
-      id,
-      content: insertResource.content || null,
-      url: insertResource.url || null,
-      phaseId: insertResource.phaseId || null,
-    };
-    this.resources.set(id, resource);
+    const [resource] = await db.insert(resources).values(insertResource).returning();
     return resource;
   }
 
   // Assessment operations
   async getAssessmentsForPhase(phaseId: number): Promise<Assessment[]> {
-    return Array.from(this.assessments.values()).filter(assessment => assessment.phaseId === phaseId);
+    return await db.select().from(assessments).where(eq(assessments.phaseId, phaseId));
   }
 
   async getAssessment(id: number): Promise<Assessment | undefined> {
-    return this.assessments.get(id);
+    const [assessment] = await db.select().from(assessments).where(eq(assessments.id, id));
+    return assessment || undefined;
   }
 
   async createAssessment(insertAssessment: InsertAssessment): Promise<Assessment> {
-    const id = this.currentId++;
-    const assessment: Assessment = { 
-      ...insertAssessment, 
-      id,
-      scoringRubric: insertAssessment.scoringRubric || null,
-    };
-    this.assessments.set(id, assessment);
+    const [assessment] = await db.insert(assessments).values(insertAssessment).returning();
     return assessment;
   }
 
   // User assessment results
   async getUserAssessmentResults(userId: number): Promise<UserAssessmentResult[]> {
-    return Array.from(this.userAssessmentResults.values()).filter(result => result.userId === userId);
+    return await db.select().from(userAssessmentResults).where(eq(userAssessmentResults.userId, userId));
   }
 
   async getUserAssessmentResult(userId: number, assessmentId: number): Promise<UserAssessmentResult | undefined> {
-    return this.userAssessmentResults.get(`${userId}-${assessmentId}`);
+    const [result] = await db.select().from(userAssessmentResults)
+      .where(and(eq(userAssessmentResults.userId, userId), eq(userAssessmentResults.assessmentId, assessmentId)));
+    return result || undefined;
   }
 
   async createUserAssessmentResult(insertResult: InsertUserAssessmentResult): Promise<UserAssessmentResult> {
-    const id = this.currentId++;
-    const result: UserAssessmentResult = { 
-      ...insertResult, 
-      id,
-      completedAt: new Date(),
-      score: insertResult.score || null,
-      interpretation: insertResult.interpretation || null,
-    };
-    this.userAssessmentResults.set(`${insertResult.userId}-${insertResult.assessmentId}`, result);
+    const [result] = await db.insert(userAssessmentResults).values(insertResult).returning();
     return result;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
