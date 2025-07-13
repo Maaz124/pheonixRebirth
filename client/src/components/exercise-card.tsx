@@ -444,6 +444,349 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                   </div>
                 </div>
               </div>
+            ) : exercise.title === "Emotional Trigger Mapping" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-lg p-6">
+                  <h4 className="font-medium text-orange-900 mb-4 flex items-center">
+                    <Target className="mr-2" size={16} />
+                    Interactive Trigger Mapping
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Trigger 1: Identify your strongest emotional trigger
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Being criticized in front of others...'"
+                        className="min-h-[60px] resize-none mb-3"
+                        value={responses.trigger_1 || ""}
+                        onChange={(e) => setResponses({...responses, trigger_1: e.target.value})}
+                      />
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Physical sensations when this happens:
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Heart racing, face flushed, stomach tight...'"
+                        className="min-h-[60px] resize-none mb-3"
+                        value={responses.trigger_1_physical || ""}
+                        onChange={(e) => setResponses({...responses, trigger_1_physical: e.target.value})}
+                      />
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Typical thoughts that follow:
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I'm so stupid, everyone thinks I'm incompetent...'"
+                        className="min-h-[60px] resize-none"
+                        value={responses.trigger_1_thoughts || ""}
+                        onChange={(e) => setResponses({...responses, trigger_1_thoughts: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Trigger 2: Another significant trigger
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Feeling ignored or excluded...'"
+                        className="min-h-[60px] resize-none mb-3"
+                        value={responses.trigger_2 || ""}
+                        onChange={(e) => setResponses({...responses, trigger_2: e.target.value})}
+                      />
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Your behavioral response:
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I withdraw and avoid everyone...'"
+                        className="min-h-[60px] resize-none"
+                        value={responses.trigger_2_behavior || ""}
+                        onChange={(e) => setResponses({...responses, trigger_2_behavior: e.target.value})}
+                      />
+                    </div>
+
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Pattern Recognition: What do you notice about your triggers?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'They all relate to feeling judged or not good enough...'"
+                        className="min-h-[80px] resize-none"
+                        value={responses.pattern_insight || ""}
+                        onChange={(e) => setResponses({...responses, pattern_insight: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "The Story Audit" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-6">
+                  <h4 className="font-medium text-purple-900 mb-4 flex items-center">
+                    <BookOpen className="mr-2" size={16} />
+                    Interactive Story Examination
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Limiting Story: What negative story do you tell yourself most often?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I'm not smart enough to succeed...'"
+                        className="min-h-[80px] resize-none"
+                        value={responses.limiting_story || ""}
+                        onChange={(e) => setResponses({...responses, limiting_story: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Evidence FOR this story:
+                      </Label>
+                      <Textarea
+                        placeholder="List any evidence that seems to support this story..."
+                        className="min-h-[80px] resize-none mb-3"
+                        value={responses.evidence_for || ""}
+                        onChange={(e) => setResponses({...responses, evidence_for: e.target.value})}
+                      />
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Evidence AGAINST this story:
+                      </Label>
+                      <Textarea
+                        placeholder="List evidence that contradicts this story..."
+                        className="min-h-[80px] resize-none"
+                        value={responses.evidence_against || ""}
+                        onChange={(e) => setResponses({...responses, evidence_against: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Rewritten Story: How could you rewrite this story with compassion?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I am learning and growing. My intelligence shows up in unique ways...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.rewritten_story || ""}
+                        onChange={(e) => setResponses({...responses, rewritten_story: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Behavioral Pattern Analysis" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-green-50 to-teal-50 rounded-lg p-6">
+                  <h4 className="font-medium text-green-900 mb-4 flex items-center">
+                    <Activity className="mr-2" size={16} />
+                    Behavioral Pattern Tracker
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        When I'm stressed, I typically:
+                      </Label>
+                      <RadioGroup
+                        value={responses.stress_behavior || ""}
+                        onValueChange={(value) => setResponses({...responses, stress_behavior: value})}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="isolate" id="isolate" />
+                          <Label htmlFor="isolate">Isolate myself from others</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="overwork" id="overwork" />
+                          <Label htmlFor="overwork">Overwork or stay busy</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="seek_support" id="seek_support" />
+                          <Label htmlFor="seek_support">Seek support from others</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="avoid" id="avoid" />
+                          <Label htmlFor="avoid">Avoid the stressor</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="ruminate" id="ruminate" />
+                          <Label htmlFor="ruminate">Ruminate or worry</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Rate how helpful this behavior is (1-10):
+                      </Label>
+                      <Slider
+                        value={[responses.behavior_helpfulness || 5]}
+                        onValueChange={(value) => setResponses({...responses, behavior_helpfulness: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Very harmful</span>
+                        <span>Very helpful</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Rating: {responses.behavior_helpfulness || 5}/10</p>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Alternative Behavior: What's one healthier behavior you could try instead?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Take three deep breaths and call a trusted friend...'"
+                        className="min-h-[80px] resize-none"
+                        value={responses.alternative_behavior || ""}
+                        onChange={(e) => setResponses({...responses, alternative_behavior: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Relationship Pattern Recognition" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6">
+                  <h4 className="font-medium text-blue-900 mb-4 flex items-center">
+                    <Heart className="mr-2" size={16} />
+                    Relationship Pattern Explorer
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Your typical role in relationships:
+                      </Label>
+                      <RadioGroup
+                        value={responses.relationship_role || ""}
+                        onValueChange={(value) => setResponses({...responses, relationship_role: value})}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="rescuer" id="rescuer" />
+                          <Label htmlFor="rescuer">The Rescuer - Always helping others</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="pleaser" id="pleaser" />
+                          <Label htmlFor="pleaser">The People-Pleaser - Avoiding conflict</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="controller" id="controller" />
+                          <Label htmlFor="controller">The Controller - Managing outcomes</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="avoider" id="avoider" />
+                          <Label htmlFor="avoider">The Avoider - Keeping distance</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="balanced" id="balanced" />
+                          <Label htmlFor="balanced">Balanced - Healthy give and take</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Recurring Pattern: What pattern keeps showing up in your relationships?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I always end up feeling responsible for others' emotions...'"
+                        className="min-h-[80px] resize-none"
+                        value={responses.recurring_pattern || ""}
+                        onChange={(e) => setResponses({...responses, recurring_pattern: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        New Response: How could you respond differently next time?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I could say: I care about you and I'm not responsible for fixing your problems...'"
+                        className="min-h-[80px] resize-none"
+                        value={responses.new_response || ""}
+                        onChange={(e) => setResponses({...responses, new_response: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Thought Pattern Interruption" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg p-6">
+                  <h4 className="font-medium text-yellow-900 mb-4 flex items-center">
+                    <Brain className="mr-2" size={16} />
+                    Thought Pattern Interrupt Practice
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Common Negative Thought: What negative thought visits you most often?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I always mess things up...'"
+                        className="min-h-[60px] resize-none"
+                        value={responses.negative_thought || ""}
+                        onChange={(e) => setResponses({...responses, negative_thought: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Thought Pattern Type:
+                      </Label>
+                      <RadioGroup
+                        value={responses.thought_pattern_type || ""}
+                        onValueChange={(value) => setResponses({...responses, thought_pattern_type: value})}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="catastrophizing" id="catastrophizing" />
+                          <Label htmlFor="catastrophizing">Catastrophizing - Assuming the worst</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="all_nothing" id="all_nothing" />
+                          <Label htmlFor="all_nothing">All-or-Nothing - No middle ground</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="mind_reading" id="mind_reading" />
+                          <Label htmlFor="mind_reading">Mind Reading - Assuming others' thoughts</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="fortune_telling" id="fortune_telling" />
+                          <Label htmlFor="fortune_telling">Fortune Telling - Predicting failure</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Interrupt Question: What question could you ask yourself to interrupt this thought?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Is this thought helpful? What evidence do I have?'"
+                        className="min-h-[60px] resize-none"
+                        value={responses.interrupt_question || ""}
+                        onChange={(e) => setResponses({...responses, interrupt_question: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Replacement Thought: What more helpful thought could you practice instead?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I'm learning and improving. Mistakes help me grow.'"
+                        className="min-h-[80px] resize-none"
+                        value={responses.replacement_thought || ""}
+                        onChange={(e) => setResponses({...responses, replacement_thought: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
             ) : (
               <div className="bg-teal-50 rounded-lg p-6">
                 <h4 className="font-medium text-teal-900 mb-4 flex items-center">
