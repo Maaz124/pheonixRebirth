@@ -6,10 +6,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   BookOpen, Play, CheckCircle2, Clock, Lightbulb,
-  Heart, Brain, Target, MessageCircle, Eye, Activity
+  Heart, Brain, Target, MessageCircle, Eye, Activity, Shield, Users, MessageSquare
 } from "lucide-react";
 import type { Exercise } from "@shared/schema";
 
@@ -782,6 +783,408 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         className="min-h-[80px] resize-none"
                         value={responses.replacement_thought || ""}
                         onChange={(e) => setResponses({...responses, replacement_thought: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Boundary Types and Assessment" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-6">
+                  <h4 className="font-medium text-blue-900 mb-4 flex items-center">
+                    <Shield className="mr-2" size={16} />
+                    Interactive Boundary Assessment
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Physical Boundaries: How comfortable are you setting limits around personal space and touch?
+                      </Label>
+                      <Slider
+                        value={[responses.physical_boundaries || 5]}
+                        onValueChange={(value) => setResponses({...responses, physical_boundaries: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Very difficult</span>
+                        <span>Very comfortable</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Rating: {responses.physical_boundaries || 5}/10</p>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Emotional Boundaries: How well do you protect yourself from taking on others' emotions?
+                      </Label>
+                      <Slider
+                        value={[responses.emotional_boundaries || 5]}
+                        onValueChange={(value) => setResponses({...responses, emotional_boundaries: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Very poor</span>
+                        <span>Very good</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Rating: {responses.emotional_boundaries || 5}/10</p>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Time Boundaries: How effectively do you protect your time from being overcommitted?
+                      </Label>
+                      <RadioGroup
+                        value={responses.time_boundaries || ""}
+                        onValueChange={(value) => setResponses({...responses, time_boundaries: value})}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="poor" id="time_poor" />
+                          <Label htmlFor="time_poor">I constantly overcommit and feel overwhelmed</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="fair" id="time_fair" />
+                          <Label htmlFor="time_fair">I sometimes protect my time but often give in</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="good" id="time_good" />
+                          <Label htmlFor="time_good">I usually protect my time effectively</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="excellent" id="time_excellent" />
+                          <Label htmlFor="time_excellent">I consistently manage my time boundaries well</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Your Biggest Boundary Challenge: What type of boundary is most difficult for you?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I struggle most with saying no to family requests, especially from my mother...'"
+                        className="min-h-[80px] resize-none"
+                        value={responses.biggest_challenge || ""}
+                        onChange={(e) => setResponses({...responses, biggest_challenge: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "The Guilt-Free No Practice" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-lg p-6">
+                  <h4 className="font-medium text-red-900 mb-4 flex items-center">
+                    <MessageSquare className="mr-2" size={16} />
+                    No Practice Scenarios
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Scenario: A friend asks you to help them move this weekend, but you planned to rest
+                      </Label>
+                      <Select
+                        value={responses.scenario_1_response || ""}
+                        onValueChange={(value) => setResponses({...responses, scenario_1_response: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose your response..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="yes_guilt">"Sure, I guess I can help" (feeling guilty inside)</SelectItem>
+                          <SelectItem value="no_over_explain">"I cannot help because I have been so stressed and really need to rest and..."</SelectItem>
+                          <SelectItem value="no_simple">"I cannot help this weekend, but I hope it goes smoothly!"</SelectItem>
+                          <SelectItem value="alternative">"I cannot help with moving, but I could bring lunch for everyone"</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Scenario: Your boss asks you to stay late again, but you have personal commitments
+                      </Label>
+                      <Select
+                        value={responses.scenario_2_response || ""}
+                        onValueChange={(value) => setResponses({...responses, scenario_2_response: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose your response..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="yes_resentful">"Of course" (while feeling resentful)</SelectItem>
+                          <SelectItem value="excuse">"I cannot because my dog needs to be walked and..."</SelectItem>
+                          <SelectItem value="boundary">"I cannot stay late today. I can tackle this first thing tomorrow morning"</SelectItem>
+                          <SelectItem value="negotiate">"I cannot stay late but I could come in early tomorrow if needed"</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Practice Your Own No: Write a situation where you need to say no
+                      </Label>
+                      <Textarea
+                        placeholder="Describe a real situation where you need to set a boundary..."
+                        className="min-h-[60px] resize-none mb-3"
+                        value={responses.personal_situation || ""}
+                        onChange={(e) => setResponses({...responses, personal_situation: e.target.value})}
+                      />
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Your No Response:
+                      </Label>
+                      <Textarea
+                        placeholder="Write how you would say no clearly and kindly..."
+                        className="min-h-[60px] resize-none"
+                        value={responses.personal_no_response || ""}
+                        onChange={(e) => setResponses({...responses, personal_no_response: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Boundary Communication Scripts" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6">
+                  <h4 className="font-medium text-green-900 mb-4 flex items-center">
+                    <MessageSquare className="mr-2" size={16} />
+                    Communication Practice
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Relationship Type: Who do you most need to set boundaries with?
+                      </Label>
+                      <Select
+                        value={responses.relationship_type || ""}
+                        onValueChange={(value) => setResponses({...responses, relationship_type: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select relationship type..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="family">Family member</SelectItem>
+                          <SelectItem value="romantic">Romantic partner</SelectItem>
+                          <SelectItem value="friend">Friend</SelectItem>
+                          <SelectItem value="coworker">Coworker</SelectItem>
+                          <SelectItem value="boss">Boss/Manager</SelectItem>
+                          <SelectItem value="client">Client/Customer</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Specific Boundary Needed: What boundary do you need to communicate?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I need to set a boundary about not being available for work calls after 6 PM...'"
+                        className="min-h-[80px] resize-none"
+                        value={responses.specific_boundary || ""}
+                        onChange={(e) => setResponses({...responses, specific_boundary: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <h5 className="font-medium text-gray-800 mb-3">Practice Script Framework:</h5>
+                      <div className="space-y-3">
+                        <div>
+                          <Label className="text-xs font-medium text-gray-600 mb-1 block">1. ACKNOWLEDGE</Label>
+                          <Textarea
+                            placeholder="I understand that you need/want..."
+                            className="min-h-[50px] resize-none text-sm"
+                            value={responses.acknowledge_script || ""}
+                            onChange={(e) => setResponses({...responses, acknowledge_script: e.target.value})}
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs font-medium text-gray-600 mb-1 block">2. BOUNDARY</Label>
+                          <Textarea
+                            placeholder="However, I am not able/willing to..."
+                            className="min-h-[50px] resize-none text-sm"
+                            value={responses.boundary_script || ""}
+                            onChange={(e) => setResponses({...responses, boundary_script: e.target.value})}
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs font-medium text-gray-600 mb-1 block">3. ALTERNATIVE (Optional)</Label>
+                          <Textarea
+                            placeholder="What I can do is... / Here is what works for me..."
+                            className="min-h-[50px] resize-none text-sm"
+                            value={responses.alternative_script || ""}
+                            onChange={(e) => setResponses({...responses, alternative_script: e.target.value})}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Workplace Boundary Scenarios" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-lg p-6">
+                  <h4 className="font-medium text-indigo-900 mb-4 flex items-center">
+                    <Users className="mr-2" size={16} />
+                    Workplace Boundary Practice
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Current Workplace Challenge: What boundary issue are you facing at work?
+                      </Label>
+                      <Select
+                        value={responses.workplace_challenge || ""}
+                        onValueChange={(value) => setResponses({...responses, workplace_challenge: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select your main challenge..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="overtime">Constant requests to work overtime</SelectItem>
+                          <SelectItem value="extra_tasks">Taking on others' responsibilities</SelectItem>
+                          <SelectItem value="interruptions">Frequent interruptions during focused work</SelectItem>
+                          <SelectItem value="personal_questions">Intrusive personal questions</SelectItem>
+                          <SelectItem value="unrealistic_deadlines">Unrealistic deadline expectations</SelectItem>
+                          <SelectItem value="availability">Being expected to be always available</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Professional Response: How would you address this professionally?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I want to ensure I deliver quality work. My current workload means I cannot take on additional projects without compromising existing commitments...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.professional_response || ""}
+                        onChange={(e) => setResponses({...responses, professional_response: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Boundary Confidence: How confident do you feel setting this boundary?
+                      </Label>
+                      <Slider
+                        value={[responses.boundary_confidence || 5]}
+                        onValueChange={(value) => setResponses({...responses, boundary_confidence: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Not confident</span>
+                        <span>Very confident</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Confidence: {responses.boundary_confidence || 5}/10</p>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Support Strategy: What support do you need to maintain this boundary?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I need to document these conversations, practice my responses, and have a backup plan for pushback...'"
+                        className="min-h-[80px] resize-none"
+                        value={responses.support_strategy || ""}
+                        onChange={(e) => setResponses({...responses, support_strategy: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Relationship Boundary Dynamics" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-lg p-6">
+                  <h4 className="font-medium text-purple-900 mb-4 flex items-center">
+                    <Heart className="mr-2" size={16} />
+                    Relationship Boundary Explorer
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Relationship Focus: Which relationship most needs boundary work?
+                      </Label>
+                      <Select
+                        value={responses.relationship_focus || ""}
+                        onValueChange={(value) => setResponses({...responses, relationship_focus: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select relationship..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="parent">Parent/Caregiver</SelectItem>
+                          <SelectItem value="sibling">Sibling</SelectItem>
+                          <SelectItem value="partner">Romantic Partner</SelectItem>
+                          <SelectItem value="child">Adult Child</SelectItem>
+                          <SelectItem value="friend">Close Friend</SelectItem>
+                          <SelectItem value="extended_family">Extended Family Member</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Boundary Violation Pattern: What pattern keeps happening in this relationship?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'My mother calls constantly and gets upset if I do not answer immediately. She guilt trips me about not being available enough...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.violation_pattern || ""}
+                        onChange={(e) => setResponses({...responses, violation_pattern: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Your Typical Response: How do you usually react to this pattern?
+                      </Label>
+                      <RadioGroup
+                        value={responses.typical_response || ""}
+                        onValueChange={(value) => setResponses({...responses, typical_response: value})}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="give_in" id="give_in" />
+                          <Label htmlFor="give_in">I usually give in to avoid conflict</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="angry" id="angry" />
+                          <Label htmlFor="angry">I get angry and react emotionally</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="withdraw" id="withdraw" />
+                          <Label htmlFor="withdraw">I withdraw and avoid the person</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="inconsistent" id="inconsistent" />
+                          <Label htmlFor="inconsistent">I set boundaries but do not maintain them</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="clear" id="clear" />
+                          <Label htmlFor="clear">I communicate boundaries clearly and kindly</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        New Boundary Strategy: What new approach will you try?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I will set specific call times and communicate that I check messages at set times. I will practice staying calm when she pushes back...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.new_strategy || ""}
+                        onChange={(e) => setResponses({...responses, new_strategy: e.target.value})}
                       />
                     </div>
                   </div>
