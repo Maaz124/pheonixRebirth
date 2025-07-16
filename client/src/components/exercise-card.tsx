@@ -2818,6 +2818,23 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
               </div>
             )}
             
+            {content.variations && (
+              <div className="bg-emerald-50 rounded-lg p-4">
+                <h4 className="font-medium text-emerald-900 mb-3 flex items-center">
+                  <Target className="mr-2" size={16} />
+                  Variations to Try
+                </h4>
+                <ul className="space-y-2">
+                  {content.variations.map((variation: string, index: number) => (
+                    <li key={index} className="text-emerald-800 text-sm flex items-start">
+                      <span className="w-2 h-2 bg-emerald-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                      {variation}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
             {content.progressions && (
               <div className="bg-green-50 rounded-lg p-4">
                 <h4 className="font-medium text-green-900 mb-3 flex items-center">
