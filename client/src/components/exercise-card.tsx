@@ -202,7 +202,148 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
           </TabsContent>
           
           <TabsContent value="practice" className="space-y-4">
-            {exercise.title === "The Inner Critic Transformation" ? (
+            {exercise.title === "Understanding Self-Compassion Neuroscience" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg p-6">
+                  <h4 className="font-medium text-purple-900 mb-4 flex items-center">
+                    <Brain className="mr-2" size={16} />
+                    Self-Compassion Practice Lab
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Current Challenge: What situation are you struggling with right now?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I made a mistake at work and I can't stop thinking about it', 'I'm feeling overwhelmed by everything on my plate', 'I'm comparing myself to others on social media'..."
+                        className="min-h-[100px] resize-none"
+                        value={responses.current_challenge || ""}
+                        onChange={(e) => setResponses({...responses, current_challenge: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Self-Critical Voice: What is your inner critic saying about this situation?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'You're so stupid, you always mess things up', 'Everyone else has it together except you', 'You should be able to handle this'..."
+                        className="min-h-[100px] resize-none"
+                        value={responses.critic_voice || ""}
+                        onChange={(e) => setResponses({...responses, critic_voice: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Mindfulness Practice: Acknowledge your suffering without being consumed by it
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I notice I am suffering right now. This is a moment of pain. I can feel this difficulty without it overwhelming me'..."
+                        className="min-h-[80px] resize-none"
+                        value={responses.mindfulness_response || ""}
+                        onChange={(e) => setResponses({...responses, mindfulness_response: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Common Humanity: How might others in your situation feel?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'This is a moment of suffering. Suffering is part of life. Many people feel this way when they make mistakes. I am not alone in this experience'..."
+                        className="min-h-[80px] resize-none"
+                        value={responses.common_humanity || ""}
+                        onChange={(e) => setResponses({...responses, common_humanity: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Self-Kindness: What would you tell a dear friend in this situation?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'May I be kind to myself in this moment. You're doing the best you can with what you know. Making mistakes is human. You deserve compassion and understanding'..."
+                        className="min-h-[100px] resize-none"
+                        value={responses.self_kindness || ""}
+                        onChange={(e) => setResponses({...responses, self_kindness: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Self-Compassion Component Focus: Which component feels most challenging?
+                      </Label>
+                      <RadioGroup
+                        value={responses.challenging_component || ""}
+                        onValueChange={(value) => setResponses({...responses, challenging_component: value})}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="mindfulness" id="mindfulness" />
+                          <Label htmlFor="mindfulness">Mindfulness - Acknowledging pain without being overwhelmed</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="common_humanity" id="common_humanity" />
+                          <Label htmlFor="common_humanity">Common Humanity - Remembering others struggle too</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="self_kindness" id="self_kindness" />
+                          <Label htmlFor="self_kindness">Self-Kindness - Speaking to myself with warmth</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="all_equally" id="all_equally" />
+                          <Label htmlFor="all_equally">All components feel equally challenging</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Physical Self-Compassion: Place your hand on your heart and offer yourself comfort
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Feeling the warmth of my hand on my heart, I offer myself this kindness. My heart is beating, I am alive, I am worthy of care'..."
+                        className="min-h-[80px] resize-none"
+                        value={responses.physical_compassion || ""}
+                        onChange={(e) => setResponses({...responses, physical_compassion: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Self-Compassion Comfort Level: How comfortable do you feel practicing self-compassion?
+                      </Label>
+                      <Slider
+                        value={[responses.compassion_comfort || 4]}
+                        onValueChange={(value) => setResponses({...responses, compassion_comfort: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Very uncomfortable</span>
+                        <span>Very comfortable</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Comfort Level: {responses.compassion_comfort || 4}/10</p>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Integration Plan: How will you practice self-compassion this week?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I will place my hand on my heart when I notice self-criticism, practice the three components daily, speak to myself like a good friend'..."
+                        className="min-h-[100px] resize-none"
+                        value={responses.integration_plan || ""}
+                        onChange={(e) => setResponses({...responses, integration_plan: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "The Inner Critic Transformation" ? (
               <div className="space-y-6">
                 <div className="bg-gradient-to-br from-teal-50 to-blue-50 rounded-lg p-6">
                   <h4 className="font-medium text-teal-900 mb-4 flex items-center">
