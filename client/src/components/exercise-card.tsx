@@ -2264,6 +2264,496 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                   </div>
                 </div>
               </div>
+            ) : exercise.title === "Phoenix Gifts Assessment" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-lg p-6">
+                  <h4 className="font-medium text-yellow-900 mb-4 flex items-center">
+                    <Heart className="mr-2" size={16} />
+                    Phoenix Gifts Discovery
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Primary Phoenix Gift: Which gift has emerged most strongly from your healing journey?
+                      </Label>
+                      <Select
+                        value={responses.primary_gift || ""}
+                        onValueChange={(value) => setResponses({...responses, primary_gift: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose your strongest Phoenix gift..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="empathy">Empathy - Deep understanding and compassion for others in pain</SelectItem>
+                          <SelectItem value="resilience">Resilience - Proven ability to overcome adversity and bounce back</SelectItem>
+                          <SelectItem value="intuition">Intuition - Heightened sensitivity to energy, emotions, and truth</SelectItem>
+                          <SelectItem value="authenticity">Authenticity - Commitment to genuine connection and honest living</SelectItem>
+                          <SelectItem value="wisdom">Wisdom - Hard-earned insights about life, relationships, and healing</SelectItem>
+                          <SelectItem value="courage">Courage - Willingness to face difficult truths and make changes</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Gift Story: How did this gift develop through your healing journey?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'My empathy grew through experiencing deep pain myself. Now I can instantly recognize when someone is struggling and offer genuine understanding without taking on their emotions...'"
+                        className="min-h-[120px] resize-none"
+                        value={responses.gift_story || ""}
+                        onChange={(e) => setResponses({...responses, gift_story: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Unique Perspective: What unique perspective do you have that others need to hear?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I understand how trauma affects the nervous system and can help others recognize when they are activated vs. shut down. I know it is possible to heal even from severe trauma...'"
+                        className="min-h-[120px] resize-none"
+                        value={responses.unique_perspective || ""}
+                        onChange={(e) => setResponses({...responses, unique_perspective: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Gift Validation: How do you know this gift is real and valuable?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'People often come to me for advice, friends say I have a calming presence, I can help others see solutions they could not see before...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.gift_validation || ""}
+                        onChange={(e) => setResponses({...responses, gift_validation: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Sharing Readiness: How ready are you to share this gift with others?
+                      </Label>
+                      <Slider
+                        value={[responses.sharing_readiness || 5]}
+                        onValueChange={(value) => setResponses({...responses, sharing_readiness: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Not ready</span>
+                        <span>Completely ready</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Readiness: {responses.sharing_readiness || 5}/10</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Purpose Exploration Practice" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-lg p-6">
+                  <h4 className="font-medium text-emerald-900 mb-4 flex items-center">
+                    <Target className="mr-2" size={16} />
+                    Purpose Exploration Lab
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Service Format: Which way of serving others most appeals to you?
+                      </Label>
+                      <Select
+                        value={responses.service_format || ""}
+                        onValueChange={(value) => setResponses({...responses, service_format: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose your preferred service format..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="mentoring">One-on-one mentoring and guidance</SelectItem>
+                          <SelectItem value="writing">Writing and sharing your story through books or blogs</SelectItem>
+                          <SelectItem value="speaking">Speaking to groups about your experience and insights</SelectItem>
+                          <SelectItem value="advocacy">Advocacy work to change systems or raise awareness</SelectItem>
+                          <SelectItem value="teaching">Teaching others about healing, growth, or life skills</SelectItem>
+                          <SelectItem value="creative">Creative expression through art, music, or other mediums</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Target Audience: Who do you most feel called to serve?
+                      </Label>
+                      <RadioGroup
+                        value={responses.target_audience || ""}
+                        onValueChange={(value) => setResponses({...responses, target_audience: value})}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="trauma_survivors" id="trauma" />
+                          <Label htmlFor="trauma">Other trauma survivors on their healing journey</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="women" id="women" />
+                          <Label htmlFor="women">Women struggling with similar challenges</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="general_public" id="general" />
+                          <Label htmlFor="general">General public seeking growth and healing</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="professionals" id="professionals" />
+                          <Label htmlFor="professionals">Professionals who work with trauma survivors</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="specific_group" id="specific" />
+                          <Label htmlFor="specific">A specific group related to your experience</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Purpose Vision: What specific change do you want to create in the world?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I want to help other women recognize that they can heal from narcissistic abuse and create healthy relationships. I want to show them it is possible to trust themselves again...'"
+                        className="min-h-[120px] resize-none"
+                        value={responses.purpose_vision || ""}
+                        onChange={(e) => setResponses({...responses, purpose_vision: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Energy Assessment: Which service activities give you energy vs. drain you?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I feel energized when I see someone have a breakthrough or aha moment. I get drained by large groups but love intimate one-on-one conversations...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.energy_assessment || ""}
+                        onChange={(e) => setResponses({...responses, energy_assessment: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Purpose Excitement: How excited do you feel about this potential purpose?
+                      </Label>
+                      <Slider
+                        value={[responses.purpose_excitement || 5]}
+                        onValueChange={(value) => setResponses({...responses, purpose_excitement: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Not excited</span>
+                        <span>Extremely excited</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Excitement: {responses.purpose_excitement || 5}/10</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Living Your Purpose Planning" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6">
+                  <h4 className="font-medium text-blue-900 mb-4 flex items-center">
+                    <Calendar className="mr-2" size={16} />
+                    Purpose Action Planner
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Immediate Actions (Next 30 Days): What can you do right now to begin living your purpose?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Research organizations that work with trauma survivors, start a blog about my healing journey, reach out to 3 people I could mentor, join a speaking group...'"
+                        className="min-h-[120px] resize-none"
+                        value={responses.immediate_actions || ""}
+                        onChange={(e) => setResponses({...responses, immediate_actions: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Short-term Goals (3-6 Months): What do you want to accomplish in the near future?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Complete my first speaking engagement, mentor 2-3 people, write 10 blog posts, complete training in trauma-informed coaching...'"
+                        className="min-h-[120px] resize-none"
+                        value={responses.short_term_goals || ""}
+                        onChange={(e) => setResponses({...responses, short_term_goals: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Long-term Vision (1-2 Years): What is your bigger vision for purposeful living?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Lead workshops for trauma survivors, write a book about my healing journey, create an online course, develop a support community...'"
+                        className="min-h-[120px] resize-none"
+                        value={responses.long_term_vision || ""}
+                        onChange={(e) => setResponses({...responses, long_term_vision: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Support Needed: What resources, training, or support do you need to succeed?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Trauma-informed coaching certification, public speaking training, website development help, ongoing therapy for my own healing...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.support_needed || ""}
+                        onChange={(e) => setResponses({...responses, support_needed: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Self-Care Integration: How will you maintain your own healing while serving others?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Continue my own therapy, maintain daily nervous system regulation practices, set clear boundaries on service hours, have monthly check-ins with my support team...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.self_care_plan || ""}
+                        onChange={(e) => setResponses({...responses, self_care_plan: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Commitment Level: How committed are you to pursuing this purpose path?
+                      </Label>
+                      <Slider
+                        value={[responses.purpose_commitment || 5]}
+                        onValueChange={(value) => setResponses({...responses, purpose_commitment: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Low commitment</span>
+                        <span>Total commitment</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Commitment: {responses.purpose_commitment || 5}/10</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Phoenix Legacy Visioning" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-lg p-6">
+                  <h4 className="font-medium text-violet-900 mb-4 flex items-center">
+                    <Eye className="mr-2" size={16} />
+                    Legacy Vision Creator
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Personal Legacy: How do you want your healing to impact your immediate relationships?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I want my children to see that healing is possible, that they can break cycles of trauma. I want my partner to experience a truly present and authentic relationship...'"
+                        className="min-h-[120px] resize-none"
+                        value={responses.personal_legacy || ""}
+                        onChange={(e) => setResponses({...responses, personal_legacy: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Community Impact: What contribution do you want to make to your local community?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I want to help create support groups for trauma survivors in my city. I want to advocate for trauma-informed practices in schools and workplaces...'"
+                        className="min-h-[120px] resize-none"
+                        value={responses.community_impact || ""}
+                        onChange={(e) => setResponses({...responses, community_impact: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Global Ripple Effect: How might your story and gifts serve people beyond your immediate circle?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I want my story to reach women around the world who feel trapped in toxic relationships. I want to show them that they are not alone and that transformation is possible...'"
+                        className="min-h-[120px] resize-none"
+                        value={responses.global_impact || ""}
+                        onChange={(e) => setResponses({...responses, global_impact: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Generational Legacy: What legacy do you want to leave for future generations?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I want future generations in my family to inherit emotional intelligence, healthy relationship patterns, and the knowledge that they are worthy of love...'"
+                        className="min-h-[120px] resize-none"
+                        value={responses.generational_legacy || ""}
+                        onChange={(e) => setResponses({...responses, generational_legacy: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Legacy Motivation: How motivated are you to create this legacy?
+                      </Label>
+                      <Slider
+                        value={[responses.legacy_motivation || 5]}
+                        onValueChange={(value) => setResponses({...responses, legacy_motivation: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Not motivated</span>
+                        <span>Deeply motivated</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Motivation: {responses.legacy_motivation || 5}/10</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Service Readiness Assessment" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-lg p-6">
+                  <h4 className="font-medium text-teal-900 mb-4 flex items-center">
+                    <Shield className="mr-2" size={16} />
+                    Service Readiness Evaluator
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Emotional Stability: How stable and regulated is your emotional state?
+                      </Label>
+                      <Slider
+                        value={[responses.emotional_stability || 5]}
+                        onValueChange={(value) => setResponses({...responses, emotional_stability: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Very unstable</span>
+                        <span>Very stable</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Stability: {responses.emotional_stability || 5}/10</p>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Boundary Confidence: How well can you maintain boundaries while helping others?
+                      </Label>
+                      <RadioGroup
+                        value={responses.boundary_confidence || ""}
+                        onValueChange={(value) => setResponses({...responses, boundary_confidence: value})}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="weak" id="weak" />
+                          <Label htmlFor="weak">Still struggle with boundaries - often take on others emotions</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="developing" id="developing" />
+                          <Label htmlFor="developing">Developing boundaries - sometimes slip but catching myself</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="good" id="good" />
+                          <Label htmlFor="good">Good boundaries - generally maintain separation while caring</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="strong" id="strong" />
+                          <Label htmlFor="strong">Strong boundaries - can help without taking on others pain</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Trigger Management: How aware and prepared are you for potential triggers in service work?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I know that hearing about severe abuse might trigger my own memories. I have a plan to pause, breathe, and ground myself. I have my therapist on speed dial...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.trigger_management || ""}
+                        onChange={(e) => setResponses({...responses, trigger_management: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Support Systems: How strong are your support systems for your own continued healing?
+                      </Label>
+                      <RadioGroup
+                        value={responses.support_strength || ""}
+                        onValueChange={(value) => setResponses({...responses, support_strength: value})}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="inadequate" id="inadequate" />
+                          <Label htmlFor="inadequate">Inadequate - feel isolated and unsupported</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="developing" id="developing2" />
+                          <Label htmlFor="developing2">Developing - have some support but need more</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="adequate" id="adequate" />
+                          <Label htmlFor="adequate">Adequate - have therapist and some supportive relationships</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="strong" id="strong2" />
+                          <Label htmlFor="strong2">Strong - have multiple layers of professional and personal support</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Areas for Growth: What areas do you need to strengthen before or while serving others?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I need to strengthen my public speaking skills, learn more about professional boundaries, continue working on my own attachment patterns...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.growth_areas || ""}
+                        onChange={(e) => setResponses({...responses, growth_areas: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Overall Readiness: How ready do you feel to begin serving others?
+                      </Label>
+                      <Slider
+                        value={[responses.overall_readiness || 5]}
+                        onValueChange={(value) => setResponses({...responses, overall_readiness: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Not ready</span>
+                        <span>Completely ready</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Readiness: {responses.overall_readiness || 5}/10</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             ) : (
               <div className="bg-teal-50 rounded-lg p-6">
                 <h4 className="font-medium text-teal-900 mb-4 flex items-center">
