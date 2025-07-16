@@ -1190,6 +1190,457 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                   </div>
                 </div>
               </div>
+            ) : exercise.title === "Nervous System State Assessment" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-lg p-6">
+                  <h4 className="font-medium text-emerald-900 mb-4 flex items-center">
+                    <Activity className="mr-2" size={16} />
+                    Nervous System State Check-In
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Current State: How do you feel right now in your body?
+                      </Label>
+                      <RadioGroup
+                        value={responses.current_state || ""}
+                        onValueChange={(value) => setResponses({...responses, current_state: value})}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="ventral_vagal" id="ventral" />
+                          <Label htmlFor="ventral">Calm and connected - I feel safe and present</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="sympathetic" id="sympathetic" />
+                          <Label htmlFor="sympathetic">Activated - I feel anxious, tense, or on edge</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="dorsal_vagal" id="dorsal" />
+                          <Label htmlFor="dorsal">Shut down - I feel numb, tired, or disconnected</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="mixed" id="mixed" />
+                          <Label htmlFor="mixed">Mixed - I feel combinations of the above</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Activation Triggers: What situations typically activate your fight/flight response?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Conflict at work, loud sudden noises, feeling criticized, time pressure...'"
+                        className="min-h-[80px] resize-none"
+                        value={responses.activation_triggers || ""}
+                        onChange={(e) => setResponses({...responses, activation_triggers: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Shutdown Triggers: What situations cause you to freeze or disconnect?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Overwhelming emotions, being yelled at, too many decisions, feeling unsafe...'"
+                        className="min-h-[80px] resize-none"
+                        value={responses.shutdown_triggers || ""}
+                        onChange={(e) => setResponses({...responses, shutdown_triggers: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Body Awareness: Rate your current connection to body sensations
+                      </Label>
+                      <Slider
+                        value={[responses.body_awareness || 5]}
+                        onValueChange={(value) => setResponses({...responses, body_awareness: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Very disconnected</span>
+                        <span>Very connected</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Connection: {responses.body_awareness || 5}/10</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Breathwork for Regulation" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6">
+                  <h4 className="font-medium text-blue-900 mb-4 flex items-center">
+                    <Heart className="mr-2" size={16} />
+                    Breathwork Practice Studio
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Breathing Technique: Which technique would you like to practice?
+                      </Label>
+                      <Select
+                        value={responses.breathing_technique || ""}
+                        onValueChange={(value) => setResponses({...responses, breathing_technique: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose a breathing technique..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="box_breathing">Box Breathing (4-4-4-4) - For balance and calm</SelectItem>
+                          <SelectItem value="calming_breath">Calming Breath (4 in, 6-8 out) - To reduce activation</SelectItem>
+                          <SelectItem value="energizing_breath">Energizing Breath - To gently activate when shut down</SelectItem>
+                          <SelectItem value="natural_breath">Natural Breath Awareness - Simply observing</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Practice Duration: How long did you practice?
+                      </Label>
+                      <RadioGroup
+                        value={responses.practice_duration || ""}
+                        onValueChange={(value) => setResponses({...responses, practice_duration: value})}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="1_min" id="1min" />
+                          <Label htmlFor="1min">1 minute</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="3_min" id="3min" />
+                          <Label htmlFor="3min">3 minutes</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="5_min" id="5min" />
+                          <Label htmlFor="5min">5 minutes</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="10_min" id="10min" />
+                          <Label htmlFor="10min">10+ minutes</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Before Practice: How did you feel before starting the breathwork?
+                      </Label>
+                      <Slider
+                        value={[responses.before_state || 5]}
+                        onValueChange={(value) => setResponses({...responses, before_state: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Very dysregulated</span>
+                        <span>Very regulated</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Before: {responses.before_state || 5}/10</p>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        After Practice: How do you feel after the breathwork?
+                      </Label>
+                      <Slider
+                        value={[responses.after_state || 5]}
+                        onValueChange={(value) => setResponses({...responses, after_state: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Very dysregulated</span>
+                        <span>Very regulated</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">After: {responses.after_state || 5}/10</p>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Breathwork Observations: What did you notice during the practice?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'My shoulders relaxed, my mind became quieter, I felt more present in my body...'"
+                        className="min-h-[80px] resize-none"
+                        value={responses.breathwork_observations || ""}
+                        onChange={(e) => setResponses({...responses, breathwork_observations: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Somatic Awareness Practice" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg p-6">
+                  <h4 className="font-medium text-orange-900 mb-4 flex items-center">
+                    <Activity className="mr-2" size={16} />
+                    Body Awareness Explorer
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Body Scan Practice: Take 2-3 minutes to scan through your body from head to toe
+                      </Label>
+                      <Textarea
+                        placeholder="What do you notice? Tension in shoulders? Butterflies in stomach? Tingling? Warmth? Coolness? Describe any sensations..."
+                        className="min-h-[100px] resize-none"
+                        value={responses.body_scan_notes || ""}
+                        onChange={(e) => setResponses({...responses, body_scan_notes: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Grounding Practice: How connected do you feel to your physical support (chair, floor)?
+                      </Label>
+                      <RadioGroup
+                        value={responses.grounding_level || ""}
+                        onValueChange={(value) => setResponses({...responses, grounding_level: value})}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="not_grounded" id="not_grounded" />
+                          <Label htmlFor="not_grounded">Not grounded - feel floating or disconnected</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="slightly_grounded" id="slightly_grounded" />
+                          <Label htmlFor="slightly_grounded">Slightly grounded - some awareness of support</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="well_grounded" id="well_grounded" />
+                          <Label htmlFor="well_grounded">Well grounded - feel solidly supported</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="very_grounded" id="very_grounded" />
+                          <Label htmlFor="very_grounded">Very grounded - feel deeply connected to earth</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Movement Preference: Which type of movement feels most regulating for you today?
+                      </Label>
+                      <Select
+                        value={responses.movement_preference || ""}
+                        onValueChange={(value) => setResponses({...responses, movement_preference: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose movement type..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="gentle_stretching">Gentle stretching and reaching</SelectItem>
+                          <SelectItem value="shaking">Gentle shaking or bouncing</SelectItem>
+                          <SelectItem value="rolling">Rolling shoulders or head circles</SelectItem>
+                          <SelectItem value="walking">Walking or marching in place</SelectItem>
+                          <SelectItem value="still">Staying still and present</SelectItem>
+                          <SelectItem value="spontaneous">Whatever my body wants to do</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Somatic Regulation: After body awareness and movement, how regulated do you feel?
+                      </Label>
+                      <Slider
+                        value={[responses.somatic_regulation || 5]}
+                        onValueChange={(value) => setResponses({...responses, somatic_regulation: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Dysregulated</span>
+                        <span>Well regulated</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Regulation: {responses.somatic_regulation || 5}/10</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Vagus Nerve Activation" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-lg p-6">
+                  <h4 className="font-medium text-purple-900 mb-4 flex items-center">
+                    <Brain className="mr-2" size={16} />
+                    Vagus Nerve Activation Lab
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Technique Selection: Which vagus nerve technique would you like to try?
+                      </Label>
+                      <Select
+                        value={responses.vagus_technique || ""}
+                        onValueChange={(value) => setResponses({...responses, vagus_technique: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose technique..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="humming">Humming - Creates vibrations in chest and throat</SelectItem>
+                          <SelectItem value="singing">Singing - Engages vocal cords and breathing</SelectItem>
+                          <SelectItem value="gargling">Gargling - Activates throat muscles</SelectItem>
+                          <SelectItem value="cold_water">Cold Water - Splash on face or wrists</SelectItem>
+                          <SelectItem value="laughter">Laughter - Natural vagus stimulation</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Practice Experience: How did the technique feel?
+                      </Label>
+                      <RadioGroup
+                        value={responses.technique_experience || ""}
+                        onValueChange={(value) => setResponses({...responses, technique_experience: value})}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="uncomfortable" id="uncomfortable" />
+                          <Label htmlFor="uncomfortable">Uncomfortable or activating</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="neutral" id="neutral" />
+                          <Label htmlFor="neutral">Neutral - no strong effect</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="pleasant" id="pleasant" />
+                          <Label htmlFor="pleasant">Pleasant and calming</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="very_effective" id="very_effective" />
+                          <Label htmlFor="very_effective">Very effective - felt immediate shift</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Physical Sensations: What did you notice in your body during the practice?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Felt vibrations in my chest, tingling in throat, warmth spreading, tension releasing...'"
+                        className="min-h-[80px] resize-none"
+                        value={responses.physical_sensations || ""}
+                        onChange={(e) => setResponses({...responses, physical_sensations: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Vagal Tone: Rate how activated/strong your vagus nerve feels after this practice
+                      </Label>
+                      <Slider
+                        value={[responses.vagal_tone || 5]}
+                        onValueChange={(value) => setResponses({...responses, vagal_tone: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Weak/inactive</span>
+                        <span>Strong/active</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Vagal Tone: {responses.vagal_tone || 5}/10</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Creating Safety Anchors" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6">
+                  <h4 className="font-medium text-green-900 mb-4 flex items-center">
+                    <Shield className="mr-2" size={16} />
+                    Personal Safety Anchor Builder
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Sensory Safety: What do you see, hear, smell, touch, or taste that brings immediate comfort?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'The smell of lavender, soft blanket texture, sound of rain, warm tea, photo of my pet...'"
+                        className="min-h-[80px] resize-none"
+                        value={responses.sensory_anchors || ""}
+                        onChange={(e) => setResponses({...responses, sensory_anchors: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Movement Safety: What physical positions or movements help you feel safe and grounded?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Feet flat on floor, back against wall, hands on heart, gentle rocking, walking barefoot...'"
+                        className="min-h-[80px] resize-none"
+                        value={responses.movement_anchors || ""}
+                        onChange={(e) => setResponses({...responses, movement_anchors: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Relational Safety: Who or what relationships help you feel most secure and supported?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'My best friend Sarah, my dog Max, memories of my grandmother, supportive therapist...'"
+                        className="min-h-[80px] resize-none"
+                        value={responses.relational_anchors || ""}
+                        onChange={(e) => setResponses({...responses, relational_anchors: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Environmental Safety: What places or spaces naturally calm your nervous system?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'My bedroom corner, library, nature trails, coffee shop, bathroom (private space)...'"
+                        className="min-h-[80px] resize-none"
+                        value={responses.environmental_anchors || ""}
+                        onChange={(e) => setResponses({...responses, environmental_anchors: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Most Accessible Anchor: Which safety anchor can you access most easily in stressful moments?
+                      </Label>
+                      <Select
+                        value={responses.primary_anchor || ""}
+                        onValueChange={(value) => setResponses({...responses, primary_anchor: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose your most accessible anchor..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="breath">Deep breathing</SelectItem>
+                          <SelectItem value="touch">Self-touch (hand on heart, etc.)</SelectItem>
+                          <SelectItem value="visualization">Visualizing safe place/person</SelectItem>
+                          <SelectItem value="phrase">Calming phrase or mantra</SelectItem>
+                          <SelectItem value="grounding">Physical grounding (feet on floor)</SelectItem>
+                          <SelectItem value="sensory">Portable sensory item</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+              </div>
             ) : (
               <div className="bg-teal-50 rounded-lg p-6">
                 <h4 className="font-medium text-teal-900 mb-4 flex items-center">
