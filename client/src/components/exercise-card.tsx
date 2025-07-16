@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   BookOpen, Play, CheckCircle2, Clock, Lightbulb,
-  Heart, Brain, Target, MessageCircle, Eye, Activity, Shield, Users, MessageSquare
+  Heart, Brain, Target, MessageCircle, Eye, Activity, Shield, Users, MessageSquare, Calendar
 } from "lucide-react";
 import type { Exercise } from "@shared/schema";
 
@@ -1637,6 +1637,149 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                           <SelectItem value="sensory">Portable sensory item</SelectItem>
                         </SelectContent>
                       </Select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Nervous System Recovery Routines" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg p-6">
+                  <h4 className="font-medium text-indigo-900 mb-4 flex items-center">
+                    <Calendar className="mr-2" size={16} />
+                    Nervous System Care Plan Builder
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Morning Regulation Routine: What practices will you do each morning to start regulated?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: '5 minutes of box breathing, gentle stretching, checking in with my body, setting daily intentions...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.morning_routine || ""}
+                        onChange={(e) => setResponses({...responses, morning_routine: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Midday Reset Practice: How will you recalibrate your nervous system during the day?
+                      </Label>
+                      <Select
+                        value={responses.midday_practice || ""}
+                        onValueChange={(value) => setResponses({...responses, midday_practice: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose your midday reset..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="breathing">2-3 minute breathing exercise</SelectItem>
+                          <SelectItem value="body_scan">Quick body awareness scan</SelectItem>
+                          <SelectItem value="movement">Gentle movement or stretching</SelectItem>
+                          <SelectItem value="grounding">Grounding practice (feet on floor, etc.)</SelectItem>
+                          <SelectItem value="anchoring">Use my safety anchors</SelectItem>
+                          <SelectItem value="vagus">Vagus nerve stimulation technique</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Stress Response Plan: What will you do when you notice nervous system activation?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'STOP what I am doing, take 3 deep breaths, check my nervous system state, use calming breath technique, find my safety anchor...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.stress_response_plan || ""}
+                        onChange={(e) => setResponses({...responses, stress_response_plan: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Evening Wind-Down: How will you help your nervous system transition to rest?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'No screens 1 hour before bed, gentle journaling, body scan, gratitude practice, creating calm environment...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.evening_routine || ""}
+                        onChange={(e) => setResponses({...responses, evening_routine: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Weekly Regulation Practices: What deeper practices will you do weekly for nervous system health?
+                      </Label>
+                      <RadioGroup
+                        value={responses.weekly_practice || ""}
+                        onValueChange={(value) => setResponses({...responses, weekly_practice: value})}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="nature_immersion" id="nature" />
+                          <Label htmlFor="nature">Extended time in nature</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="somatic_session" id="somatic" />
+                          <Label htmlFor="somatic">Longer somatic awareness practice</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="creative_expression" id="creative" />
+                          <Label htmlFor="creative">Creative expression (art, music, dance)</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="social_connection" id="social" />
+                          <Label htmlFor="social">Meaningful social connection</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="professional_support" id="professional" />
+                          <Label htmlFor="professional">Professional bodywork or therapy</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Integration Obstacles: What challenges might interfere with your nervous system care routine?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Time pressure at work, family demands, forgetting when stressed, feeling silly doing practices, perfectionism about doing it right...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.integration_obstacles || ""}
+                        onChange={(e) => setResponses({...responses, integration_obstacles: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Obstacle Solutions: How will you handle these challenges to maintain your practice?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Set phone reminders, start with just 2 minutes, practice during commute, remember that imperfect practice is better than no practice...'"
+                        className="min-h-[120px] resize-none"
+                        value={responses.obstacle_solutions || ""}
+                        onChange={(e) => setResponses({...responses, obstacle_solutions: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Commitment Level: How committed are you to maintaining daily nervous system care?
+                      </Label>
+                      <Slider
+                        value={[responses.commitment_level || 5]}
+                        onValueChange={(value) => setResponses({...responses, commitment_level: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Low commitment</span>
+                        <span>Total commitment</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Commitment: {responses.commitment_level || 5}/10</p>
                     </div>
                   </div>
                 </div>
