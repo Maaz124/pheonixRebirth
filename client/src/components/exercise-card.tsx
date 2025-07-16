@@ -186,7 +186,20 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                   <Play className="mr-2" size={16} />
                   Instructions
                 </h4>
-                <p className="text-teal-800 text-sm leading-relaxed">{content.instructions}</p>
+                {Array.isArray(content.instructions) ? (
+                  <ol className="space-y-2">
+                    {content.instructions.map((instruction: string, index: number) => (
+                      <li key={index} className="text-teal-800 text-sm flex items-start">
+                        <span className="w-6 h-6 bg-teal-200 text-teal-900 rounded-full text-xs flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+                          {index + 1}
+                        </span>
+                        {instruction}
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <p className="text-teal-800 text-sm leading-relaxed">{content.instructions}</p>
+                )}
               </div>
             )}
             
