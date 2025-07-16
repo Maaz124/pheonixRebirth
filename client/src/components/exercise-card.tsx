@@ -1641,6 +1641,486 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                   </div>
                 </div>
               </div>
+            ) : exercise.title === "Growth Inventory Assessment" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-lg p-6">
+                  <h4 className="font-medium text-pink-900 mb-4 flex items-center">
+                    <Target className="mr-2" size={16} />
+                    Phoenix Method Growth Review
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Phase 1 - Pause the Panic: How well can you now regulate during overwhelming moments?
+                      </Label>
+                      <Slider
+                        value={[responses.phase1_progress || 5]}
+                        onValueChange={(value) => setResponses({...responses, phase1_progress: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>No improvement</span>
+                        <span>Significant mastery</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Progress: {responses.phase1_progress || 5}/10</p>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Phase 2 - Honor Your Humanity: How much more self-compassionate are you now?
+                      </Label>
+                      <Slider
+                        value={[responses.phase2_progress || 5]}
+                        onValueChange={(value) => setResponses({...responses, phase2_progress: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Still very self-critical</span>
+                        <span>Very self-compassionate</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Progress: {responses.phase2_progress || 5}/10</p>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Phase 3 - Observe Your Patterns: How aware are you now of your patterns and triggers?
+                      </Label>
+                      <Slider
+                        value={[responses.phase3_progress || 5]}
+                        onValueChange={(value) => setResponses({...responses, phase3_progress: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Not aware</span>
+                        <span>Very aware</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Progress: {responses.phase3_progress || 5}/10</p>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Phase 4 - Establish Boundaries: How effectively can you set and maintain boundaries?
+                      </Label>
+                      <Slider
+                        value={[responses.phase4_progress || 5]}
+                        onValueChange={(value) => setResponses({...responses, phase4_progress: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Very poor boundaries</span>
+                        <span>Excellent boundaries</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Progress: {responses.phase4_progress || 5}/10</p>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Phase 5 - Nurture Your Nervous System: How well can you regulate your nervous system?
+                      </Label>
+                      <Slider
+                        value={[responses.phase5_progress || 5]}
+                        onValueChange={(value) => setResponses({...responses, phase5_progress: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Poor regulation</span>
+                        <span>Excellent regulation</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Progress: {responses.phase5_progress || 5}/10</p>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Greatest Transformation: What change are you most proud of?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I am most proud of learning to say no without guilt. This has transformed my relationships and energy levels...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.greatest_transformation || ""}
+                        onChange={(e) => setResponses({...responses, greatest_transformation: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Life Integration Planning" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg p-6">
+                  <h4 className="font-medium text-purple-900 mb-4 flex items-center">
+                    <Target className="mr-2" size={16} />
+                    Integration Action Planner
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Relationship Integration: How will you apply your skills in relationships?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I will practice using my communication scripts with my partner, maintain boundaries with my family, and seek healthier friendships...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.relationship_integration || ""}
+                        onChange={(e) => setResponses({...responses, relationship_integration: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Work/Career Integration: How will you use these skills professionally?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I will set clear work boundaries, use nervous system regulation during meetings, and communicate more authentically with colleagues...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.work_integration || ""}
+                        onChange={(e) => setResponses({...responses, work_integration: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Daily Self-Care Integration: What practices will you maintain daily?
+                      </Label>
+                      <Select
+                        value={responses.daily_practice || ""}
+                        onValueChange={(value) => setResponses({...responses, daily_practice: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose your primary daily practice..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="morning_regulation">Morning nervous system regulation routine</SelectItem>
+                          <SelectItem value="boundary_check">Daily boundary check-in and maintenance</SelectItem>
+                          <SelectItem value="pattern_awareness">Evening pattern awareness reflection</SelectItem>
+                          <SelectItem value="self_compassion">Daily self-compassion practice</SelectItem>
+                          <SelectItem value="breathwork">Regular breathwork sessions</SelectItem>
+                          <SelectItem value="integrated_approach">Combination of multiple practices</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Trigger Management Plan: How will you handle your known triggers differently?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'When I feel criticized, I will pause, breathe, check my nervous system state, and respond from my regulated self rather than react...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.trigger_management || ""}
+                        onChange={(e) => setResponses({...responses, trigger_management: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Integration Confidence: How confident do you feel about implementing these changes?
+                      </Label>
+                      <Slider
+                        value={[responses.integration_confidence || 5]}
+                        onValueChange={(value) => setResponses({...responses, integration_confidence: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Not confident</span>
+                        <span>Very confident</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Confidence: {responses.integration_confidence || 5}/10</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Relationship Transformation Practice" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg p-6">
+                  <h4 className="font-medium text-amber-900 mb-4 flex items-center">
+                    <Users className="mr-2" size={16} />
+                    Relationship Evolution Tracker
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Most Transformed Relationship: Which relationship has changed the most?
+                      </Label>
+                      <Select
+                        value={responses.transformed_relationship || ""}
+                        onValueChange={(value) => setResponses({...responses, transformed_relationship: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select relationship type..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="romantic_partner">Romantic partner</SelectItem>
+                          <SelectItem value="parent">Parent/caregiver</SelectItem>
+                          <SelectItem value="child">Child</SelectItem>
+                          <SelectItem value="sibling">Sibling</SelectItem>
+                          <SelectItem value="friend">Close friend</SelectItem>
+                          <SelectItem value="coworker">Coworker/boss</SelectItem>
+                          <SelectItem value="self">Relationship with myself</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Relationship Transformation Story: How has this relationship evolved?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'My relationship with my mother has completely changed. I now set clear boundaries about topics we discuss, I do not take on her emotions, and I communicate from a place of love rather than fear...'"
+                        className="min-h-[120px] resize-none"
+                        value={responses.transformation_story || ""}
+                        onChange={(e) => setResponses({...responses, transformation_story: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        New Communication Patterns: What do you do differently in conversations?
+                      </Label>
+                      <RadioGroup
+                        value={responses.communication_changes || ""}
+                        onValueChange={(value) => setResponses({...responses, communication_changes: value})}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="boundaries" id="boundaries" />
+                          <Label htmlFor="boundaries">I set and maintain clear boundaries</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="authentic" id="authentic" />
+                          <Label htmlFor="authentic">I communicate more authentically and honestly</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="regulated" id="regulated" />
+                          <Label htmlFor="regulated">I stay regulated during difficult conversations</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="compassionate" id="compassionate" />
+                          <Label htmlFor="compassionate">I respond with more compassion and less reactivity</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="direct" id="direct" />
+                          <Label htmlFor="direct">I communicate directly without over-explaining</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Relationship Challenges: What challenges do you still face in relationships?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I still struggle with guilt when setting boundaries with my family. Sometimes I worry about being too direct...'"
+                        className="min-h-[80px] resize-none"
+                        value={responses.relationship_challenges || ""}
+                        onChange={(e) => setResponses({...responses, relationship_challenges: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Relationship Satisfaction: How satisfied are you with your relationships now?
+                      </Label>
+                      <Slider
+                        value={[responses.relationship_satisfaction || 5]}
+                        onValueChange={(value) => setResponses({...responses, relationship_satisfaction: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Very unsatisfied</span>
+                        <span>Very satisfied</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Satisfaction: {responses.relationship_satisfaction || 5}/10</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Phoenix Strengths Activation" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-lg p-6">
+                  <h4 className="font-medium text-red-900 mb-4 flex items-center">
+                    <Heart className="mr-2" size={16} />
+                    Phoenix Strengths Discovery
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Primary Phoenix Strength: Which strength has emerged most clearly from your healing journey?
+                      </Label>
+                      <Select
+                        value={responses.primary_strength || ""}
+                        onValueChange={(value) => setResponses({...responses, primary_strength: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose your strongest Phoenix quality..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="resilience">Resilience - Ability to bounce back and keep going</SelectItem>
+                          <SelectItem value="empathy">Empathy - Deep understanding of others pain and healing</SelectItem>
+                          <SelectItem value="intuition">Intuition - Heightened sensitivity to energy and truth</SelectItem>
+                          <SelectItem value="authenticity">Authenticity - Commitment to genuine connection</SelectItem>
+                          <SelectItem value="wisdom">Wisdom - Hard-earned insights about life and healing</SelectItem>
+                          <SelectItem value="courage">Courage - Willingness to face truth and make changes</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Strength Story: How has this strength developed through your healing journey?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'My empathy has grown through understanding my own pain. I can now sense when others are struggling and offer genuine support without taking on their emotions...'"
+                        className="min-h-[120px] resize-none"
+                        value={responses.strength_story || ""}
+                        onChange={(e) => setResponses({...responses, strength_story: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Strength Application: How do you use this strength in your daily life?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I use my intuition to make better decisions about relationships and work. I trust my gut feelings more and they guide me toward healthier choices...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.strength_application || ""}
+                        onChange={(e) => setResponses({...responses, strength_application: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Sharing Your Strength: How comfortable are you sharing this strength to help others?
+                      </Label>
+                      <RadioGroup
+                        value={responses.sharing_comfort || ""}
+                        onValueChange={(value) => setResponses({...responses, sharing_comfort: value})}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="not_ready" id="not_ready" />
+                          <Label htmlFor="not_ready">Not ready to share - still developing this strength</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="close_circle" id="close_circle" />
+                          <Label htmlFor="close_circle">Comfortable sharing with close friends and family</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="selective" id="selective" />
+                          <Label htmlFor="selective">Selectively share when I sense someone could benefit</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="openly" id="openly" />
+                          <Label htmlFor="openly">Openly share to help others who are struggling</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="mentor" id="mentor" />
+                          <Label htmlFor="mentor">Ready to mentor or guide others in their healing</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Future Self Visioning" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-lg p-6">
+                  <h4 className="font-medium text-cyan-900 mb-4 flex items-center">
+                    <Eye className="mr-2" size={16} />
+                    Future Self Visualization
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Daily Life Vision: Describe a typical day when you are fully integrated and thriving
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I wake up feeling grounded and peaceful. I start my day with breathwork and set clear intentions. I move through my day with confidence, maintaining healthy boundaries naturally...'"
+                        className="min-h-[120px] resize-none"
+                        value={responses.daily_vision || ""}
+                        onChange={(e) => setResponses({...responses, daily_vision: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Relationship Vision: How do you show up in relationships when fully integrated?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I am present and authentic in all my relationships. I communicate clearly and lovingly. I maintain healthy boundaries while staying open-hearted...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.relationship_vision || ""}
+                        onChange={(e) => setResponses({...responses, relationship_vision: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Challenge Response Vision: How does your integrated self handle stress and difficulties?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'When challenges arise, I pause and breathe. I stay connected to my body and respond from a regulated place. I see challenges as opportunities for growth...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.challenge_vision || ""}
+                        onChange={(e) => setResponses({...responses, challenge_vision: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Purpose Vision: What meaningful contribution are you making from your integrated state?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I use my healing journey to help other women find their strength. I create safe spaces for authentic connection. My presence itself becomes healing for others...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.purpose_vision || ""}
+                        onChange={(e) => setResponses({...responses, purpose_vision: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Vision Clarity: How clear and compelling is this future vision for you?
+                      </Label>
+                      <Slider
+                        value={[responses.vision_clarity || 5]}
+                        onValueChange={(value) => setResponses({...responses, vision_clarity: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Vague and unclear</span>
+                        <span>Crystal clear and compelling</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Clarity: {responses.vision_clarity || 5}/10</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             ) : (
               <div className="bg-teal-50 rounded-lg p-6">
                 <h4 className="font-medium text-teal-900 mb-4 flex items-center">
