@@ -445,6 +445,554 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                   </div>
                 </div>
               </div>
+            ) : exercise.title === "Shame Resilience Building" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-rose-50 to-pink-50 rounded-lg p-6">
+                  <h4 className="font-medium text-rose-900 mb-4 flex items-center">
+                    <Shield className="mr-2" size={16} />
+                    Shame Resilience Builder
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Recognize Shame: What shame message are you hearing?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I am broken, I am too much, I am not enough, I should be ashamed of myself...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.shame_message || ""}
+                        onChange={(e) => setResponses({...responses, shame_message: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Reality Check: What would you tell a friend experiencing this shame?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'You are not broken. Making mistakes is human. You deserve compassion and understanding...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.friend_response || ""}
+                        onChange={(e) => setResponses({...responses, friend_response: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Reach Out Strategy: Who could you share this shame with safely?
+                      </Label>
+                      <RadioGroup
+                        value={responses.support_person || ""}
+                        onValueChange={(value) => setResponses({...responses, support_person: value})}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="therapist" id="therapist" />
+                          <Label htmlFor="therapist">Therapist or counselor</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="trusted_friend" id="trusted_friend" />
+                          <Label htmlFor="trusted_friend">Trusted friend</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="family_member" id="family_member" />
+                          <Label htmlFor="family_member">Safe family member</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="support_group" id="support_group" />
+                          <Label htmlFor="support_group">Support group</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="journal" id="journal" />
+                          <Label htmlFor="journal">Written reflection/journaling</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Speak Shame: How will you name this shame experience?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I am experiencing shame about my past. This is a shame story, not a fact about who I am. I am worthy of love and belonging...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.shame_narrative || ""}
+                        onChange={(e) => setResponses({...responses, shame_narrative: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Shame Resilience Level: How confident do you feel in managing shame?
+                      </Label>
+                      <Slider
+                        value={[responses.resilience_level || 3]}
+                        onValueChange={(value) => setResponses({...responses, resilience_level: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Shame overwhelms me</span>
+                        <span>I can work with shame</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Resilience: {responses.resilience_level || 3}/10</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Perfectionism to Progress Mindset" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-lg p-6">
+                  <h4 className="font-medium text-amber-900 mb-4 flex items-center">
+                    <Target className="mr-2" size={16} />
+                    Perfectionism Recovery Lab
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Perfectionist Area: Where does perfectionism show up most in your life?
+                      </Label>
+                      <Select
+                        value={responses.perfectionism_area || ""}
+                        onValueChange={(value) => setResponses({...responses, perfectionism_area: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose your main perfectionism area..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="work">Work and career performance</SelectItem>
+                          <SelectItem value="appearance">Physical appearance and image</SelectItem>
+                          <SelectItem value="relationships">Relationships and social interactions</SelectItem>
+                          <SelectItem value="parenting">Parenting and family roles</SelectItem>
+                          <SelectItem value="creative">Creative projects and self-expression</SelectItem>
+                          <SelectItem value="healing">Healing and personal growth journey</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Perfectionist Thought: What does your perfectionist voice say?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'If I don't do this perfectly, people will think I'm incompetent. I have to get this exactly right or it's worthless...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.perfectionist_thought || ""}
+                        onChange={(e) => setResponses({...responses, perfectionist_thought: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Progress Reframe: How could you reframe this with a progress mindset?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Good enough is actually good enough. I can learn from imperfect attempts. Progress matters more than perfection...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.progress_reframe || ""}
+                        onChange={(e) => setResponses({...responses, progress_reframe: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        B+ Goal Setting: What would a B+ version of your goal look like?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Instead of writing the perfect email, I'll write a clear, helpful email in 10 minutes. Instead of the perfect presentation, I'll create something informative and authentic...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.b_plus_goal || ""}
+                        onChange={(e) => setResponses({...responses, b_plus_goal: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Implementation Strategy: How will you practice progress over perfection this week?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I will set a timer for tasks, share imperfect work with a friend, celebrate B+ efforts, practice done is better than perfect...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.implementation_strategy || ""}
+                        onChange={(e) => setResponses({...responses, implementation_strategy: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Progress Commitment: How committed are you to practicing progress over perfection?
+                      </Label>
+                      <Slider
+                        value={[responses.progress_commitment || 5]}
+                        onValueChange={(value) => setResponses({...responses, progress_commitment: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Still stuck in perfectionism</span>
+                        <span>Fully committed to progress</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Commitment: {responses.progress_commitment || 5}/10</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Emotional Validation Practice" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-purple-50 to-lavender-50 rounded-lg p-6">
+                  <h4 className="font-medium text-purple-900 mb-4 flex items-center">
+                    <Heart className="mr-2" size={16} />
+                    Emotion Validation Studio
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Current Emotion: What emotion are you experiencing right now?
+                      </Label>
+                      <Select
+                        value={responses.current_emotion || ""}
+                        onValueChange={(value) => setResponses({...responses, current_emotion: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Name your current emotion..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="anxiety">Anxiety or worry</SelectItem>
+                          <SelectItem value="sadness">Sadness or grief</SelectItem>
+                          <SelectItem value="anger">Anger or frustration</SelectItem>
+                          <SelectItem value="fear">Fear or panic</SelectItem>
+                          <SelectItem value="shame">Shame or guilt</SelectItem>
+                          <SelectItem value="loneliness">Loneliness or isolation</SelectItem>
+                          <SelectItem value="overwhelm">Overwhelm or stress</SelectItem>
+                          <SelectItem value="numbness">Numbness or disconnection</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Emotion Location: Where do you feel this emotion in your body?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Tight chest, shoulders up to my ears, butterflies in stomach, tension in my jaw...'"
+                        className="min-h-[80px] resize-none"
+                        value={responses.emotion_location || ""}
+                        onChange={(e) => setResponses({...responses, emotion_location: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Emotion Context: What situation or trigger brought up this emotion?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'A difficult conversation with my partner, work stress, remembering a past trauma, feeling criticized...'"
+                        className="min-h-[80px] resize-none"
+                        value={responses.emotion_context || ""}
+                        onChange={(e) => setResponses({...responses, emotion_context: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Validation Statement: Write a validating statement for your emotion
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'It makes sense that I feel anxious about this situation. Anyone who has been through what I've been through would feel this way. My emotions are valid and important information...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.validation_statement || ""}
+                        onChange={(e) => setResponses({...responses, validation_statement: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Emotional Need: What does this emotion need from you right now?
+                      </Label>
+                      <RadioGroup
+                        value={responses.emotional_need || ""}
+                        onValueChange={(value) => setResponses({...responses, emotional_need: value})}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="comfort" id="comfort" />
+                          <Label htmlFor="comfort">Comfort and soothing</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="space" id="space" />
+                          <Label htmlFor="space">Space and time to feel</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="action" id="action" />
+                          <Label htmlFor="action">Action or change in situation</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="connection" id="connection" />
+                          <Label htmlFor="connection">Connection with others</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="understanding" id="understanding" />
+                          <Label htmlFor="understanding">Understanding and clarity</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Self-Validation Skill: How comfortable are you validating your own emotions?
+                      </Label>
+                      <Slider
+                        value={[responses.validation_skill || 4]}
+                        onValueChange={(value) => setResponses({...responses, validation_skill: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Very uncomfortable</span>
+                        <span>Very comfortable</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Comfort Level: {responses.validation_skill || 4}/10</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Grief and Loss Integration" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6">
+                  <h4 className="font-medium text-blue-900 mb-4 flex items-center">
+                    <Heart className="mr-2" size={16} />
+                    Grief Integration Sanctuary
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        What Are You Grieving: What loss are you processing right now?
+                      </Label>
+                      <Select
+                        value={responses.grief_type || ""}
+                        onValueChange={(value) => setResponses({...responses, grief_type: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose what you are grieving..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="childhood">Lost childhood or innocence</SelectItem>
+                          <SelectItem value="relationship">Relationship that ended or changed</SelectItem>
+                          <SelectItem value="identity">Who you thought you were</SelectItem>
+                          <SelectItem value="dreams">Dreams or plans that didn't happen</SelectItem>
+                          <SelectItem value="safety">Sense of safety or trust</SelectItem>
+                          <SelectItem value="family">Family relationships or dynamics</SelectItem>
+                          <SelectItem value="health">Health or physical abilities</SelectItem>
+                          <SelectItem value="future">Future you thought you would have</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Grief Story: What exactly did you lose, and what did it mean to you?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I lost my sense of safety when the abuse started. I lost the belief that the world was a safe place and that people could be trusted...'"
+                        className="min-h-[120px] resize-none"
+                        value={responses.grief_story || ""}
+                        onChange={(e) => setResponses({...responses, grief_story: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Grief Waves: What triggers waves of grief for you?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Seeing happy families, anniversaries, certain songs, feeling vulnerable, witnessing trust between people...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.grief_triggers || ""}
+                        onChange={(e) => setResponses({...responses, grief_triggers: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Honoring Your Loss: How can you honor what you have lost?
+                      </Label>
+                      <RadioGroup
+                        value={responses.honoring_method || ""}
+                        onValueChange={(value) => setResponses({...responses, honoring_method: value})}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="ritual" id="ritual" />
+                          <Label htmlFor="ritual">Create a ritual or ceremony</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="letter" id="letter" />
+                          <Label htmlFor="letter">Write a letter to what you lost</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="art" id="art" />
+                          <Label htmlFor="art">Express grief through art or creativity</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="nature" id="nature" />
+                          <Label htmlFor="nature">Spend time in nature with your grief</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="sharing" id="sharing" />
+                          <Label htmlFor="sharing">Share your grief story with someone safe</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Grief Wisdom: What has your grief taught you about yourself or life?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'My grief has taught me how deeply I can love, how strong I actually am, how important it is to honor my feelings...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.grief_wisdom || ""}
+                        onChange={(e) => setResponses({...responses, grief_wisdom: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Integration Readiness: How ready are you to carry this grief with compassion?
+                      </Label>
+                      <Slider
+                        value={[responses.integration_readiness || 4]}
+                        onValueChange={(value) => setResponses({...responses, integration_readiness: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Grief overwhelms me</span>
+                        <span>I can hold grief with love</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Readiness: {responses.integration_readiness || 4}/10</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : exercise.title === "Self-Forgiveness Journey" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6">
+                  <h4 className="font-medium text-green-900 mb-4 flex items-center">
+                    <Heart className="mr-2" size={16} />
+                    Self-Forgiveness Practice
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        What Needs Forgiveness: What are you having trouble forgiving yourself for?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Staying in an abusive relationship too long, not protecting myself, trusting someone who hurt me, my reactions to trauma...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.forgiveness_issue || ""}
+                        onChange={(e) => setResponses({...responses, forgiveness_issue: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Understanding Context: What circumstances led to this situation?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I was young and didn't know better, I was in survival mode, I was doing the best I could with what I knew then, I was trying to protect myself...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.context_understanding || ""}
+                        onChange={(e) => setResponses({...responses, context_understanding: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Lessons Learned: What have you learned from this experience?
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'I learned to trust my instincts, I learned what red flags look like, I learned that I am stronger than I thought, I learned to prioritize my safety...'"
+                        className="min-h-[100px] resize-none"
+                        value={responses.lessons_learned || ""}
+                        onChange={(e) => setResponses({...responses, lessons_learned: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Forgiveness Letter: Write a forgiveness letter to yourself
+                      </Label>
+                      <Textarea
+                        placeholder="Example: 'Dear [Your name], I forgive you for... You were doing the best you could with what you knew. You were trying to survive and protect yourself. You are worthy of love and forgiveness...'"
+                        className="min-h-[150px] resize-none"
+                        value={responses.forgiveness_letter || ""}
+                        onChange={(e) => setResponses({...responses, forgiveness_letter: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Moving Forward: How will you show yourself compassion going forward?
+                      </Label>
+                      <RadioGroup
+                        value={responses.moving_forward || ""}
+                        onValueChange={(value) => setResponses({...responses, moving_forward: value})}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="daily_affirmations" id="daily_affirmations" />
+                          <Label htmlFor="daily_affirmations">Daily self-compassion affirmations</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="gentle_inner_voice" id="gentle_inner_voice" />
+                          <Label htmlFor="gentle_inner_voice">Practice speaking to myself with kindness</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="self_care_rituals" id="self_care_rituals" />
+                          <Label htmlFor="self_care_rituals">Create nurturing self-care rituals</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="boundary_setting" id="boundary_setting" />
+                          <Label htmlFor="boundary_setting">Set better boundaries to protect myself</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="professional_support" id="professional_support" />
+                          <Label htmlFor="professional_support">Continue therapy or professional support</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                        Forgiveness Progress: How ready do you feel to forgive yourself?
+                      </Label>
+                      <Slider
+                        value={[responses.forgiveness_readiness || 4]}
+                        onValueChange={(value) => setResponses({...responses, forgiveness_readiness: value[0]})}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-1">
+                        <span>Still very hard</span>
+                        <span>Ready to forgive myself</span>
+                      </div>
+                      <p className="text-center mt-2 font-medium">Readiness: {responses.forgiveness_readiness || 4}/10</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             ) : exercise.title === "Emotional Trigger Mapping" ? (
               <div className="space-y-6">
                 <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-lg p-6">
