@@ -1,0 +1,61 @@
+<svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+  <!-- Phoenix Bird Symbol -->
+  <g transform="translate(10, 10)">
+    <!-- Phoenix Wings -->
+    <path d="M15 20 Q8 15 5 25 Q8 30 15 25 Q22 30 25 25 Q22 15 15 20" 
+          fill="url(#phoenixGradient)" stroke="#d97706" stroke-width="0.5" opacity="0.8"/>
+    
+    <!-- Phoenix Body -->
+    <ellipse cx="15" cy="25" rx="3" ry="8" fill="url(#bodyGradient)"/>
+    
+    <!-- Phoenix Head -->
+    <circle cx="15" cy="18" r="2.5" fill="url(#headGradient)"/>
+    
+    <!-- Phoenix Crest -->
+    <path d="M15 15 Q12 12 13 16 Q15 13 17 16 Q18 12 15 15" 
+          fill="#f59e0b" opacity="0.9"/>
+    
+    <!-- Rising Flames -->
+    <g opacity="0.6">
+      <path d="M8 32 Q6 28 10 30 Q12 26 8 32" fill="#ef4444"/>
+      <path d="M15 35 Q13 30 17 33 Q19 28 15 35" fill="#f97316"/>
+      <path d="M22 32 Q20 28 24 30 Q26 26 22 32" fill="#eab308"/>
+    </g>
+  </g>
+  
+  <!-- Text Logo -->
+  <g transform="translate(50, 15)">
+    <text x="0" y="15" font-family="serif" font-size="18" font-weight="bold" fill="url(#textGradient)">
+      Phoenix Method
+    </text>
+    <text x="0" y="30" font-family="serif" font-size="8" fill="#6b7280" letter-spacing="2px">
+      TRAUMA RECOVERY
+    </text>
+    <text x="115" y="15" font-family="serif" font-size="12" fill="#d97706">™</text>
+  </g>
+  
+  <!-- Gradient Definitions -->
+  <defs>
+    <linearGradient id="phoenixGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ef4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#dc2626;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="bodyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="headGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fcd34d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#7c2d12;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#dc2626;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>

@@ -1,0 +1,44 @@
+<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+  <!-- Phoenix Bird Symbol -->
+  <g transform="translate(5, 5)">
+    <!-- Phoenix Wings -->
+    <path d="M15 15 Q8 10 5 20 Q8 25 15 20 Q22 25 25 20 Q22 10 15 15" 
+          fill="url(#phoenixGradient)" stroke="#d97706" stroke-width="0.5" opacity="0.9"/>
+    
+    <!-- Phoenix Body -->
+    <ellipse cx="15" cy="20" rx="2.5" ry="6" fill="url(#bodyGradient)"/>
+    
+    <!-- Phoenix Head -->
+    <circle cx="15" cy="13" r="2" fill="url(#headGradient)"/>
+    
+    <!-- Phoenix Crest -->
+    <path d="M15 11 Q13 8 14 11 Q15 9 16 11 Q17 8 15 11" 
+          fill="#f59e0b" opacity="0.9"/>
+    
+    <!-- Rising Flames -->
+    <g opacity="0.7">
+      <path d="M8 26 Q6 23 10 25 Q12 21 8 26" fill="#ef4444"/>
+      <path d="M15 28 Q13 24 17 26 Q19 22 15 28" fill="#f97316"/>
+      <path d="M22 26 Q20 23 24 25 Q26 21 22 26" fill="#eab308"/>
+    </g>
+  </g>
+  
+  <!-- Gradient Definitions -->
+  <defs>
+    <linearGradient id="phoenixGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ef4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#dc2626;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="bodyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="headGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fcd34d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>
