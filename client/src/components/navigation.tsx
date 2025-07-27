@@ -14,6 +14,7 @@ export function Navigation() {
     { href: "/phases", label: "Phases" },
     { href: "/resources", label: "Resources" },
     { href: "/journal", label: "Journal" },
+    { href: "/pricing", label: "Pricing" },
   ];
 
   return (

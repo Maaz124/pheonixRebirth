@@ -8,6 +8,8 @@ import Home from "@/pages/home";
 import Phase from "@/pages/phase";
 import Resources from "@/pages/resources";
 import Journal from "@/pages/journal";
+import Pricing from "@/pages/pricing";
+import Subscribe from "@/pages/subscribe";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -20,6 +22,8 @@ function Router() {
         <Route path="/phases" component={Home} />
         <Route path="/resources" component={Resources} />
         <Route path="/journal" component={Journal} />
+        <Route path="/pricing" component={Pricing} />
+        <Route path="/subscribe" component={Subscribe} />
         <Route component={NotFound} />
       </Switch>
     </div>

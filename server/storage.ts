@@ -55,6 +55,11 @@ export interface IStorage {
   getUserAssessmentResults(userId: number): Promise<UserAssessmentResult[]>;
   getUserAssessmentResult(userId: number, assessmentId: number): Promise<UserAssessmentResult | undefined>;
   createUserAssessmentResult(result: InsertUserAssessmentResult): Promise<UserAssessmentResult>;
+  
+  // Stripe and subscription operations
+  updateUserStripeInfo(userId: number, stripeCustomerId: string, stripeSubscriptionId: string | null): Promise<User | undefined>;
+  updateUserSubscription(userId: number, tier: string, status: string, endDate: Date | null): Promise<User | undefined>;
+  getUserByStripeCustomerId(stripeCustomerId: string): Promise<User | undefined>;
 }
 
 import { db } from "./db";
@@ -253,6 +258,35 @@ export class DatabaseStorage implements IStorage {
   async createUserAssessmentResult(insertResult: InsertUserAssessmentResult): Promise<UserAssessmentResult> {
     const [result] = await db.insert(userAssessmentResults).values(insertResult).returning();
     return result;
+  }
+  
+  // Stripe and subscription operations
+  async updateUserStripeInfo(userId: number, stripeCustomerId: string, stripeSubscriptionId: string | null): Promise<User | undefined> {
+    const [user] = await db.update(users)
+      .set({ 
+        stripeCustomerId, 
+        stripeSubscriptionId 
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return user || undefined;
+  }
+
+  async updateUserSubscription(userId: number, tier: string, status: string, endDate: Date | null): Promise<User | undefined> {
+    const [user] = await db.update(users)
+      .set({ 
+        subscriptionTier: tier,
+        subscriptionStatus: status,
+        subscriptionEndDate: endDate
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return user || undefined;
+  }
+
+  async getUserByStripeCustomerId(stripeCustomerId: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.stripeCustomerId, stripeCustomerId));
+    return user || undefined;
   }
 }
 

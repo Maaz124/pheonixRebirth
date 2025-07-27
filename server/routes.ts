@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import Stripe from "stripe";
 import { storage } from "./storage";
 import { 
   insertJournalEntrySchema, 
@@ -7,6 +8,13 @@ import {
   insertUserProgressSchema,
   insertUserExerciseProgressSchema 
 } from "@shared/schema";
+
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2023-10-16",
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Current user endpoint (for demo, always return user ID 1)
@@ -238,6 +246,121 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(results);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch assessment results" });
+    }
+  });
+
+  // Create Stripe subscription
+  app.post("/api/create-subscription", async (req, res) => {
+    try {
+      const { tier, billing } = req.body;
+      const userId = 1; // For demo, using fixed user ID
+      
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Create or get Stripe customer
+      let customerId = user.stripeCustomerId;
+      if (!customerId) {
+        const customer = await stripe.customers.create({
+          email: `${user.username}@example.com`,
+          name: user.name,
+        });
+        customerId = customer.id;
+        await storage.updateUserStripeInfo(userId, customerId, null);
+      }
+
+      // Define pricing (these would typically come from Stripe Price IDs)
+      const priceData = {
+        essential: {
+          monthly: { unit_amount: 2900, interval: 'month' },
+          annual: { unit_amount: 29000, interval: 'year' }
+        },
+        premium: {
+          monthly: { unit_amount: 7900, interval: 'month' },
+          annual: { unit_amount: 79000, interval: 'year' }
+        }
+      };
+
+      const priceConfig = priceData[tier as keyof typeof priceData]?.[billing as 'monthly' | 'annual'];
+      if (!priceConfig) {
+        return res.status(400).json({ message: "Invalid tier or billing period" });
+      }
+
+      // Create subscription
+      const subscription = await stripe.subscriptions.create({
+        customer: customerId,
+        items: [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: tier === 'essential' ? 'Phoenix Rise' : 'Phoenix Transform',
+              description: tier === 'essential' 
+                ? 'Complete access to the 7-phase recovery program'
+                : 'Everything in Rise plus premium coaching support'
+            },
+            unit_amount: priceConfig.unit_amount,
+            recurring: {
+              interval: priceConfig.interval as 'month' | 'year'
+            }
+          }
+        }],
+        payment_behavior: 'default_incomplete',
+        payment_settings: { save_default_payment_method: 'on_subscription' },
+        expand: ['latest_invoice.payment_intent'],
+      });
+
+      // Update user subscription info
+      await storage.updateUserStripeInfo(userId, customerId, subscription.id);
+      await storage.updateUserSubscription(userId, tier, 'pending', null);
+
+      const clientSecret = (subscription.latest_invoice as any)?.payment_intent?.client_secret;
+      
+      res.json({
+        subscriptionId: subscription.id,
+        clientSecret
+      });
+    } catch (error: any) {
+      console.error('Subscription creation error:', error);
+      res.status(400).json({ error: { message: error.message } });
+    }
+  });
+
+  // Handle Stripe webhooks
+  app.post("/api/stripe/webhook", async (req, res) => {
+    try {
+      const event = req.body;
+
+      switch (event.type) {
+        case 'customer.subscription.updated':
+        case 'customer.subscription.created':
+          const subscription = event.data.object;
+          const customer = await stripe.customers.retrieve(subscription.customer);
+          
+          // Find user by Stripe customer ID
+          const user = await storage.getUserByStripeCustomerId(subscription.customer);
+          if (user) {
+            const status = subscription.status === 'active' ? 'active' : 'inactive';
+            const endDate = subscription.current_period_end ? new Date(subscription.current_period_end * 1000) : null;
+            
+            await storage.updateUserSubscription(user.id, user.subscriptionTier, status, endDate);
+          }
+          break;
+
+        case 'customer.subscription.deleted':
+          const deletedSub = event.data.object;
+          const deletedUser = await storage.getUserByStripeCustomerId(deletedSub.customer);
+          if (deletedUser) {
+            await storage.updateUserSubscription(deletedUser.id, 'free', 'inactive', null);
+          }
+          break;
+      }
+
+      res.json({ received: true });
+    } catch (error) {
+      console.error('Webhook error:', error);
+      res.status(400).send('Webhook error');
     }
   });
 
