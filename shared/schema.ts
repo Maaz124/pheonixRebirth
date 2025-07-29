@@ -17,6 +17,31 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Lead capture and email marketing
+export const leads = pgTable("leads", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull(),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  source: text("source").notNull(), // 'landing_page', 'blog', 'pricing', etc.
+  leadMagnet: text("lead_magnet"), // 'free_assessment', 'boundary_guide', etc.
+  status: text("status").notNull().default("active"), // 'active', 'unsubscribed', 'bounced'
+  emailSequence: text("email_sequence"), // 'lead_magnet', 'nurture', etc.
+  lastEmailSent: timestamp("last_email_sent"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const emailCampaigns = pgTable("email_campaigns", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  subject: text("subject").notNull(),
+  content: text("content").notNull(),
+  sequence: text("sequence").notNull(),
+  sendAfterDays: integer("send_after_days").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const phases = pgTable("phases", {
   id: serial("id").primaryKey(),
   letter: text("letter").notNull().unique(),
@@ -141,6 +166,11 @@ export const insertUserAssessmentResultSchema = createInsertSchema(userAssessmen
   completedAt: true,
 });
 
+export const insertLeadSchema = createInsertSchema(leads).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -168,3 +198,6 @@ export type InsertAssessment = z.infer<typeof insertAssessmentSchema>;
 
 export type UserAssessmentResult = typeof userAssessmentResults.$inferSelect;
 export type InsertUserAssessmentResult = z.infer<typeof insertUserAssessmentResultSchema>;
+
+export type Lead = typeof leads.$inferSelect;
+export type InsertLead = z.infer<typeof insertLeadSchema>;

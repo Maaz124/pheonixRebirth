@@ -2,14 +2,17 @@
 
 ## Overview
 
-The Phoenix Method™ is a trauma-informed coaching framework application designed for emotionally exhausted women rising from trauma, anxiety, or narcissistic abuse. The platform provides a structured 7-phase recovery program with interactive exercises, assessments, journaling, and resource management.
+The Phoenix Method™ is a comprehensive trauma-informed coaching platform designed for emotionally exhausted women rising from trauma, anxiety, or narcissistic abuse. The platform provides a structured 7-phase recovery program with interactive exercises, assessments, journaling, resource management, and a complete commercial marketing funnel with subscription monetization.
 
-## Recent Changes (July 16, 2025)
-- **Phase 7 "eXamine Your Purpose" Complete**: Created 8 comprehensive exercises with 5 interactive practice components covering Phoenix gifts assessment, purpose exploration, living purpose planning, legacy visioning, and service readiness assessment
-- **Purpose Interactive Tools**: Built specialized components for Phoenix gifts discovery, purpose exploration lab, purpose action planner, legacy vision creator, and service readiness evaluator
-- **Purpose-Focused Assessments**: Created 3 detailed assessments covering purpose discovery, service readiness, and Phoenix transformation impact
-- **Complete Phoenix Method Program**: All 7 phases now unlocked with comprehensive interactive content, assessments, and progress tracking
-- **Full P.H.O.E.N.I.X Framework**: Pause the Panic, Honor Your Humanity, Observe Your Patterns, Establish Boundaries, Nurture Your Nervous System, Integrate Your Growth, eXamine Your Purpose
+## Recent Changes (July 29, 2025)
+- **Complete Marketing Funnel & SEO System**: Implemented comprehensive lead generation and conversion system with professional landing pages, lead magnets, email sequences, and blog content
+- **Professional Landing Page**: High-converting homepage with problem/solution framework, social proof, testimonials, and lead capture forms
+- **Interactive Lead Magnet**: Phoenix Assessment tool with personalized results and automated email sequence integration
+- **SEO-Optimized Blog**: Content marketing system with trauma recovery articles, category filtering, and newsletter signup
+- **Email Marketing Infrastructure**: Complete sequences for lead nurturing, onboarding, and conversion with personalized content
+- **Lead Capture & Management**: Database system for tracking leads, sources, and email campaign engagement
+- **Commercial Subscription System**: Stripe-integrated pricing with 3 tiers (Free, $29/month, $79/month) and secure payment processing
+- **Professional Branding**: Phoenix-themed design system with warm color palette and consistent visual identity throughout all touchpoints
 
 ## Previous Changes - Phase 5 (July 16, 2025)
 - **Phase 5 "Nurture Your Nervous System" Complete**: Created 8 comprehensive exercises with 5 interactive practice components covering nervous system awareness, breathwork, somatic practices, vagus nerve activation, and safety anchors
@@ -54,15 +57,17 @@ This is a full-stack web application built with a modern TypeScript stack, featu
 - **Storage**: DatabaseStorage implementation replacing MemStorage for persistent data
 
 ### Database Schema
-The application uses a comprehensive schema designed around the 7-phase recovery program:
+The application uses a comprehensive schema designed around the 7-phase recovery program and commercial operations:
 
-- **Users**: Authentication and profile management
+- **Users**: Authentication, profile management, and subscription data (Stripe integration)
 - **Phases**: The 7 phases of the Phoenix Method (P.H.O.E.N.I.X)
 - **Exercises**: Interactive content for each phase (assessments, readings, practices)
 - **User Progress**: Tracking completion status across phases and exercises
 - **Journal Entries**: Personal reflection and mood tracking
 - **Resources**: Categorized therapeutic tools and materials
 - **Assessments**: Structured questionnaires with user responses
+- **Leads**: Marketing funnel lead capture and tracking
+- **Email Campaigns**: Automated email sequence management for marketing and onboarding
 
 ## Data Flow
 

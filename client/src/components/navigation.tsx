@@ -10,10 +10,11 @@ export function Navigation() {
   });
 
   const navItems = [
-    { href: "/", label: "Overview" },
+    { href: "/dashboard", label: "Dashboard" },
     { href: "/phases", label: "Phases" },
     { href: "/resources", label: "Resources" },
     { href: "/journal", label: "Journal" },
+    { href: "/blog", label: "Blog" },
     { href: "/pricing", label: "Pricing" },
   ];
 

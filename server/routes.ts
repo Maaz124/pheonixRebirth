@@ -364,6 +364,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Lead capture endpoint
+  app.post("/api/leads", async (req, res) => {
+    try {
+      const { email, firstName, lastName, source, leadMagnet, assessmentResults } = req.body;
+      
+      const leadData = {
+        email,
+        firstName,
+        lastName,
+        source,
+        leadMagnet,
+        status: "active",
+        emailSequence: "lead_magnet"
+      };
+      
+      const lead = await storage.createLead(leadData);
+      
+      // In a real app, you would trigger email sequence here
+      // await emailService.sendWelcomeEmail(lead);
+      
+      res.status(201).json({ 
+        success: true, 
+        message: "Lead captured successfully",
+        leadId: lead.id 
+      });
+    } catch (error) {
+      console.error('Lead capture error:', error);
+      res.status(500).json({ message: "Failed to capture lead" });
+    }
+  });
+
+  // Newsletter signup
+  app.post("/api/newsletter", async (req, res) => {
+    try {
+      const { email, source = "newsletter" } = req.body;
+      
+      const leadData = {
+        email,
+        source,
+        leadMagnet: "newsletter",
+        status: "active",
+        emailSequence: "nurture"
+      };
+      
+      const lead = await storage.createLead(leadData);
+      
+      res.status(201).json({ 
+        success: true, 
+        message: "Successfully subscribed to newsletter" 
+      });
+    } catch (error) {
+      console.error('Newsletter signup error:', error);
+      res.status(500).json({ message: "Failed to subscribe to newsletter" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -10,6 +10,9 @@ import Resources from "@/pages/resources";
 import Journal from "@/pages/journal";
 import Pricing from "@/pages/pricing";
 import Subscribe from "@/pages/subscribe";
+import Landing from "@/pages/landing";
+import Blog from "@/pages/blog";
+import LeadMagnet from "@/pages/lead-magnet";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -17,13 +20,17 @@ function Router() {
     <div className="min-h-screen phoenix-bg-neutral">
       <Navigation />
       <Switch>
-        <Route path="/" component={Home} />
+        <Route path="/" component={Landing} />
+        <Route path="/dashboard" component={Home} />
         <Route path="/phase/:phaseId" component={Phase} />
         <Route path="/phases" component={Home} />
         <Route path="/resources" component={Resources} />
         <Route path="/journal" component={Journal} />
         <Route path="/pricing" component={Pricing} />
         <Route path="/subscribe" component={Subscribe} />
+        <Route path="/blog" component={Blog} />
+        <Route path="/blog/:slug" component={Blog} />
+        <Route path="/assessment" component={LeadMagnet} />
         <Route component={NotFound} />
       </Switch>
     </div>

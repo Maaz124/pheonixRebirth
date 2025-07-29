@@ -2,7 +2,8 @@ import type {
   User, InsertUser, Phase, InsertPhase, UserProgress, InsertUserProgress,
   Exercise, InsertExercise, UserExerciseProgress, InsertUserExerciseProgress,
   JournalEntry, InsertJournalEntry, Resource, InsertResource,
-  Assessment, InsertAssessment, UserAssessmentResult, InsertUserAssessmentResult
+  Assessment, InsertAssessment, UserAssessmentResult, InsertUserAssessmentResult,
+  Lead, InsertLead
 } from "@shared/schema";
 
 export interface IStorage {
@@ -60,13 +61,18 @@ export interface IStorage {
   updateUserStripeInfo(userId: number, stripeCustomerId: string, stripeSubscriptionId: string | null): Promise<User | undefined>;
   updateUserSubscription(userId: number, tier: string, status: string, endDate: Date | null): Promise<User | undefined>;
   getUserByStripeCustomerId(stripeCustomerId: string): Promise<User | undefined>;
+  
+  // Lead capture operations
+  createLead(lead: InsertLead): Promise<Lead>;
+  getAllLeads(): Promise<Lead[]>;
+  getLeadsBySource(source: string): Promise<Lead[]>;
 }
 
 import { db } from "./db";
 import { eq, and } from "drizzle-orm";
 import { 
   users, phases, userProgress, exercises, userExerciseProgress,
-  journalEntries, resources, assessments, userAssessmentResults
+  journalEntries, resources, assessments, userAssessmentResults, leads
 } from "@shared/schema";
 
 export class DatabaseStorage implements IStorage {
@@ -287,6 +293,20 @@ export class DatabaseStorage implements IStorage {
   async getUserByStripeCustomerId(stripeCustomerId: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.stripeCustomerId, stripeCustomerId));
     return user || undefined;
+  }
+  
+  // Lead capture operations
+  async createLead(insertLead: InsertLead): Promise<Lead> {
+    const [lead] = await db.insert(leads).values(insertLead).returning();
+    return lead;
+  }
+
+  async getAllLeads(): Promise<Lead[]> {
+    return await db.select().from(leads);
+  }
+
+  async getLeadsBySource(source: string): Promise<Lead[]> {
+    return await db.select().from(leads).where(eq(leads.source, source));
   }
 }
 
