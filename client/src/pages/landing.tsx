@@ -175,25 +175,48 @@ export default function Landing() {
             🔥 The Phoenix Method™ - As Seen in Psychology Today
           </Badge>
           
-          {/* Hero Image */}
+          {/* Hero Image - Phoenix Rising */}
           <div className="mb-8 relative">
             <div className="w-64 h-64 mx-auto bg-gradient-to-br from-orange-400 via-pink-400 to-purple-500 rounded-full flex items-center justify-center shadow-2xl mb-6">
               <div className="w-48 h-48 bg-gradient-to-br from-yellow-300 to-orange-400 rounded-full flex items-center justify-center">
+                {/* Phoenix SVG */}
                 <svg className="w-32 h-32 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM12 8C13.66 8 15 9.34 15 11V13H17C18.66 13 20 14.34 20 16V20C20 21.66 18.66 23 17 23H7C5.34 23 4 21.66 4 20V16C4 14.34 5.34 13 7 13H9V11C9 9.34 10.34 8 12 8ZM12 10C11.45 10 11 10.45 11 11V15H13V11C13 10.45 12.55 10 12 10Z"/>
+                  <path d="M12 2C12 2 8 4 8 8C8 10 9 11 10 12C9 13 8 14 8 16C8 20 12 22 12 22C12 22 16 20 16 16C16 14 15 13 14 12C15 11 16 10 16 8C16 4 12 2 12 2ZM12 4.5C13.5 5.5 14 6.5 14 8C14 9 13.5 9.5 13 10L12 11L11 10C10.5 9.5 10 9 10 8C10 6.5 10.5 5.5 12 4.5ZM12 13L13 14C13.5 14.5 14 15 14 16C14 17.5 13 18.5 12 19.5C11 18.5 10 17.5 10 16C10 15 10.5 14.5 11 14L12 13Z"/>
+                  {/* Wings */}
+                  <path d="M6 10C6 10 4 8 2 10C2 12 4 14 6 12C6 12 8 10 8 8C8 8 6 10 6 10ZM18 10C18 10 20 8 22 10C22 12 20 14 18 12C18 12 16 10 16 8C16 8 18 10 18 10Z" opacity="0.8"/>
+                  {/* Flame effects */}
+                  <path d="M12 2C12 2 10 1 9 3C9 4 10 5 12 4C12 4 14 1 12 2ZM12 2C12 2 14 1 15 3C15 4 14 5 12 4C12 4 10 1 12 2Z" opacity="0.6"/>
                 </svg>
               </div>
             </div>
             
-            {/* Floating elements around the hero image */}
+            {/* Floating transformation elements around the hero Phoenix */}
             <div className="absolute top-4 left-1/4 w-16 h-16 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full flex items-center justify-center shadow-lg animate-bounce">
-              <Heart className="text-white" size={24} />
+              <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z"/>
+              </svg>
             </div>
             <div className="absolute top-8 right-1/4 w-12 h-12 bg-gradient-to-r from-blue-400 to-teal-400 rounded-full flex items-center justify-center shadow-lg animate-pulse">
-              <Star className="text-white" size={16} />
+              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z"/>
+              </svg>
             </div>
             <div className="absolute bottom-12 left-1/3 w-14 h-14 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center shadow-lg animate-bounce delay-300">
-              <Zap className="text-white" size={20} />
+              <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M7 2V13L10.5 9.5L14 13V2H7ZM16 2V11L18.5 8.5L21 11V2H16ZM5 14L12 21L19 14H16L12 18L8 14H5Z"/>
+              </svg>
+            </div>
+            
+            {/* Additional floating feathers/transformation symbols */}
+            <div className="absolute top-16 left-12 w-8 h-8 opacity-60 animate-float">
+              <svg className="w-full h-full text-orange-300" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C13 3 14 5 14 8C14 11 13 13 12 14C11 13 10 11 10 8C10 5 11 3 12 2ZM8 6C9 7 10 9 10 12C10 15 9 17 8 18C7 17 6 15 6 12C6 9 7 7 8 6ZM16 6C17 7 18 9 18 12C18 15 17 17 16 18C15 17 14 15 14 12C14 9 15 7 16 6Z" opacity="0.7"/>
+              </svg>
+            </div>
+            <div className="absolute bottom-8 right-16 w-6 h-6 opacity-50 animate-float delay-500">
+              <svg className="w-full h-full text-pink-300" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C13 3 14 5 14 8C14 11 13 13 12 14C11 13 10 11 10 8C10 5 11 3 12 2Z" opacity="0.8"/>
+              </svg>
             </div>
           </div>
           
@@ -266,16 +289,28 @@ export default function Landing() {
         
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="text-center mb-16">
-            {/* Emotional imagery */}
+            {/* Emotional Pain Imagery */}
             <div className="mb-8">
               <div className="w-32 h-32 mx-auto bg-gradient-to-br from-red-400 to-gray-600 rounded-full flex items-center justify-center shadow-2xl mb-6 relative">
                 <div className="w-24 h-24 bg-gradient-to-br from-red-500 to-red-700 rounded-full flex items-center justify-center">
-                  <div className="w-4 h-4 bg-white rounded-full opacity-70"></div>
-                  <div className="w-2 h-8 bg-white/30 absolute top-8"></div>
+                  {/* Wounded bird/broken phoenix */}
+                  <svg className="w-16 h-16 text-white opacity-80" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 22C12 22 8 20 8 16C8 14 9 13 10 12C9 11 8 10 8 8C8 6 10 4 12 4C12 4 10 6 10 8C10 9 10.5 9.5 11 10L12 11L13 10C13.5 9.5 14 9 14 8C14 6 12 4 12 4C14 4 16 6 16 8C16 10 15 11 14 12C15 13 16 14 16 16C16 20 12 22 12 22Z" opacity="0.7"/>
+                    {/* Broken wing */}
+                    <path d="M6 10C6 10 4 8 2 10C2 12 4 14 6 12" opacity="0.4"/>
+                    {/* Tears/pain */}
+                    <circle cx="10" cy="9" r="1" fill="white" opacity="0.8"/>
+                    <circle cx="14" cy="9" r="1" fill="white" opacity="0.8"/>
+                  </svg>
                 </div>
                 {/* Broken chain links around */}
-                <div className="absolute -top-2 -left-2 w-8 h-8 border-4 border-gray-400 rounded-full transform rotate-45"></div>
-                <div className="absolute -bottom-2 -right-2 w-6 h-6 border-4 border-gray-500 rounded-full transform -rotate-45"></div>
+                <div className="absolute -top-2 -left-2 w-8 h-8 border-4 border-gray-400 rounded-full transform rotate-45 opacity-60"></div>
+                <div className="absolute -bottom-2 -right-2 w-6 h-6 border-4 border-gray-500 rounded-full transform -rotate-45 opacity-60"></div>
+                {/* Storm clouds */}
+                <div className="absolute top-0 left-0 w-full h-full">
+                  <div className="absolute -top-4 left-2 w-8 h-4 bg-gray-500 rounded-full opacity-30"></div>
+                  <div className="absolute -top-2 right-4 w-6 h-3 bg-gray-600 rounded-full opacity-40"></div>
+                </div>
               </div>
             </div>
             
@@ -329,9 +364,17 @@ export default function Landing() {
 
           <div className="text-center bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-2xl border border-orange-200">
             <div className="mb-6">
-              {/* Healing/Hope imagery */}
+              {/* Healing/Hope imagery - Butterfly transformation */}
               <div className="w-24 h-24 mx-auto bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center shadow-lg mb-4">
-                <Heart className="text-white w-12 h-12" />
+                <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  {/* Butterfly representing transformation */}
+                  <path d="M12 2C12 2 10 4 8 6C6 8 4 10 4 12C4 14 6 16 8 18C10 20 12 22 12 22C12 22 14 20 16 18C18 16 20 14 20 12C20 10 18 8 16 6C14 4 12 2 12 2Z"/>
+                  {/* Butterfly wings */}
+                  <path d="M6 8C6 8 4 6 2 8C2 10 4 12 6 10C6 10 7 9 8 8M18 8C18 8 20 6 22 8C22 10 20 12 18 10C18 10 17 9 16 8" opacity="0.8"/>
+                  <path d="M6 16C6 16 4 18 2 16C2 14 4 12 6 14C6 14 7 15 8 16M18 16C18 16 20 18 22 16C22 14 20 12 18 14C18 14 17 15 16 16" opacity="0.8"/>
+                  {/* Body */}
+                  <path d="M12 6L12 18" stroke="white" strokeWidth="1" opacity="0.9"/>
+                </svg>
               </div>
             </div>
             
@@ -353,12 +396,21 @@ export default function Landing() {
 
       {/* Solution - Phoenix Method */}
       <section className="py-20 px-4 bg-gradient-to-br from-orange-50 via-yellow-50 to-green-50 relative">
-        {/* Phoenix Rising imagery */}
-        <div className="absolute top-10 right-10 opacity-20">
-          <div className="w-64 h-64 bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 rounded-full"></div>
+        {/* Phoenix Rising imagery - Background elements */}
+        <div className="absolute top-10 right-10 opacity-15">
+          <svg className="w-64 h-64 text-orange-300" fill="currentColor" viewBox="0 0 100 100">
+            {/* Large phoenix silhouette */}
+            <path d="M50 10C50 10 30 20 30 40C30 50 35 55 40 60C35 65 30 70 30 80C30 100 50 110 50 110C50 110 70 100 70 80C70 70 65 65 60 60C65 55 70 50 70 40C70 20 50 10 50 10Z" opacity="0.6"/>
+            <path d="M20 35C20 35 10 25 5 35C5 50 20 60 35 50C40 47 45 42 45 40M80 35C80 35 90 25 95 35C95 50 80 60 65 50C60 47 55 42 55 40" opacity="0.5"/>
+          </svg>
         </div>
-        <div className="absolute bottom-10 left-10 opacity-20">
-          <div className="w-48 h-48 bg-gradient-to-br from-green-400 via-blue-500 to-purple-500 rounded-full"></div>
+        <div className="absolute bottom-10 left-10 opacity-12">
+          <svg className="w-48 h-48 text-purple-300" fill="currentColor" viewBox="0 0 100 100">
+            {/* Transformation spiral */}
+            <path d="M50 20C60 20 70 30 70 40C70 50 60 60 50 60C40 60 30 50 30 40C30 30 40 20 50 20ZM50 25C55 25 60 30 60 35C60 40 55 45 50 45C45 45 40 40 40 35C40 30 45 25 50 25ZM50 30C52 30 55 32 55 35C55 38 52 40 50 40C48 40 45 38 45 35C45 32 48 30 50 30Z" opacity="0.4"/>
+            {/* Radiating energy lines */}
+            <path d="M50 10L50 20M50 80L50 90M10 50L20 50M80 50L90 50M20 20L25 25M75 75L80 80M80 20L75 25M25 75L20 80" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.3"/>
+          </svg>
         </div>
         
         <div className="max-w-6xl mx-auto relative z-10">
@@ -367,14 +419,27 @@ export default function Landing() {
             <div className="mb-8">
               <div className="w-40 h-40 mx-auto bg-gradient-to-br from-yellow-400 via-orange-500 to-red-600 rounded-full flex items-center justify-center shadow-2xl mb-6 relative">
                 <div className="w-32 h-32 bg-gradient-to-br from-orange-300 to-red-400 rounded-full flex items-center justify-center">
-                  <svg className="w-20 h-20 text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2L13.5 8.5L20 7L14.5 12L20 17L13.5 15.5L12 22L10.5 15.5L4 17L9.5 12L4 7L10.5 8.5L12 2Z"/>
+                  {/* Detailed Phoenix Rising */}
+                  <svg className="w-24 h-24 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    {/* Phoenix body */}
+                    <path d="M12 2C12 2 8 4 8 8C8 10 9 11 10 12C9 13 8 14 8 16C8 20 12 22 12 22C12 22 16 20 16 16C16 14 15 13 14 12C15 11 16 10 16 8C16 4 12 2 12 2Z"/>
+                    {/* Phoenix wings spread wide */}
+                    <path d="M6 8C6 8 3 6 1 8C1 11 4 13 7 11C8 10.5 8 9 8 8M18 8C18 8 21 6 23 8C23 11 20 13 17 11C16 10.5 16 9 16 8" opacity="0.9"/>
+                    {/* Phoenix tail feathers */}
+                    <path d="M12 22C12 22 10 24 8 22C10 20 12 22 12 22M12 22C12 22 14 24 16 22C14 20 12 22 12 22" opacity="0.8"/>
+                    {/* Phoenix head crest */}
+                    <path d="M12 2C12 2 10 0 8 2C10 4 12 2 12 2M12 2C12 2 14 0 16 2C14 4 12 2 12 2" opacity="0.7"/>
                   </svg>
                 </div>
-                {/* Flying sparks/flames */}
+                {/* Flying sparks/flames representing rebirth */}
                 <div className="absolute -top-2 -right-2 w-4 h-4 bg-yellow-400 rounded-full animate-ping"></div>
                 <div className="absolute -bottom-3 -left-1 w-3 h-3 bg-orange-400 rounded-full animate-bounce"></div>
                 <div className="absolute top-4 -left-4 w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+                <div className="absolute -top-3 left-6 w-3 h-3 bg-yellow-300 rounded-full animate-ping delay-500"></div>
+                <div className="absolute bottom-2 -right-3 w-2 h-6 bg-orange-300 rounded-full animate-pulse delay-700"></div>
+                {/* Ashes transforming to flames */}
+                <div className="absolute bottom-8 left-4 w-1 h-1 bg-gray-400 rounded-full animate-bounce delay-200"></div>
+                <div className="absolute bottom-10 right-6 w-1 h-1 bg-gray-300 rounded-full animate-bounce delay-400"></div>
               </div>
             </div>
             
@@ -439,15 +504,25 @@ export default function Landing() {
         
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="text-center mb-16">
-            {/* Success/transformation imagery */}
+            {/* Success/transformation imagery - Rising Sun */}
             <div className="mb-8">
               <div className="w-32 h-32 mx-auto bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center shadow-2xl mb-6 relative">
                 <div className="w-24 h-24 bg-gradient-to-br from-green-300 to-blue-400 rounded-full flex items-center justify-center">
-                  <CheckCircle className="text-white w-12 h-12" />
+                  {/* Rising sun with rays representing new dawn/transformation */}
+                  <svg className="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    {/* Sun center */}
+                    <circle cx="12" cy="12" r="4" />
+                    {/* Sun rays */}
+                    <path d="M12 1V3M12 21V23M4.22 4.22L5.64 5.64M18.36 18.36L19.78 19.78M1 12H3M21 12H23M4.22 19.78L5.64 18.36M18.36 5.64L19.78 4.22" stroke="currentColor" strokeWidth="2"/>
+                    {/* Additional rays for more radiance */}
+                    <path d="M8.46 2.54L9.17 4.46M14.83 19.54L15.54 21.46M2.54 8.46L4.46 9.17M19.54 14.83L21.46 15.54M2.54 15.54L4.46 14.83M19.54 9.17L21.46 8.46M8.46 21.46L9.17 19.54M14.83 4.46L15.54 2.54" stroke="currentColor" strokeWidth="1" opacity="0.7"/>
+                  </svg>
                 </div>
-                {/* Success sparkles */}
+                {/* Success sparkles - representing light */}
                 <div className="absolute -top-2 -right-2 w-4 h-4 bg-yellow-400 rounded-full animate-ping"></div>
                 <div className="absolute -bottom-1 -left-3 w-3 h-3 bg-green-400 rounded-full animate-bounce"></div>
+                <div className="absolute top-3 -left-4 w-2 h-2 bg-white rounded-full animate-pulse delay-300"></div>
+                <div className="absolute -top-3 left-4 w-3 h-3 bg-yellow-300 rounded-full animate-ping delay-700"></div>
               </div>
             </div>
             
@@ -593,17 +668,28 @@ export default function Landing() {
         </div>
         
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          {/* Phoenix rising symbol */}
+          {/* Phoenix rising symbol - Final CTA */}
           <div className="mb-8">
             <div className="w-32 h-32 mx-auto bg-gradient-to-br from-yellow-300 via-orange-400 to-red-500 rounded-full flex items-center justify-center shadow-2xl mb-6 relative">
               <div className="w-24 h-24 bg-gradient-to-br from-orange-200 to-red-400 rounded-full flex items-center justify-center">
-                <svg className="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2L13.5 8.5L20 7L14.5 12L20 17L13.5 15.5L12 22L10.5 15.5L4 17L9.5 12L4 7L10.5 8.5L12 2Z"/>
+                {/* Triumphant Phoenix */}
+                <svg className="w-20 h-20 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  {/* Phoenix body - fully formed */}
+                  <path d="M12 2C12 2 8 4 8 8C8 10 9 11 10 12C9 13 8 14 8 16C8 20 12 22 12 22C12 22 16 20 16 16C16 14 15 13 14 12C15 11 16 10 16 8C16 4 12 2 12 2Z"/>
+                  {/* Majestic wings fully spread */}
+                  <path d="M5 7C5 7 2 5 0 7C0 10 3 12 6 10C7 9.5 8 8.5 8 8M19 7C19 7 22 5 24 7C24 10 21 12 18 10C17 9.5 16 8.5 16 8" opacity="0.95"/>
+                  {/* Crown/crest representing mastery */}
+                  <path d="M12 2C12 2 10 0 8 1C9 2 11 2 12 2M12 2C12 2 14 0 16 1C15 2 13 2 12 2M12 2C12 2 11 -1 12 0C13 -1 12 2 12 2" opacity="0.8"/>
+                  {/* Powerful tail representing strength */}
+                  <path d="M12 22C12 22 9 24 7 22C9 20 11 21 12 22M12 22C12 22 15 24 17 22C15 20 13 21 12 22M12 22C12 22 12 25 12 23" opacity="0.9"/>
                 </svg>
               </div>
-              {/* Animated flame effects */}
+              {/* Victory flames - more dynamic */}
               <div className="absolute -top-3 -right-3 w-6 h-6 bg-yellow-300 rounded-full animate-ping"></div>
               <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-orange-300 rounded-full animate-bounce"></div>
+              <div className="absolute top-2 -left-4 w-3 h-3 bg-white rounded-full animate-pulse delay-300"></div>
+              <div className="absolute -top-2 left-2 w-2 h-2 bg-yellow-400 rounded-full animate-ping delay-700"></div>
+              <div className="absolute bottom-1 -right-4 w-3 h-3 bg-orange-200 rounded-full animate-bounce delay-500"></div>
             </div>
           </div>
           
