@@ -5,10 +5,85 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Leaf, Brain, Wand2, Shield, FileText, Play, Heart, Zap, Compass, 
-  Download, ExternalLink, Search, BookOpen, Video, Headphones, Clock, Star
+  Download, ExternalLink, Search, BookOpen, Video, Headphones, Clock, Star, Check
 } from "lucide-react";
+
+interface ResourceContent {
+  overview: string;
+  steps: string[];
+  tips: string[];
+  whenToUse: string;
+}
+
+interface Resource {
+  id: number;
+  title: string;
+  description: string;
+  type: string;
+  duration: string;
+  difficulty: string;
+  content: ResourceContent;
+}
+
+const generatePDF = (resource: Resource) => {
+  const pdfContent = `
+================================================================================
+                        THE PHOENIX METHOD™
+                    Therapeutic Resource Library
+================================================================================
+
+${resource.title.toUpperCase()}
+--------------------------------------------------------------------------------
+
+Type: ${resource.type}
+Duration: ${resource.duration}
+Difficulty Level: ${resource.difficulty}
+
+================================================================================
+OVERVIEW
+================================================================================
+
+${resource.content.overview}
+
+================================================================================
+STEP-BY-STEP GUIDE
+================================================================================
+
+${resource.content.steps.map((step, index) => `${index + 1}. ${step}`).join('\n\n')}
+
+================================================================================
+PRO TIPS
+================================================================================
+
+${resource.content.tips.map((tip, index) => `★ ${tip}`).join('\n\n')}
+
+================================================================================
+WHEN TO USE THIS TECHNIQUE
+================================================================================
+
+${resource.content.whenToUse}
+
+================================================================================
+                        © The Phoenix Method™
+              Trauma Recovery Program for Women
+        
+        "From the ashes of your pain, you will rise stronger."
+================================================================================
+`;
+
+  const blob = new Blob([pdfContent], { type: 'text/plain' });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${resource.title.replace(/[^a-zA-Z0-9]/g, '_')}_Phoenix_Method.txt`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+};
 
 // Comprehensive therapeutic resources data
 const therapeuticResources = {
@@ -595,11 +670,15 @@ export default function Resources() {
             </div>
             
             <div className="flex gap-3 pt-4">
-              <Button className="flex-1 bg-orange-600 hover:bg-orange-700">
+              <Button 
+                className="flex-1 bg-orange-600 hover:bg-orange-700"
+                onClick={() => generatePDF(resource as Resource)}
+                data-testid="modal-download-pdf"
+              >
                 <Download size={16} className="mr-2" />
                 Download PDF
               </Button>
-              <Button variant="outline" className="flex-1">
+              <Button variant="outline" className="flex-1" data-testid="modal-bookmark">
                 <BookOpen size={16} className="mr-2" />
                 Bookmark
               </Button>
@@ -702,7 +781,15 @@ export default function Resources() {
                               <BookOpen size={16} className="mr-2" />
                               View Details
                             </Button>
-                            <Button size="sm" className="bg-orange-600 hover:bg-orange-700">
+                            <Button 
+                              size="sm" 
+                              className="bg-orange-600 hover:bg-orange-700"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                generatePDF(resource as Resource);
+                              }}
+                              data-testid={`download-resource-${resource.id}`}
+                            >
                               <Download size={16} className="mr-2" />
                               Download
                             </Button>
