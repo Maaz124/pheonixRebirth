@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import jsPDF from "jspdf";
 import { 
   Leaf, Brain, Wand2, Shield, FileText, Play, Heart, Zap, Compass, 
   Download, ExternalLink, Search, BookOpen, Video, Headphones, Clock, Star, Check
@@ -29,60 +30,120 @@ interface Resource {
 }
 
 const generatePDF = (resource: Resource) => {
-  const pdfContent = `
-================================================================================
-                        THE PHOENIX METHOD™
-                    Therapeutic Resource Library
-================================================================================
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const margin = 20;
+  const maxWidth = pageWidth - margin * 2;
+  let yPosition = 20;
 
-${resource.title.toUpperCase()}
---------------------------------------------------------------------------------
+  const addText = (text: string, fontSize: number, isBold: boolean = false, color: [number, number, number] = [0, 0, 0]) => {
+    doc.setFontSize(fontSize);
+    doc.setFont("helvetica", isBold ? "bold" : "normal");
+    doc.setTextColor(color[0], color[1], color[2]);
+    const lines = doc.splitTextToSize(text, maxWidth);
+    
+    if (yPosition + (lines.length * fontSize * 0.4) > doc.internal.pageSize.getHeight() - 20) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    
+    doc.text(lines, margin, yPosition);
+    yPosition += lines.length * fontSize * 0.4 + 4;
+  };
 
-Type: ${resource.type}
-Duration: ${resource.duration}
-Difficulty Level: ${resource.difficulty}
+  const addSectionHeader = (text: string) => {
+    yPosition += 8;
+    doc.setFillColor(255, 140, 66);
+    doc.rect(margin, yPosition - 6, maxWidth, 10, 'F');
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(255, 255, 255);
+    doc.text(text, margin + 4, yPosition);
+    yPosition += 12;
+  };
 
-================================================================================
-OVERVIEW
-================================================================================
+  doc.setFillColor(255, 140, 66);
+  doc.rect(0, 0, pageWidth, 45, 'F');
 
-${resource.content.overview}
+  doc.setFontSize(22);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(255, 255, 255);
+  doc.text("THE PHOENIX METHOD", pageWidth / 2, 20, { align: "center" });
+  
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "normal");
+  doc.text("Therapeutic Resource Library", pageWidth / 2, 30, { align: "center" });
 
-================================================================================
-STEP-BY-STEP GUIDE
-================================================================================
+  yPosition = 55;
 
-${resource.content.steps.map((step, index) => `${index + 1}. ${step}`).join('\n\n')}
+  doc.setFontSize(18);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(50, 50, 50);
+  const titleLines = doc.splitTextToSize(resource.title, maxWidth);
+  doc.text(titleLines, margin, yPosition);
+  yPosition += titleLines.length * 7 + 6;
 
-================================================================================
-PRO TIPS
-================================================================================
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(100, 100, 100);
+  doc.text(`Type: ${resource.type}  |  Duration: ${resource.duration}  |  Level: ${resource.difficulty}`, margin, yPosition);
+  yPosition += 12;
 
-${resource.content.tips.map((tip, index) => `★ ${tip}`).join('\n\n')}
+  addSectionHeader("OVERVIEW");
+  addText(resource.content.overview, 11, false, [60, 60, 60]);
 
-================================================================================
-WHEN TO USE THIS TECHNIQUE
-================================================================================
+  addSectionHeader("STEP-BY-STEP GUIDE");
+  resource.content.steps.forEach((step, index) => {
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(255, 140, 66);
+    
+    if (yPosition > doc.internal.pageSize.getHeight() - 30) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    
+    doc.text(`${index + 1}.`, margin, yPosition);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(60, 60, 60);
+    const stepLines = doc.splitTextToSize(step, maxWidth - 10);
+    doc.text(stepLines, margin + 8, yPosition);
+    yPosition += stepLines.length * 5 + 6;
+  });
 
-${resource.content.whenToUse}
+  addSectionHeader("PRO TIPS");
+  resource.content.tips.forEach((tip) => {
+    if (yPosition > doc.internal.pageSize.getHeight() - 30) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    
+    doc.setFontSize(11);
+    doc.setTextColor(255, 180, 0);
+    doc.text("★", margin, yPosition);
+    doc.setTextColor(60, 60, 60);
+    const tipLines = doc.splitTextToSize(tip, maxWidth - 10);
+    doc.text(tipLines, margin + 8, yPosition);
+    yPosition += tipLines.length * 5 + 6;
+  });
 
-================================================================================
-                        © The Phoenix Method™
-              Trauma Recovery Program for Women
-        
-        "From the ashes of your pain, you will rise stronger."
-================================================================================
-`;
+  addSectionHeader("WHEN TO USE THIS TECHNIQUE");
+  addText(resource.content.whenToUse, 11, false, [60, 60, 60]);
 
-  const blob = new Blob([pdfContent], { type: 'text/plain' });
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `${resource.title.replace(/[^a-zA-Z0-9]/g, '_')}_Phoenix_Method.txt`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
+  yPosition += 15;
+  doc.setDrawColor(255, 140, 66);
+  doc.setLineWidth(0.5);
+  doc.line(margin, yPosition, pageWidth - margin, yPosition);
+  yPosition += 10;
+
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "italic");
+  doc.setTextColor(150, 150, 150);
+  doc.text("© The Phoenix Method™ - Trauma Recovery Program for Women", pageWidth / 2, yPosition, { align: "center" });
+  yPosition += 6;
+  doc.text('"From the ashes of your pain, you will rise stronger."', pageWidth / 2, yPosition, { align: "center" });
+
+  doc.save(`${resource.title.replace(/[^a-zA-Z0-9]/g, '_')}_Phoenix_Method.pdf`);
 };
 
 // Comprehensive therapeutic resources data
