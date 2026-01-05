@@ -664,13 +664,38 @@ const therapeuticResources = {
 export default function Resources() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("mindfulness");
+  const [bookmarks, setBookmarks] = useState<number[]>(() => {
+    const saved = localStorage.getItem('phoenix_bookmarks');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const { toast } = useToast();
+
+  const toggleBookmark = (resourceId: number, resourceTitle: string) => {
+    setBookmarks(prev => {
+      const isBookmarked = prev.includes(resourceId);
+      const newBookmarks = isBookmarked 
+        ? prev.filter(id => id !== resourceId)
+        : [...prev, resourceId];
+      
+      localStorage.setItem('phoenix_bookmarks', JSON.stringify(newBookmarks));
+      
+      toast({
+        title: isBookmarked ? "Bookmark Removed" : "Bookmarked!",
+        description: isBookmarked 
+          ? `"${resourceTitle}" removed from your bookmarks`
+          : `"${resourceTitle}" saved to your bookmarks`,
+      });
+      
+      return newBookmarks;
+    });
+  };
+
+  const isBookmarked = (resourceId: number) => bookmarks.includes(resourceId);
 
   const filteredResources = therapeuticResources[selectedCategory as keyof typeof therapeuticResources]?.filter(resource =>
     resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     resource.description.toLowerCase().includes(searchTerm.toLowerCase())
   ) || [];
-
-
 
   const ResourceDetailModal = ({ resource, onClose }: { resource: any, onClose: () => void }) => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -739,9 +764,14 @@ export default function Resources() {
                 <Download size={16} className="mr-2" />
                 Download PDF
               </Button>
-              <Button variant="outline" className="flex-1" data-testid="modal-bookmark">
-                <BookOpen size={16} className="mr-2" />
-                Bookmark
+              <Button 
+                variant={isBookmarked(resource.id) ? "default" : "outline"} 
+                className={`flex-1 ${isBookmarked(resource.id) ? "bg-yellow-500 hover:bg-yellow-600" : ""}`}
+                onClick={() => toggleBookmark(resource.id, resource.title)}
+                data-testid="modal-bookmark"
+              >
+                <Star size={16} className={`mr-2 ${isBookmarked(resource.id) ? "fill-current" : ""}`} />
+                {isBookmarked(resource.id) ? "Bookmarked" : "Bookmark"}
               </Button>
             </div>
           </div>
