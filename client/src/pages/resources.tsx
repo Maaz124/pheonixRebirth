@@ -815,7 +815,16 @@ export default function Resources() {
       <section className="px-4 pb-16">
         <div className="max-w-6xl mx-auto">
           <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-            <TabsList className="grid grid-cols-6 w-full mb-8 h-14">
+            <TabsList className="grid grid-cols-7 w-full mb-8 h-14">
+              <TabsTrigger value="bookmarks" className="flex flex-col items-center p-2 relative">
+                <Star size={18} className="text-yellow-500" />
+                <span className="text-xs mt-1">My Saved</span>
+                {bookmarks.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {bookmarks.length}
+                  </span>
+                )}
+              </TabsTrigger>
               <TabsTrigger value="mindfulness" className="flex flex-col items-center p-2">
                 <Leaf size={18} />
                 <span className="text-xs mt-1">Mindfulness</span>
@@ -841,6 +850,83 @@ export default function Resources() {
                 <span className="text-xs mt-1">Videos</span>
               </TabsTrigger>
             </TabsList>
+
+            {/* Bookmarks Tab Content */}
+            <TabsContent value="bookmarks">
+              <div className="grid gap-6">
+                {bookmarks.length === 0 ? (
+                  <Card className="p-12 text-center">
+                    <Star size={48} className="mx-auto text-gray-300 mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-600 mb-2">No Saved Resources Yet</h3>
+                    <p className="text-gray-500 mb-4">
+                      Bookmark your favorite techniques by clicking the Bookmark button in any resource.
+                    </p>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setSelectedCategory("mindfulness")}
+                    >
+                      Browse Resources
+                    </Button>
+                  </Card>
+                ) : (
+                  Object.values(therapeuticResources).flat().filter(r => bookmarks.includes(r.id)).map((resource) => (
+                    <Card key={resource.id} className="overflow-hidden hover:shadow-lg transition-shadow border-l-4 border-l-yellow-500">
+                      <CardHeader>
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <Badge variant="secondary">{resource.type}</Badge>
+                              <div className="flex items-center gap-1 text-sm text-gray-500">
+                                <Clock size={14} />
+                                {resource.duration}
+                              </div>
+                              <Badge variant={resource.difficulty === 'Beginner' ? 'default' : resource.difficulty === 'Intermediate' ? 'secondary' : 'destructive'}>
+                                {resource.difficulty}
+                              </Badge>
+                              <Star size={16} className="text-yellow-500 fill-yellow-500" />
+                            </div>
+                            <CardTitle className="text-xl mb-2">{resource.title}</CardTitle>
+                            <CardDescription className="text-base">{resource.description}</CardDescription>
+                          </div>
+                          <div className="flex gap-2 ml-4">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => setSelectedResource(resource)}
+                            >
+                              <BookOpen size={16} className="mr-2" />
+                              View Details
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              className="bg-orange-600 hover:bg-orange-700"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                generatePDF(resource as Resource);
+                              }}
+                            >
+                              <Download size={16} className="mr-2" />
+                              Download
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              className="text-red-500 hover:bg-red-50"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleBookmark(resource.id, resource.title);
+                              }}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        </div>
+                      </CardHeader>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </TabsContent>
 
             {Object.entries(therapeuticResources).map(([category, resources]) => (
               <TabsContent key={category} value={category}>
