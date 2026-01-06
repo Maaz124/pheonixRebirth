@@ -1,0 +1,45 @@
+
+> rest-express@1.0.0 seed
+> tsx server/seed.ts
+
+[dotenv@17.2.3] injecting env (4) from .env -- tip: Γ£à audit secrets and track compliance: https://dotenvx.com/ops
+Environment variables loaded. DATABASE_URL is set to: postgresql://postgres:postgrespassword@localhost:5432/phoenix_rebirth
+DATABASE_URL is: postgresql://postgres:postgrespassword@localhost:5432/phoenix_rebirth
+≡ƒî▒ Starting database seeding...
+Processing users...
+First record sample: {
+  id: '1',
+  username: 'sarah.m',
+  password: 'password123',
+  name: 'Sarah Mitchell',
+  initials: 'SM',
+  current_phase: '1',
+  created_at: '"2025-07-09T18:19:24.278Z"',
+  stripe_customer_id: 'cus_TZI9nNOwjR3VtL',
+  stripe_subscription_id: '',
+  subscription_tier: 'free',
+  subscription_status: 'inactive',
+  subscription_end_date: ''
+}
+   Error seeding users: RangeError: Invalid time value
+    at Date.toISOString (<anonymous>)
+    at PgTimestamp.mapToDriverValue (C:\Users\Maaz\Desktop\ahad\PhoenixRebirth\node_modules\src\pg-core\columns\timestamp.ts:66:16)
+    at <anonymous> (C:\Users\Maaz\Desktop\ahad\PhoenixRebirth\node_modules\src\sql\sql.ts:223:69)
+    at Array.map (<anonymous>)
+    at SQL.buildQueryFromSourceParams (C:\Users\Maaz\Desktop\ahad\PhoenixRebirth\node_modules\src\sql\sql.ts:148:30)
+    at <anonymous> (C:\Users\Maaz\Desktop\ahad\PhoenixRebirth\node_modules\src\sql\sql.ts:170:17)
+    at Array.map (<anonymous>)
+    at SQL.buildQueryFromSourceParams (C:\Users\Maaz\Desktop\ahad\PhoenixRebirth\node_modules\src\sql\sql.ts:148:30)
+    at <anonymous> (C:\Users\Maaz\Desktop\ahad\PhoenixRebirth\node_modules\src\sql\sql.ts:174:17)
+    at Array.map (<anonymous>)
+Γ¥î Seeding failed: RangeError: Invalid time value
+    at Date.toISOString (<anonymous>)
+    at PgTimestamp.mapToDriverValue (C:\Users\Maaz\Desktop\ahad\PhoenixRebirth\node_modules\src\pg-core\columns\timestamp.ts:66:16)
+    at <anonymous> (C:\Users\Maaz\Desktop\ahad\PhoenixRebirth\node_modules\src\sql\sql.ts:223:69)
+    at Array.map (<anonymous>)
+    at SQL.buildQueryFromSourceParams (C:\Users\Maaz\Desktop\ahad\PhoenixRebirth\node_modules\src\sql\sql.ts:148:30)
+    at <anonymous> (C:\Users\Maaz\Desktop\ahad\PhoenixRebirth\node_modules\src\sql\sql.ts:170:17)
+    at Array.map (<anonymous>)
+    at SQL.buildQueryFromSourceParams (C:\Users\Maaz\Desktop\ahad\PhoenixRebirth\node_modules\src\sql\sql.ts:148:30)
+    at <anonymous> (C:\Users\Maaz\Desktop\ahad\PhoenixRebirth\node_modules\src\sql\sql.ts:174:17)
+    at Array.map (<anonymous>)

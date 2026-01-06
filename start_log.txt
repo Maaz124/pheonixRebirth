@@ -1,0 +1,17 @@
+
+> rest-express@1.0.0 dev
+> cross-env NODE_ENV=development tsx server/index.ts
+
+DATABASE_URL is: postgres://postgres:postgres@localhost:5432/midlife
+C:\Users\Maaz\Desktop\ahad\PhoenixRebirth\server\routes.ts:13
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+        ^
+
+
+Error: Missing required Stripe secret: STRIPE_SECRET_KEY
+    at <anonymous> (C:\Users\Maaz\Desktop\ahad\PhoenixRebirth\server\routes.ts:13:9)
+    at ModuleJob.run (node:internal/modules/esm/module_job:370:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:99:5)
+
+Node.js v24.4.1

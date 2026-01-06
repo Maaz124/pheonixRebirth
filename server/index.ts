@@ -1,3 +1,4 @@
+import "./config";
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
@@ -39,10 +40,11 @@ app.use((req, res, next) => {
 (async () => {
   // Test database connection first
   try {
-    const { testConnection } = await import("./db");
-    await testConnection();
-  } catch (error) {
-    console.error('Failed to connect to database:', error);
+    const { pool } = await import("./db");
+    await pool.query("SELECT 1");
+    console.log("Database connection successful");
+  } catch (error: any) {
+    console.error('Failed to connect to database:', error.message);
     process.exit(1);
   }
 
@@ -72,7 +74,6 @@ app.use((req, res, next) => {
   server.listen({
     port,
     host: "0.0.0.0",
-    reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
   });

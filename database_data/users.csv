@@ -1,0 +1,2 @@
+"id","username","password","name","initials","current_phase","created_at","stripe_customer_id","stripe_subscription_id","subscription_tier","subscription_status","subscription_end_date"
+"1","sarah.m","password123","Sarah Mitchell","SM","1","""2025-07-09T18:19:24.278Z""","cus_TZI9nNOwjR3VtL",,"free","inactive",
