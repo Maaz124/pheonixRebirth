@@ -4,3 +4,8 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+.env
+seed_debug.txt
+seed_log.txt
+start_log.txt
+start_log_2.txt

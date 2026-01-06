@@ -2,35 +2,44 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
 import { storage } from "./storage";
-import { 
-  insertJournalEntrySchema, 
+import {
+  insertJournalEntrySchema,
   insertUserAssessmentResultSchema,
   insertUserProgressSchema,
-  insertUserExerciseProgressSchema 
+  insertUserExerciseProgressSchema
 } from "@shared/schema";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
 }
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-10-16",
+  apiVersion: "2025-06-30.basil" as any, // Cast to any to avoid strict type checking issues if types mismatch
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Current user endpoint (for demo, always return user ID 1)
-  app.get("/api/user/current", async (req, res) => {
-    try {
-      const user = await storage.getUser(1);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      res.json(user);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch user" });
+  // Middleware to check authentication for API routes
+  app.use("/api", (req, res, next) => {
+    // List of public paths that don't require authentication
+    const publicPaths = [
+      "/login",
+      "/register",
+      "/logout",
+      "/stripe/webhook",
+      "/leads",
+      "/newsletter"
+    ];
+
+    if (publicPaths.some(path => req.path.startsWith(path))) {
+      return next();
     }
+
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    next();
   });
 
-  // Get all phases
+  // Get all phases (now protected)
   app.get("/api/phases", async (req, res) => {
     try {
       const phases = await storage.getAllPhases();
@@ -57,7 +66,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user progress for all phases
   app.get("/api/user/progress", async (req, res) => {
     try {
-      const progress = await storage.getUserProgress(1);
+      const progress = await storage.getUserProgress(req.user!.id);
       res.json(progress);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch user progress" });
@@ -68,7 +77,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/user/progress/:phaseId", async (req, res) => {
     try {
       const phaseId = parseInt(req.params.phaseId);
-      const progress = await storage.getUserProgressForPhase(1, phaseId);
+      const progress = await storage.getUserProgressForPhase(req.user!.id, phaseId);
       if (!progress) {
         return res.status(404).json({ message: "Progress not found" });
       }
@@ -83,8 +92,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const phaseId = parseInt(req.params.phaseId);
       const updates = insertUserProgressSchema.partial().parse(req.body);
-      
-      const progress = await storage.updateUserProgress(1, phaseId, updates);
+
+      const progress = await storage.updateUserProgress(req.user!.id, phaseId, updates);
       if (!progress) {
         return res.status(404).json({ message: "Progress not found" });
       }
@@ -124,12 +133,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const exerciseId = parseInt(req.params.exerciseId);
       const updates = insertUserExerciseProgressSchema.partial().parse(req.body);
-      
-      const progress = await storage.updateUserExerciseProgress(1, exerciseId, updates);
+
+      const progress = await storage.updateUserExerciseProgress(req.user!.id, exerciseId, updates);
       if (!progress) {
         // Create new progress entry if it doesn't exist
         const newProgress = await storage.createUserExerciseProgress({
-          userId: 1,
+          userId: req.user!.id,
           exerciseId,
           ...updates,
         });
@@ -145,11 +154,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/resources", async (req, res) => {
     try {
       const category = req.query.category as string;
-      
-      const resources = category 
+
+      const resources = category
         ? await storage.getResourcesByCategory(category)
         : await storage.getAllResources();
-      
+
       res.json(resources);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch resources" });
@@ -159,7 +168,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user journal entries
   app.get("/api/user/journal", async (req, res) => {
     try {
-      const entries = await storage.getUserJournalEntries(1);
+      const entries = await storage.getUserJournalEntries(req.user!.id);
       res.json(entries);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch journal entries" });
@@ -171,9 +180,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const entryData = insertJournalEntrySchema.parse({
         ...req.body,
-        userId: 1,
+        userId: req.user!.id,
       });
-      
+
       const entry = await storage.createJournalEntry(entryData);
       res.status(201).json(entry);
     } catch (error) {
@@ -186,7 +195,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const entryId = parseInt(req.params.entryId);
       const updates = insertJournalEntrySchema.partial().parse(req.body);
-      
+
       const entry = await storage.updateJournalEntry(entryId, updates);
       if (!entry) {
         return res.status(404).json({ message: "Journal entry not found" });
@@ -228,10 +237,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const assessmentId = parseInt(req.params.assessmentId);
       const resultData = insertUserAssessmentResultSchema.parse({
         ...req.body,
-        userId: 1,
+        userId: req.user!.id,
         assessmentId,
       });
-      
+
       const result = await storage.createUserAssessmentResult(resultData);
       res.status(201).json(result);
     } catch (error) {
@@ -242,19 +251,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user assessment results
   app.get("/api/user/assessments", async (req, res) => {
     try {
-      const results = await storage.getUserAssessmentResults(1);
+      const results = await storage.getUserAssessmentResults(req.user!.id);
       res.json(results);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch assessment results" });
     }
   });
 
-  // Create Stripe subscription
-  app.post("/api/create-subscription", async (req, res) => {
+  // Create Stripe Payment Intent for one-time payment
+  app.post("/api/create-payment-intent", async (req, res) => {
     try {
-      const { tier, billing } = req.body;
-      const userId = 1; // For demo, using fixed user ID
-      
+      const { tier } = req.body;
+      const userId = req.user!.id;
+
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
@@ -264,103 +273,180 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let customerId = user.stripeCustomerId;
       if (!customerId) {
         const customer = await stripe.customers.create({
-          email: `${user.username}@example.com`,
+          email: user.username,
           name: user.name,
         });
         customerId = customer.id;
         await storage.updateUserStripeInfo(userId, customerId, null);
       }
 
-      // Define pricing (these would typically come from Stripe Price IDs)
-      const priceData = {
-        essential: {
-          monthly: { unit_amount: 2900, interval: 'month' },
-          annual: { unit_amount: 29000, interval: 'year' }
-        },
-        premium: {
-          monthly: { unit_amount: 7900, interval: 'month' },
-          annual: { unit_amount: 79000, interval: 'year' }
-        }
+      // Define pricing for one-time payments
+      const priceMap: Record<string, number> = {
+        'essential': 14700, // $147.00
       };
 
-      const priceConfig = priceData[tier as keyof typeof priceData]?.[billing as 'monthly' | 'annual'];
-      if (!priceConfig) {
-        return res.status(400).json({ message: "Invalid tier or billing period" });
+      const amount = priceMap[tier];
+      if (!amount) {
+        return res.status(400).json({ message: "Invalid tier" });
       }
 
-      // Create subscription
-      const subscription = await stripe.subscriptions.create({
+      // Create PaymentIntent
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount,
+        currency: "usd",
         customer: customerId,
-        items: [{
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: tier === 'essential' ? 'Phoenix Rise' : 'Phoenix Transform',
-              description: tier === 'essential' 
-                ? 'Complete access to the 7-phase recovery program'
-                : 'Everything in Rise plus premium coaching support'
-            },
-            unit_amount: priceConfig.unit_amount,
-            recurring: {
-              interval: priceConfig.interval as 'month' | 'year'
-            }
-          }
-        }],
-        payment_behavior: 'default_incomplete',
-        payment_settings: { save_default_payment_method: 'on_subscription' },
-        expand: ['latest_invoice.payment_intent'],
+        automatic_payment_methods: {
+          enabled: true,
+        },
+        metadata: {
+          userId: userId.toString(),
+          tier,
+        },
       });
 
-      // Update user subscription info
-      await storage.updateUserStripeInfo(userId, customerId, subscription.id);
-      await storage.updateUserSubscription(userId, tier, 'pending', null);
+      console.log('PaymentIntent created:', {
+        id: paymentIntent.id,
+        hasClientSecret: !!paymentIntent.client_secret,
+        tier,
+        amount
+      });
 
-      const clientSecret = (subscription.latest_invoice as any)?.payment_intent?.client_secret;
-      
+      // Update user subscription state to pending (or similar tracking)
+      // For now, we reuse the existing update but mark as 'pending_payment'
+      await storage.updateUserSubscription(userId, tier, 'pending_payment', null);
+
       res.json({
-        subscriptionId: subscription.id,
-        clientSecret
+        clientSecret: paymentIntent.client_secret,
       });
     } catch (error: any) {
-      console.error('Subscription creation error:', error);
+      console.error('Payment creation error:', error);
       res.status(400).json({ error: { message: error.message } });
+    }
+  });
+
+  // Verify payment status and update subscription
+  // This endpoint is called after payment redirect to ensure subscription is activated
+  // even if webhook hasn't fired yet (useful for local development)
+  app.post("/api/verify-payment", async (req, res) => {
+    console.log('[API] verify-payment called', req.body);
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { payment_intent } = req.body;
+
+      if (!payment_intent) {
+        return res.status(400).json({ message: "Missing payment_intent" });
+      }
+
+      // Retrieve the payment intent from Stripe
+      const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent);
+
+      if (paymentIntent.status === 'succeeded') {
+        const userId = paymentIntent.metadata?.userId;
+        const tier = paymentIntent.metadata?.tier || 'essential';
+
+        if (userId && parseInt(userId) === req.user.id) {
+          console.log(`Verifying payment for user ${userId}, activating ${tier} tier`);
+          await storage.updateUserSubscription(req.user.id, tier, 'lifetime', null);
+
+          return res.json({
+            success: true,
+            message: "Subscription activated",
+            subscriptionStatus: 'lifetime'
+          });
+        } else {
+          return res.status(400).json({ message: "Payment does not belong to current user" });
+        }
+      } else {
+        return res.status(400).json({ message: "Payment not succeeded", status: paymentIntent.status });
+      }
+    } catch (error: any) {
+      console.error('Payment verification error:', error);
+      res.status(500).json({ message: error.message });
     }
   });
 
   // Handle Stripe webhooks
   app.post("/api/stripe/webhook", async (req, res) => {
-    try {
-      const event = req.body;
+    let event;
+    const signature = req.headers['stripe-signature'];
 
+    try {
+      if (!signature) {
+        throw new Error('No Stripe signature found');
+      }
+
+      // Verify signature using the raw body buffer
+      // Note: req.rawBody is populated by the express.json verify callback
+      event = stripe.webhooks.constructEvent(
+        (req as any).rawBody,
+        signature,
+        process.env.STRIPE_WEBHOOK_SECRET || ''
+      );
+    } catch (err: any) {
+      console.error(`Webhook signature verification failed: ${err.message}`);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    try {
       switch (event.type) {
+        case 'payment_intent.succeeded': {
+          const paymentIntent = event.data.object;
+
+          const userId = paymentIntent.metadata?.userId;
+          const tier = paymentIntent.metadata?.tier || 'essential';
+
+          if (userId) {
+            await storage.updateUserSubscription(parseInt(userId), tier, 'active', null);
+          } else if (paymentIntent.customer) {
+            // Fallback: look up by customer ID if metadata is missing
+            const user = await storage.getUserByStripeCustomerId(paymentIntent.customer as string);
+            if (user) {
+              await storage.updateUserSubscription(user.id, tier, 'active', null);
+            }
+          }
+          break;
+        }
+
+        case 'payment_intent.payment_failed': {
+          const paymentIntent = event.data.object;
+          console.log('[Webhook] Payment failed:', paymentIntent.id);
+          // Could update status to 'failed' or 'inactive' if needed
+          break;
+        }
+
         case 'customer.subscription.updated':
-        case 'customer.subscription.created':
+        case 'customer.subscription.created': {
           const subscription = event.data.object;
-          const customer = await stripe.customers.retrieve(subscription.customer);
-          
           // Find user by Stripe customer ID
-          const user = await storage.getUserByStripeCustomerId(subscription.customer);
+          const user = await storage.getUserByStripeCustomerId(subscription.customer as string);
+
           if (user) {
             const status = subscription.status === 'active' ? 'active' : 'inactive';
-            const endDate = subscription.current_period_end ? new Date(subscription.current_period_end * 1000) : null;
-            
+            const endDate = (subscription as any).current_period_end ? new Date((subscription as any).current_period_end * 1000) : null;
+
             await storage.updateUserSubscription(user.id, user.subscriptionTier, status, endDate);
           }
           break;
+        }
 
-        case 'customer.subscription.deleted':
+        case 'customer.subscription.deleted': {
           const deletedSub = event.data.object;
-          const deletedUser = await storage.getUserByStripeCustomerId(deletedSub.customer);
-          if (deletedUser) {
-            await storage.updateUserSubscription(deletedUser.id, 'free', 'inactive', null);
+          const user = await storage.getUserByStripeCustomerId(deletedSub.customer as string);
+          if (user) {
+            console.log(`[Webhook] Deactivating subscription for user ${user.id}`);
+            await storage.updateUserSubscription(user.id, 'free', 'inactive', null);
           }
           break;
+        }
       }
 
       res.json({ received: true });
     } catch (error) {
-      console.error('Webhook error:', error);
-      res.status(400).send('Webhook error');
+      console.error('Webhook processing error:', error);
+      res.status(400).send('Webhook processing error');
     }
   });
 
@@ -368,7 +454,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/leads", async (req, res) => {
     try {
       const { email, firstName, lastName, source, leadMagnet, assessmentResults } = req.body;
-      
+
       const leadData = {
         email,
         firstName,
@@ -378,16 +464,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: "active",
         emailSequence: "lead_magnet"
       };
-      
+
       const lead = await storage.createLead(leadData);
-      
+
       // In a real app, you would trigger email sequence here
       // await emailService.sendWelcomeEmail(lead);
-      
-      res.status(201).json({ 
-        success: true, 
+
+      res.status(201).json({
+        success: true,
         message: "Lead captured successfully",
-        leadId: lead.id 
+        leadId: lead.id
       });
     } catch (error) {
       console.error('Lead capture error:', error);
@@ -399,7 +485,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/newsletter", async (req, res) => {
     try {
       const { email, source = "newsletter" } = req.body;
-      
+
       const leadData = {
         email,
         source,
@@ -407,12 +493,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: "active",
         emailSequence: "nurture"
       };
-      
+
       const lead = await storage.createLead(leadData);
-      
-      res.status(201).json({ 
-        success: true, 
-        message: "Successfully subscribed to newsletter" 
+
+      res.status(201).json({
+        success: true,
+        message: "Successfully subscribed to newsletter"
       });
     } catch (error) {
       console.error('Newsletter signup error:', error);

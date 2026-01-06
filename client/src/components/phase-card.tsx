@@ -7,12 +7,28 @@ import type { Phase, UserProgress } from "@shared/schema";
 interface PhaseCardProps {
   phase: Phase;
   progress?: UserProgress;
+  isSubscribed?: boolean;
 }
 
-export function PhaseCard({ phase, progress }: PhaseCardProps) {
+export function PhaseCard({ phase, progress, isSubscribed }: PhaseCardProps) {
+  // Phase 1 is always unlocked.
+  // Other phases are locked if not subscribed, regardless of progress or isLocked flag.
+  const isPhaseUnlocked = phase.id === 1 || (!!isSubscribed && (!phase.isLocked || !!progress));
+
   const getStatusIcon = () => {
-    if (!progress) return <Lock className="text-white text-sm" size={16} />;
-    
+    // If securely locked due to subscription
+    if (!isPhaseUnlocked) {
+      return <Lock className="text-white text-sm" size={16} />;
+    }
+
+    if (!progress) {
+      return phase.isLocked && phase.id !== 1 ? (
+        <Lock className="text-white text-sm" size={16} />
+      ) : (
+        <Play className="text-white text-sm" size={16} />
+      );
+    }
+
     switch (progress.status) {
       case 'completed':
         return <Check className="text-white text-sm" size={16} />;
@@ -24,8 +40,14 @@ export function PhaseCard({ phase, progress }: PhaseCardProps) {
   };
 
   const getStatusColor = () => {
-    if (!progress) return 'bg-gray-200';
-    
+    if (!isPhaseUnlocked) {
+      return 'bg-gray-200';
+    }
+
+    if (!progress) {
+      return phase.isLocked && phase.id !== 1 ? 'bg-gray-200' : 'phoenix-bg-primary';
+    }
+
     switch (progress.status) {
       case 'completed':
         return 'phoenix-bg-success';
@@ -37,8 +59,14 @@ export function PhaseCard({ phase, progress }: PhaseCardProps) {
   };
 
   const getStatusText = () => {
-    if (!progress) return '⏳ Upcoming';
-    
+    if (!isPhaseUnlocked) {
+      return '🔒 Locked';
+    }
+
+    if (!progress) {
+      return phase.isLocked && phase.id !== 1 ? '🔒 Locked' : '✨ Ready to Start';
+    }
+
     switch (progress.status) {
       case 'completed':
         return '✓ Completed';
@@ -50,8 +78,14 @@ export function PhaseCard({ phase, progress }: PhaseCardProps) {
   };
 
   const getStatusTextColor = () => {
-    if (!progress) return 'phoenix-text-gray';
-    
+    if (!isPhaseUnlocked) {
+      return 'phoenix-text-gray';
+    }
+
+    if (!progress) {
+      return phase.isLocked && phase.id !== 1 ? 'phoenix-text-gray' : 'phoenix-text-primary';
+    }
+
     switch (progress.status) {
       case 'completed':
         return 'phoenix-text-success';
@@ -63,8 +97,14 @@ export function PhaseCard({ phase, progress }: PhaseCardProps) {
   };
 
   const getBorderColor = () => {
-    if (!progress) return 'border-gray-200';
-    
+    if (!isPhaseUnlocked) {
+      return 'border-gray-200';
+    }
+
+    if (!progress) {
+      return phase.isLocked && phase.id !== 1 ? 'border-gray-200' : 'phoenix-border-primary';
+    }
+
     switch (progress.status) {
       case 'completed':
         return 'phoenix-border-success';
@@ -88,30 +128,40 @@ export function PhaseCard({ phase, progress }: PhaseCardProps) {
           </span>
         </div>
       </div>
-      
+
       <p className="phoenix-text-gray text-sm mb-4">{phase.description}</p>
-      
+
       <div className="flex items-center justify-between">
         <span className="text-xs phoenix-text-gray">
           {progress ? `${progress.exercisesCompleted}` : '0'} of {progress?.totalExercises || '0'} exercises completed
         </span>
-        
-        {progress?.status === 'in_progress' ? (
-          <Link href={`/phase/${phase.id}`}>
-            <Button className="phoenix-bg-primary hover:phoenix-bg-secondary text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-              Continue
+
+        {isPhaseUnlocked ? (
+          // Standard Access Logic: Phase is unlocked (Phase 1 or Subscribed)
+          ((!progress && (!phase.isLocked || phase.id === 1)) || progress?.status === 'in_progress') ? (
+            <Link href={`/phase/${phase.id}`}>
+              <Button className="phoenix-bg-primary hover:phoenix-bg-secondary text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                {!progress ? 'Start Phase' : 'Continue'}
+              </Button>
+            </Link>
+          ) : progress?.status === 'completed' ? (
+            <Link href={`/phase/${phase.id}`}>
+              <Button variant="outline" className="phoenix-text-primary text-sm font-medium">
+                Review
+              </Button>
+            </Link>
+          ) : (
+            <Button disabled variant="outline" className="text-gray-400 text-sm font-medium border-gray-200">
+              Locked
             </Button>
-          </Link>
-        ) : progress?.status === 'completed' ? (
-          <Link href={`/phase/${phase.id}`}>
-            <Button variant="outline" className="phoenix-text-primary text-sm font-medium">
-              Review
-            </Button>
-          </Link>
+          )
         ) : (
-          <Button disabled variant="outline" className="text-gray-400 text-sm font-medium border-gray-200">
-            Locked
-          </Button>
+          // Not Subscribed & Phase > 1: Show Get Access button
+          <Link href="/pricing?tier=essential">
+            <Button className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+              Get Access
+            </Button>
+          </Link>
         )}
       </div>
     </Card>

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Hero } from "@/components/hero";
 import { PhaseCard } from "@/components/phase-card";
 import { QuickToolModal } from "@/components/quick-tool-modal";
@@ -8,15 +8,54 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Leaf, BookOpen, Heart, Calendar, TrendingUp, Award } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import type { Phase, UserProgress, User } from "@shared/schema";
+
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Home() {
   const [activeQuickTool, setActiveQuickTool] = useState<'grounding' | 'journal' | 'compassion' | null>(null);
-  
-  const { data: user } = useQuery<User>({
-    queryKey: ['/api/user/current'],
-  });
+  const [location, setLocation] = useLocation();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  // Check for payment success
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get('payment');
+    const paymentIntentId = urlParams.get('payment_intent');
+
+    if (paymentStatus === 'success' && paymentIntentId) {
+      // Verify payment and update subscription
+      apiRequest("POST", "/api/verify-payment", {
+        payment_intent: paymentIntentId
+      })
+        .then(async (res) => {
+          if (res.ok) {
+            toast({
+              title: "Welcome to Phoenix Method™!",
+              description: "Your payment was successful. You now have full access to all phases!",
+            });
+
+            // Invalidate user query to refresh subscription status
+            queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+          } else {
+            const error = await res.text();
+            console.error('Payment verification failed:', error);
+          }
+        })
+        .catch((error) => {
+          console.error('Payment verification error:', error);
+        })
+        .finally(() => {
+          // Clean up URL
+          setLocation('/');
+        });
+    }
+  }, [toast, queryClient, setLocation]);
 
   const { data: phases = [] } = useQuery<Phase[]>({
     queryKey: ['/api/phases'],
@@ -44,7 +83,7 @@ export default function Home() {
   return (
     <main>
       <Hero />
-      
+
       {/* Current Phase Focus */}
       {currentPhase && (
         <section className="py-12 bg-white">
@@ -59,7 +98,7 @@ export default function Home() {
                   <p className="text-white/90">{currentPhase.description}</p>
                 </div>
               </div>
-              
+
               <div className="grid md:grid-cols-3 gap-6 mt-8">
                 <div className="bg-white/10 rounded-lg p-6">
                   <h4 className="font-semibold mb-3">Today's Focus</h4>
@@ -86,13 +125,20 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-gray-900 mb-4">The PHOENIX Method™</h2>
             <p className="text-lg phoenix-text-gray max-w-2xl mx-auto">Seven transformative phases designed to guide you from burnout to rebirth</p>
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {phases.length > 0 ? (
               phases.sort((a, b) => a.order - b.order).map((phase) => {
                 const progress = userProgress.find(p => p.phaseId === phase.id);
+                const isSubscribed = user?.subscriptionStatus === 'active' || user?.subscriptionStatus === 'lifetime';
+                console.log(`Phase ${phase.id}: user.subscriptionStatus = ${user?.subscriptionStatus}, isSubscribed = ${isSubscribed}`);
                 return (
-                  <PhaseCard key={phase.id} phase={phase} progress={progress} />
+                  <PhaseCard
+                    key={phase.id}
+                    phase={phase}
+                    progress={progress}
+                    isSubscribed={isSubscribed}
+                  />
                 );
               })
             ) : (
@@ -112,21 +158,21 @@ export default function Home() {
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Tools</h3>
               <div className="space-y-3">
-                <Button 
+                <Button
                   onClick={() => setActiveQuickTool('grounding')}
                   className="w-full bg-teal-50 hover:bg-teal-100 phoenix-text-accent py-3 rounded-lg font-medium transition-colors"
                 >
                   <Leaf className="mr-2" size={16} />
                   5-Minute Grounding
                 </Button>
-                <Button 
+                <Button
                   onClick={() => setActiveQuickTool('journal')}
                   className="w-full bg-blue-50 hover:bg-blue-100 phoenix-text-primary py-3 rounded-lg font-medium transition-colors"
                 >
                   <BookOpen className="mr-2" size={16} />
                   Quick Check-In
                 </Button>
-                <Button 
+                <Button
                   onClick={() => setActiveQuickTool('compassion')}
                   className="w-full bg-pink-50 hover:bg-pink-100 phoenix-text-secondary py-3 rounded-lg font-medium transition-colors"
                 >
@@ -135,7 +181,7 @@ export default function Home() {
                 </Button>
               </div>
             </div>
-            
+
             {/* Progress Tracking */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">This Week's Progress</h3>
@@ -147,12 +193,12 @@ export default function Home() {
                       {weeklyProgress.boundaryExercises.completed}/{weeklyProgress.boundaryExercises.total}
                     </span>
                   </div>
-                  <Progress 
+                  <Progress
                     value={(weeklyProgress.boundaryExercises.completed / weeklyProgress.boundaryExercises.total) * 100}
                     className="h-2"
                   />
                 </div>
-                
+
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm phoenix-text-gray">Journal entries</span>
@@ -160,12 +206,12 @@ export default function Home() {
                       {weeklyProgress.journalEntries.completed}/{weeklyProgress.journalEntries.total}
                     </span>
                   </div>
-                  <Progress 
+                  <Progress
                     value={(weeklyProgress.journalEntries.completed / weeklyProgress.journalEntries.total) * 100}
                     className="h-2"
                   />
                 </div>
-                
+
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm phoenix-text-gray">Mindfulness practice</span>
@@ -173,14 +219,14 @@ export default function Home() {
                       {weeklyProgress.mindfulnessPractice.completed}/{weeklyProgress.mindfulnessPractice.total}
                     </span>
                   </div>
-                  <Progress 
+                  <Progress
                     value={(weeklyProgress.mindfulnessPractice.completed / weeklyProgress.mindfulnessPractice.total) * 100}
                     className="h-2"
                   />
                 </div>
               </div>
             </div>
-            
+
             {/* Recent Achievements */}
             <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -213,7 +259,7 @@ export default function Home() {
               Track your progress and celebrate the small victories that lead to lasting change
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50">
               <div className="flex items-center justify-between mb-4">
@@ -280,7 +326,7 @@ export default function Home() {
         </div>
       </section>
 
-      <QuickToolModal 
+      <QuickToolModal
         tool={activeQuickTool}
         isOpen={activeQuickTool !== null}
         onClose={() => setActiveQuickTool(null)}
@@ -299,7 +345,7 @@ export default function Home() {
               </div>
               <p className="text-gray-400 text-sm">Transforming lives through trauma-informed coaching and evidence-based healing practices.</p>
             </div>
-            
+
             <div>
               <h4 className="text-sm font-semibold mb-4">Support</h4>
               <ul className="space-y-2 text-sm text-gray-400">
@@ -308,7 +354,7 @@ export default function Home() {
                 <li><a href="#" className="hover:text-white transition-colors">Contact Coach</a></li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="text-sm font-semibold mb-4">Privacy</h4>
               <ul className="space-y-2 text-sm text-gray-400">
@@ -317,7 +363,7 @@ export default function Home() {
                 <li><a href="#" className="hover:text-white transition-colors">Data Security</a></li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="text-sm font-semibold mb-4">Emergency Support</h4>
               <div className="text-sm text-gray-400">
@@ -327,7 +373,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-          
+
           <div className="border-t border-gray-800 mt-8 pt-8 text-center">
             <p className="text-gray-400 text-sm">© 2024 PHOENIX Method™. All rights reserved. Licensed coaching program.</p>
           </div>

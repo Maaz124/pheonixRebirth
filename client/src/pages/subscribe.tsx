@@ -20,7 +20,7 @@ const SubscribeForm = ({ selectedTier }: { selectedTier: string }) => {
   const elements = useElements();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -33,7 +33,7 @@ const SubscribeForm = ({ selectedTier }: { selectedTier: string }) => {
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: `${window.location.origin}/dashboard?subscription=success`,
+        return_url: `${window.location.origin}/dashboard?payment=success`,
       },
     });
 
@@ -46,22 +46,22 @@ const SubscribeForm = ({ selectedTier }: { selectedTier: string }) => {
     } else {
       toast({
         title: "Welcome to Phoenix Method™!",
-        description: "Your subscription is now active. Begin your transformation journey.",
+        description: "Your payment was successful. Begin your transformation journey.",
       });
     }
-    
+
     setIsLoading(false);
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <PaymentElement 
+      <PaymentElement
         options={{
           layout: "tabs"
         }}
       />
-      <Button 
-        type="submit" 
+      <Button
+        type="submit"
         disabled={!stripe || isLoading}
         className="w-full bg-orange-600 hover:bg-orange-700"
         size="lg"
@@ -72,7 +72,7 @@ const SubscribeForm = ({ selectedTier }: { selectedTier: string }) => {
             Processing...
           </>
         ) : (
-          'Start My Recovery Journey'
+          'Complete Secure Payment'
         )}
       </Button>
     </form>
@@ -88,22 +88,28 @@ export default function Subscribe() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const tier = urlParams.get('tier') || 'essential';
-    const billing = urlParams.get('billing') || 'monthly';
-    
+
     setSelectedTier(tier);
-    
-    // Create subscription intent
-    apiRequest("POST", "/api/create-subscription", { 
-      tier, 
-      billing 
+
+    // Create payment intent
+    apiRequest("POST", "/api/create-payment-intent", {
+      tier
     })
-      .then((res) => res.json())
+      .then(async (res) => {
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || res.statusText);
+        }
+        return res.json();
+      })
       .then((data) => {
-        setClientSecret(data.clientSecret);
+        if (data.clientSecret) {
+          setClientSecret(data.clientSecret);
+        }
         setLoading(false);
       })
       .catch((error) => {
-        console.error('Error creating subscription:', error);
+        console.error('Error creating payment intent:', error);
         setLoading(false);
       });
   }, []);
@@ -111,24 +117,19 @@ export default function Subscribe() {
   const tierInfo = {
     essential: {
       name: "Phoenix Rise",
-      price: "$29/month",
-      description: "Complete access to the 7-phase recovery program"
-    },
-    premium: {
-      name: "Phoenix Transform", 
-      price: "$79/month",
-      description: "Everything in Rise plus premium coaching support"
+      price: "$147",
+      description: "Complete access to the 7-phase recovery program (One-Time Payment)"
     }
   };
 
-  const currentTier = tierInfo[selectedTier as keyof typeof tierInfo];
+  const currentTier = tierInfo[selectedTier as keyof typeof tierInfo] || tierInfo.essential;
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-orange-600" />
-          <p className="text-gray-600">Setting up your subscription...</p>
+          <p className="text-gray-600">Setting up secure checkout...</p>
         </div>
       </div>
     );
@@ -139,9 +140,9 @@ export default function Subscribe() {
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <CardTitle className="text-red-600">Unable to Process Subscription</CardTitle>
+            <CardTitle className="text-red-600">Unable to Process Payment</CardTitle>
             <CardDescription>
-              There was an issue setting up your subscription. Please try again or contact support.
+              There was an issue initializing the checkout. Please try again or contact support.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -159,7 +160,7 @@ export default function Subscribe() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
           <Link href="/pricing">
             <Button variant="ghost" className="mb-4">
@@ -167,10 +168,10 @@ export default function Subscribe() {
               Back to Pricing
             </Button>
           </Link>
-          
+
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              Complete Your Subscription
+              Complete Your Order
             </h1>
             <p className="text-gray-600 mb-6">
               You're one step away from starting your Phoenix Method™ journey
@@ -191,23 +192,21 @@ export default function Subscribe() {
                   <p className="text-sm text-gray-600">{currentTier?.description}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium">{currentTier?.price}</p>
+                  <p className="font-medium text-lg">{currentTier?.price}</p>
                 </div>
               </div>
-              
+
               <div className="space-y-2 text-sm text-gray-600">
-                <p>✓ Full access to all 7 P.H.O.E.N.I.X phases</p>
+                <p>✓ Lifetime access to all 7 P.H.O.E.N.I.X phases</p>
                 <p>✓ Interactive exercises and assessments</p>
                 <p>✓ Advanced journaling with mood tracking</p>
                 <p>✓ 30-day money-back guarantee</p>
-                <p>✓ Cancel anytime</p>
-                {selectedTier === 'premium' && (
-                  <>
-                    <p>✓ Monthly 1-on-1 coaching call</p>
-                    <p>✓ Priority support</p>
-                    <p>✓ Live group sessions</p>
-                  </>
-                )}
+                <p>✓ Secure one-time payment</p>
+              </div>
+
+              <div className="flex justify-between items-center pt-4 border-t font-bold">
+                <span>Total</span>
+                <span>{currentTier?.price}</span>
               </div>
             </CardContent>
           </Card>

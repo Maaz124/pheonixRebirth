@@ -1,4 +1,4 @@
-import type { 
+import type {
   User, InsertUser, Phase, InsertPhase, UserProgress, InsertUserProgress,
   Exercise, InsertExercise, UserExerciseProgress, InsertUserExerciseProgress,
   JournalEntry, InsertJournalEntry, Resource, InsertResource,
@@ -6,7 +6,15 @@ import type {
   Lead, InsertLead
 } from "@shared/schema";
 
+
+import session from "express-session";
+import connectPg from "connect-pg-simple";
+import { pool } from "./db";
+
+const PostgresSessionStore = connectPg(session);
+
 export interface IStorage {
+  sessionStore: session.Store;
   // User operations
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
@@ -56,12 +64,12 @@ export interface IStorage {
   getUserAssessmentResults(userId: number): Promise<UserAssessmentResult[]>;
   getUserAssessmentResult(userId: number, assessmentId: number): Promise<UserAssessmentResult | undefined>;
   createUserAssessmentResult(result: InsertUserAssessmentResult): Promise<UserAssessmentResult>;
-  
+
   // Stripe and subscription operations
   updateUserStripeInfo(userId: number, stripeCustomerId: string, stripeSubscriptionId: string | null): Promise<User | undefined>;
   updateUserSubscription(userId: number, tier: string, status: string, endDate: Date | null): Promise<User | undefined>;
   getUserByStripeCustomerId(stripeCustomerId: string): Promise<User | undefined>;
-  
+
   // Lead capture operations
   createLead(lead: InsertLead): Promise<Lead>;
   getAllLeads(): Promise<Lead[]>;
@@ -70,12 +78,21 @@ export interface IStorage {
 
 import { db } from "./db";
 import { eq, and } from "drizzle-orm";
-import { 
+import {
   users, phases, userProgress, exercises, userExerciseProgress,
   journalEntries, resources, assessments, userAssessmentResults, leads
 } from "@shared/schema";
 
 export class DatabaseStorage implements IStorage {
+  sessionStore: session.Store;
+
+  constructor() {
+    this.sessionStore = new PostgresSessionStore({
+      pool,
+      createTableIfMissing: true,
+    });
+  }
+
   // User operations
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
@@ -231,6 +248,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Assessment operations
+  async getAssessmentsForPhase(phaseId: number): Promise<Assessment[]>;
   async getAssessmentsForPhase(phaseId: number): Promise<Assessment[]> {
     try {
       return await db.select().from(assessments).where(eq(assessments.phaseId, phaseId));
@@ -265,13 +283,13 @@ export class DatabaseStorage implements IStorage {
     const [result] = await db.insert(userAssessmentResults).values(insertResult).returning();
     return result;
   }
-  
+
   // Stripe and subscription operations
   async updateUserStripeInfo(userId: number, stripeCustomerId: string, stripeSubscriptionId: string | null): Promise<User | undefined> {
     const [user] = await db.update(users)
-      .set({ 
-        stripeCustomerId, 
-        stripeSubscriptionId 
+      .set({
+        stripeCustomerId,
+        stripeSubscriptionId
       })
       .where(eq(users.id, userId))
       .returning();
@@ -280,7 +298,7 @@ export class DatabaseStorage implements IStorage {
 
   async updateUserSubscription(userId: number, tier: string, status: string, endDate: Date | null): Promise<User | undefined> {
     const [user] = await db.update(users)
-      .set({ 
+      .set({
         subscriptionTier: tier,
         subscriptionStatus: status,
         subscriptionEndDate: endDate
@@ -294,7 +312,7 @@ export class DatabaseStorage implements IStorage {
     const [user] = await db.select().from(users).where(eq(users.stripeCustomerId, stripeCustomerId));
     return user || undefined;
   }
-  
+
   // Lead capture operations
   async createLead(insertLead: InsertLead): Promise<Lead> {
     const [lead] = await db.insert(leads).values(insertLead).returning();

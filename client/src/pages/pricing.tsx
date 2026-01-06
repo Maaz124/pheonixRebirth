@@ -1,9 +1,8 @@
-import { useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Star, Crown, Heart } from "lucide-react";
+import { Check, Star, Heart } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import type { User } from "@shared/schema";
 
@@ -31,8 +30,8 @@ const pricingTiers = [
   {
     id: "essential",
     name: "Phoenix Rise",
-    price: 29,
-    period: "per month",
+    price: 147,
+    period: "One-time payment",
     description: "Complete access to the 7-phase recovery program",
     icon: Star,
     color: "from-orange-400 to-red-500",
@@ -48,32 +47,10 @@ const pricingTiers = [
       "Mobile app access"
     ],
     limitations: []
-  },
-  {
-    id: "premium",
-    name: "Phoenix Transform",
-    price: 79,
-    period: "per month",
-    description: "Everything in Rise plus premium coaching support",
-    icon: Crown,
-    color: "from-purple-500 to-indigo-600",
-    features: [
-      "Everything in Phoenix Rise",
-      "Monthly 1-on-1 coaching call (60 min)",
-      "Priority email support (same day)",
-      "Custom recovery plan creation",
-      "Access to live group sessions",
-      "Advanced trauma-informed tools",
-      "Personalized affirmations library",
-      "Family/partner resources access"
-    ],
-    limitations: []
   }
 ];
 
 export default function Pricing() {
-  const [isAnnual, setIsAnnual] = useState(false);
-  
   const { data: user } = useQuery<User>({
     queryKey: ['/api/user/current'],
   });
@@ -83,64 +60,33 @@ export default function Pricing() {
       // Handle free tier signup or redirect to registration
       return;
     }
-    
-    // Redirect to subscription page with selected tier
-    window.location.href = `/subscribe?tier=${tierId}&billing=${isAnnual ? 'annual' : 'monthly'}`;
-  };
 
-  const getDiscountedPrice = (price: number) => {
-    return isAnnual ? Math.round(price * 10) : price; // 2 months free annually
+    // Redirect to subscription page with selected tier (billing param removed)
+    window.location.href = `/subscribe?tier=${tierId}`;
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-16">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Choose Your Phoenix Method™ Journey
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-            Transform your trauma into your greatest strength with our scientifically-backed, 
+            Transform your trauma into your greatest strength with our scientifically-backed,
             trauma-informed recovery program designed specifically for women.
           </p>
-          
-          {/* Billing Toggle */}
-          <div className="flex items-center justify-center space-x-4 mb-8">
-            <span className={`text-sm ${!isAnnual ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
-              Monthly
-            </span>
-            <button
-              onClick={() => setIsAnnual(!isAnnual)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                isAnnual ? 'bg-orange-600' : 'bg-gray-200'
-              }`}
-            >
-              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                isAnnual ? 'translate-x-6' : 'translate-x-1'
-              }`} />
-            </button>
-            <span className={`text-sm ${isAnnual ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
-              Annual
-            </span>
-            {isAnnual && (
-              <Badge variant="secondary" className="bg-green-100 text-green-800">
-                Save 17%
-              </Badge>
-            )}
-          </div>
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 max-w-5xl mx-auto">
           {pricingTiers.map((tier) => {
             const IconComponent = tier.icon;
-            const finalPrice = tier.price > 0 ? getDiscountedPrice(tier.price) : 0;
-            
+
             return (
-              <Card key={tier.id} className={`relative overflow-hidden ${
-                tier.popular ? 'ring-2 ring-orange-500 scale-105' : ''
-              }`}>
+              <Card key={tier.id} className={`relative overflow-hidden ${tier.popular ? 'ring-2 ring-orange-500 scale-105' : ''
+                }`}>
                 {tier.popular && (
                   <div className="absolute top-0 left-1/2 transform -translate-x-1/2">
                     <Badge className="bg-orange-500 hover:bg-orange-600 text-white">
@@ -148,7 +94,7 @@ export default function Pricing() {
                     </Badge>
                   </div>
                 )}
-                
+
                 <CardHeader className="text-center pb-4">
                   <div className={`w-16 h-16 mx-auto rounded-full bg-gradient-to-r ${tier.color} flex items-center justify-center mb-4`}>
                     <IconComponent className="text-white" size={24} />
@@ -157,47 +103,34 @@ export default function Pricing() {
                   <CardDescription className="text-gray-600 mt-2">
                     {tier.description}
                   </CardDescription>
-                  
+
                   <div className="mt-4">
                     <div className="flex items-center justify-center">
                       <span className="text-4xl font-bold text-gray-900">
-                        ${finalPrice}
+                        ${tier.price}
                       </span>
-                      {tier.price > 0 && (
-                        <span className="text-gray-600 ml-2">
-                          /{isAnnual ? 'year' : 'month'}
-                        </span>
-                      )}
                     </div>
-                    {tier.price === 0 && (
-                      <p className="text-sm text-gray-500 mt-1">{tier.period}</p>
-                    )}
-                    {isAnnual && tier.price > 0 && (
-                      <p className="text-sm text-green-600 mt-1">
-                        Save ${(tier.price * 12) - finalPrice} annually
-                      </p>
-                    )}
+                    <p className="text-sm text-gray-500 mt-1">{tier.period}</p>
                   </div>
                 </CardHeader>
-                
+
                 <CardContent className="space-y-4">
-                  <Button 
+                  <Button
                     onClick={() => handleSubscribe(tier.id)}
-                    className={`w-full ${
-                      tier.popular 
-                        ? 'bg-orange-600 hover:bg-orange-700' 
-                        : 'bg-gray-900 hover:bg-gray-800'
-                    }`}
+                    className={`w-full ${tier.popular
+                      ? 'bg-orange-600 hover:bg-orange-700'
+                      : 'bg-gray-900 hover:bg-gray-800'
+                      }`}
                     disabled={user?.subscriptionTier === tier.id}
                   >
-                    {user?.subscriptionTier === tier.id 
-                      ? 'Current Plan' 
-                      : tier.price === 0 
-                        ? 'Get Started Free' 
+                    {user?.subscriptionTier === tier.id
+                      ? 'Current Plan'
+                      : tier.price === 0
+                        ? 'Get Started Free'
                         : 'Start Recovery Journey'
                     }
                   </Button>
-                  
+
                   <div className="space-y-3">
                     <h4 className="font-medium text-gray-900">What's included:</h4>
                     <ul className="space-y-2">
