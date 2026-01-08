@@ -15,13 +15,15 @@ export function Navigation() {
   const [location] = useLocation();
   const { user, logoutMutation } = useAuth();
 
+  const isSubscribed = user?.subscriptionStatus === 'active' || user?.subscriptionStatus === 'lifetime';
+
   const navItems = [
-    { href: "/dashboard", label: "Dashboard" },
+    { href: "/", label: "Home" },
     { href: "/phases", label: "Phases" },
     { href: "/resources", label: "Resources" },
     { href: "/journal", label: "Journal" },
     { href: "/blog", label: "Blog" },
-    { href: "/pricing", label: "Pricing" },
+    ...(isSubscribed ? [] : [{ href: "/pricing", label: "Pricing" }]),
   ];
 
   return (
@@ -42,8 +44,8 @@ export function Navigation() {
             {navItems.map((item) => (
               <Link key={item.href} href={item.href}>
                 <span className={`transition-colors cursor-pointer ${location === item.href
-                    ? "text-orange-600 font-medium"
-                    : "text-gray-600 hover:text-orange-600"
+                  ? "text-orange-600 font-medium"
+                  : "text-gray-600 hover:text-orange-600"
                   }`}>
                   {item.label}
                 </span>

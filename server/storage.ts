@@ -38,6 +38,7 @@ export interface IStorage {
   createExercise(exercise: InsertExercise): Promise<Exercise>;
 
   // User exercise progress operations
+  getUserExerciseProgressForPhase(userId: number, phaseId: number): Promise<UserExerciseProgress[]>;
   getUserExerciseProgress(userId: number, exerciseId: number): Promise<UserExerciseProgress | undefined>;
   updateUserExerciseProgress(userId: number, exerciseId: number, updates: Partial<InsertUserExerciseProgress>): Promise<UserExerciseProgress | undefined>;
   createUserExerciseProgress(progress: InsertUserExerciseProgress): Promise<UserExerciseProgress>;
@@ -183,6 +184,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   // User exercise progress operations
+  async getUserExerciseProgressForPhase(userId: number, phaseId: number): Promise<UserExerciseProgress[]> {
+    const rows = await db.select()
+      .from(userExerciseProgress)
+      .innerJoin(exercises, eq(userExerciseProgress.exerciseId, exercises.id))
+      .where(and(eq(userExerciseProgress.userId, userId), eq(exercises.phaseId, phaseId)));
+
+    return rows.map(row => row.user_exercise_progress);
+  }
+
   async getUserExerciseProgress(userId: number, exerciseId: number): Promise<UserExerciseProgress | undefined> {
     const [progress] = await db.select().from(userExerciseProgress)
       .where(and(eq(userExerciseProgress.userId, userId), eq(userExerciseProgress.exerciseId, exerciseId)));
@@ -225,7 +235,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteJournalEntry(id: number): Promise<boolean> {
     const result = await db.delete(journalEntries).where(eq(journalEntries.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Resource operations

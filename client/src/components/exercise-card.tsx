@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
+import {
   BookOpen, Play, CheckCircle2, Clock, Lightbulb,
   Heart, Brain, Target, MessageCircle, Eye, Activity, Shield, Users, MessageSquare, Calendar
 } from "lucide-react";
@@ -17,13 +17,21 @@ import type { Exercise } from "@shared/schema";
 interface ExerciseCardProps {
   exercise: Exercise;
   isCompleted?: boolean;
+  initialResponses?: any;
   onComplete: (exerciseId: number, responses?: any) => void;
 }
 
-export function ExerciseCard({ exercise, isCompleted = false, onComplete }: ExerciseCardProps) {
+export function ExerciseCard({ exercise, isCompleted = false, initialResponses, onComplete }: ExerciseCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [responses, setResponses] = useState<any>({});
+  const [responses, setResponses] = useState<any>(initialResponses || {});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Update responses when initialResponses changes (e.g. loaded from API)
+  useEffect(() => {
+    if (initialResponses) {
+      setResponses(initialResponses);
+    }
+  }, [initialResponses]);
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -70,7 +78,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
   const renderContent = () => {
     const content = exercise.content as any;
     console.log('Exercise content:', exercise.title, content);
-    
+
     if (exercise.type === 'educational') {
       return (
         <Tabs defaultValue="overview" className="w-full">
@@ -79,7 +87,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
             <TabsTrigger value="neuroscience">Neuroscience</TabsTrigger>
             <TabsTrigger value="practice">Practice</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="overview" className="space-y-4">
             {content.keyPoints && (
               <div className="bg-blue-50 rounded-lg p-4">
@@ -98,7 +106,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
               </div>
             )}
           </TabsContent>
-          
+
           <TabsContent value="neuroscience" className="space-y-4">
             {content.neuroscience && (
               <div className="bg-purple-50 rounded-lg p-4">
@@ -110,7 +118,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
               </div>
             )}
           </TabsContent>
-          
+
           <TabsContent value="practice" className="space-y-4">
             {content.practicalApplication && (
               <div className="bg-green-50 rounded-lg p-4">
@@ -125,7 +133,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
         </Tabs>
       );
     }
-    
+
     if (exercise.type === 'reading') {
       return (
         <div className="space-y-4">
@@ -159,7 +167,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
             <TabsTrigger value="neuroscience">Why It Works</TabsTrigger>
             <TabsTrigger value="tips">Tips & Variations</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="instructions" className="space-y-4">
             {content.steps && (
               <div className="bg-teal-50 rounded-lg p-4">
@@ -179,7 +187,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                 </ol>
               </div>
             )}
-            
+
             {content.instructions && (
               <div className="bg-teal-50 rounded-lg p-4">
                 <h4 className="font-medium text-teal-900 mb-3 flex items-center">
@@ -202,7 +210,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                 )}
               </div>
             )}
-            
+
             {content.visualization && (
               <div className="bg-indigo-50 rounded-lg p-4">
                 <h4 className="font-medium text-indigo-900 mb-3 flex items-center">
@@ -213,7 +221,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
               </div>
             )}
           </TabsContent>
-          
+
           <TabsContent value="practice" className="space-y-4">
             {exercise.title === "Understanding Self-Compassion Neuroscience" ? (
               <div className="space-y-6">
@@ -222,7 +230,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Brain className="mr-2" size={16} />
                     Self-Compassion Practice Lab
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -232,10 +240,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I made a mistake at work and I can't stop thinking about it', 'I'm feeling overwhelmed by everything on my plate', 'I'm comparing myself to others on social media'..."
                         className="min-h-[100px] resize-none"
                         value={responses.current_challenge || ""}
-                        onChange={(e) => setResponses({...responses, current_challenge: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, current_challenge: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Self-Critical Voice: What is your inner critic saying about this situation?
@@ -244,10 +252,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'You're so stupid, you always mess things up', 'Everyone else has it together except you', 'You should be able to handle this'..."
                         className="min-h-[100px] resize-none"
                         value={responses.critic_voice || ""}
-                        onChange={(e) => setResponses({...responses, critic_voice: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, critic_voice: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Mindfulness Practice: Acknowledge your suffering without being consumed by it
@@ -256,10 +264,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I notice I am suffering right now. This is a moment of pain. I can feel this difficulty without it overwhelming me'..."
                         className="min-h-[80px] resize-none"
                         value={responses.mindfulness_response || ""}
-                        onChange={(e) => setResponses({...responses, mindfulness_response: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, mindfulness_response: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Common Humanity: How might others in your situation feel?
@@ -268,10 +276,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'This is a moment of suffering. Suffering is part of life. Many people feel this way when they make mistakes. I am not alone in this experience'..."
                         className="min-h-[80px] resize-none"
                         value={responses.common_humanity || ""}
-                        onChange={(e) => setResponses({...responses, common_humanity: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, common_humanity: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Self-Kindness: What would you tell a dear friend in this situation?
@@ -280,17 +288,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'May I be kind to myself in this moment. You're doing the best you can with what you know. Making mistakes is human. You deserve compassion and understanding'..."
                         className="min-h-[100px] resize-none"
                         value={responses.self_kindness || ""}
-                        onChange={(e) => setResponses({...responses, self_kindness: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, self_kindness: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Self-Compassion Component Focus: Which component feels most challenging?
                       </Label>
                       <RadioGroup
                         value={responses.challenging_component || ""}
-                        onValueChange={(value) => setResponses({...responses, challenging_component: value})}
+                        onValueChange={(value) => setResponses({ ...responses, challenging_component: value })}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="mindfulness" id="mindfulness" />
@@ -310,7 +318,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </div>
                       </RadioGroup>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Physical Self-Compassion: Place your hand on your heart and offer yourself comfort
@@ -319,17 +327,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Feeling the warmth of my hand on my heart, I offer myself this kindness. My heart is beating, I am alive, I am worthy of care'..."
                         className="min-h-[80px] resize-none"
                         value={responses.physical_compassion || ""}
-                        onChange={(e) => setResponses({...responses, physical_compassion: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, physical_compassion: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Self-Compassion Comfort Level: How comfortable do you feel practicing self-compassion?
                       </Label>
                       <Slider
                         value={[responses.compassion_comfort || 4]}
-                        onValueChange={(value) => setResponses({...responses, compassion_comfort: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, compassion_comfort: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -341,7 +349,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </div>
                       <p className="text-center mt-2 font-medium">Comfort Level: {responses.compassion_comfort || 4}/10</p>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Integration Plan: How will you practice self-compassion this week?
@@ -350,7 +358,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I will place my hand on my heart when I notice self-criticism, practice the three components daily, speak to myself like a good friend'..."
                         className="min-h-[100px] resize-none"
                         value={responses.integration_plan || ""}
-                        onChange={(e) => setResponses({...responses, integration_plan: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, integration_plan: e.target.value })}
                       />
                     </div>
                   </div>
@@ -364,7 +372,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     Interactive RAIN Practice
                   </h4>
                   <p className="text-teal-800 text-sm mb-4">Practice transforming self-criticism with the RAIN technique:</p>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -374,10 +382,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I'm such an idiot for making that mistake...'"
                         className="min-h-[80px] resize-none"
                         value={responses.critic_thought || ""}
-                        onChange={(e) => setResponses({...responses, critic_thought: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, critic_thought: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         2. Allow: What are you feeling in your body right now?
@@ -386,10 +394,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Tension in my chest, shoulders tight, feeling heavy...'"
                         className="min-h-[80px] resize-none"
                         value={responses.body_feelings || ""}
-                        onChange={(e) => setResponses({...responses, body_feelings: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, body_feelings: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         3. Investigate: What do you need right now?
@@ -398,10 +406,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I need compassion, understanding, a moment to breathe...'"
                         className="min-h-[80px] resize-none"
                         value={responses.needs || ""}
-                        onChange={(e) => setResponses({...responses, needs: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, needs: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         4. Nurture: Write a compassionate response to yourself
@@ -410,7 +418,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'It's okay to make mistakes. I'm learning and growing. May I be kind to myself...'"
                         className="min-h-[100px] resize-none"
                         value={responses.compassionate_response || ""}
-                        onChange={(e) => setResponses({...responses, compassionate_response: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, compassionate_response: e.target.value })}
                       />
                     </div>
                   </div>
@@ -423,7 +431,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Activity className="mr-2" size={16} />
                     Body-Based Compassion Practice
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -433,17 +441,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Tight shoulders, clenched jaw, butterflies in stomach...'"
                         className="min-h-[80px] resize-none"
                         value={responses.body_scan || ""}
-                        onChange={(e) => setResponses({...responses, body_scan: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, body_scan: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Soothing Touch: Rate your comfort level (1-10)
                       </Label>
                       <Slider
                         value={[responses.comfort_level || 5]}
-                        onValueChange={(value) => setResponses({...responses, comfort_level: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, comfort_level: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -455,7 +463,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </div>
                       <p className="text-center mt-2 font-medium">Current level: {responses.comfort_level || 5}</p>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Reflection: How did the soothing touch feel?
@@ -464,7 +472,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Calming, strange at first, made me feel cared for...'"
                         className="min-h-[80px] resize-none"
                         value={responses.touch_reflection || ""}
-                        onChange={(e) => setResponses({...responses, touch_reflection: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, touch_reflection: e.target.value })}
                       />
                     </div>
                   </div>
@@ -477,7 +485,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Target className="mr-2" size={16} />
                     Shame Resilience Practice
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -487,10 +495,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Made a mistake at work and everyone saw...'"
                         className="min-h-[80px] resize-none"
                         value={responses.shame_trigger || ""}
-                        onChange={(e) => setResponses({...responses, shame_trigger: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, shame_trigger: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Physical Sensations: How did shame feel in your body?
@@ -499,10 +507,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Face flushed, wanted to hide, stomach dropped...'"
                         className="min-h-[80px] resize-none"
                         value={responses.shame_sensations || ""}
-                        onChange={(e) => setResponses({...responses, shame_sensations: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, shame_sensations: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Reality Check: What would you tell a friend in this situation?
@@ -511,10 +519,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Everyone makes mistakes, you're still a good person...'"
                         className="min-h-[100px] resize-none"
                         value={responses.reality_check || ""}
-                        onChange={(e) => setResponses({...responses, reality_check: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, reality_check: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Reaching Out: Who could you share this with for support?
@@ -523,7 +531,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'My best friend, therapist, support group...'"
                         className="min-h-[80px] resize-none"
                         value={responses.support_network || ""}
-                        onChange={(e) => setResponses({...responses, support_network: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, support_network: e.target.value })}
                       />
                     </div>
                   </div>
@@ -536,7 +544,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <MessageCircle className="mr-2" size={16} />
                     Emotional Validation Practice
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -544,7 +552,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </Label>
                       <RadioGroup
                         value={responses.current_emotion || ""}
-                        onValueChange={(value) => setResponses({...responses, current_emotion: value})}
+                        onValueChange={(value) => setResponses({ ...responses, current_emotion: value })}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="anger" id="anger" />
@@ -572,7 +580,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </div>
                       </RadioGroup>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Validation: Why is this emotion valid and important?
@@ -581,10 +589,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'My anger is valid because my boundary was crossed...'"
                         className="min-h-[100px] resize-none"
                         value={responses.emotion_validation || ""}
-                        onChange={(e) => setResponses({...responses, emotion_validation: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, emotion_validation: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Self-Compassion: What do you need right now?
@@ -593,7 +601,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I need to be gentle with myself, take some time to process...'"
                         className="min-h-[100px] resize-none"
                         value={responses.self_care_need || ""}
-                        onChange={(e) => setResponses({...responses, self_care_need: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, self_care_need: e.target.value })}
                       />
                     </div>
                   </div>
@@ -606,7 +614,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Shield className="mr-2" size={16} />
                     Shame Resilience Builder
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -616,10 +624,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I am broken, I am too much, I am not enough, I should be ashamed of myself...'"
                         className="min-h-[100px] resize-none"
                         value={responses.shame_message || ""}
-                        onChange={(e) => setResponses({...responses, shame_message: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, shame_message: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Reality Check: What would you tell a friend experiencing this shame?
@@ -628,17 +636,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'You are not broken. Making mistakes is human. You deserve compassion and understanding...'"
                         className="min-h-[100px] resize-none"
                         value={responses.friend_response || ""}
-                        onChange={(e) => setResponses({...responses, friend_response: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, friend_response: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Reach Out Strategy: Who could you share this shame with safely?
                       </Label>
                       <RadioGroup
                         value={responses.support_person || ""}
-                        onValueChange={(value) => setResponses({...responses, support_person: value})}
+                        onValueChange={(value) => setResponses({ ...responses, support_person: value })}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="therapist" id="therapist" />
@@ -662,7 +670,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </div>
                       </RadioGroup>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Speak Shame: How will you name this shame experience?
@@ -671,17 +679,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I am experiencing shame about my past. This is a shame story, not a fact about who I am. I am worthy of love and belonging...'"
                         className="min-h-[100px] resize-none"
                         value={responses.shame_narrative || ""}
-                        onChange={(e) => setResponses({...responses, shame_narrative: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, shame_narrative: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Shame Resilience Level: How confident do you feel in managing shame?
                       </Label>
                       <Slider
                         value={[responses.resilience_level || 3]}
-                        onValueChange={(value) => setResponses({...responses, resilience_level: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, resilience_level: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -703,7 +711,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Target className="mr-2" size={16} />
                     Perfectionism Recovery Lab
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -711,7 +719,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </Label>
                       <Select
                         value={responses.perfectionism_area || ""}
-                        onValueChange={(value) => setResponses({...responses, perfectionism_area: value})}
+                        onValueChange={(value) => setResponses({ ...responses, perfectionism_area: value })}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Choose your main perfectionism area..." />
@@ -726,7 +734,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Perfectionist Thought: What does your perfectionist voice say?
@@ -735,10 +743,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'If I don't do this perfectly, people will think I'm incompetent. I have to get this exactly right or it's worthless...'"
                         className="min-h-[100px] resize-none"
                         value={responses.perfectionist_thought || ""}
-                        onChange={(e) => setResponses({...responses, perfectionist_thought: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, perfectionist_thought: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Progress Reframe: How could you reframe this with a progress mindset?
@@ -747,10 +755,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Good enough is actually good enough. I can learn from imperfect attempts. Progress matters more than perfection...'"
                         className="min-h-[100px] resize-none"
                         value={responses.progress_reframe || ""}
-                        onChange={(e) => setResponses({...responses, progress_reframe: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, progress_reframe: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         B+ Goal Setting: What would a B+ version of your goal look like?
@@ -759,10 +767,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Instead of writing the perfect email, I'll write a clear, helpful email in 10 minutes. Instead of the perfect presentation, I'll create something informative and authentic...'"
                         className="min-h-[100px] resize-none"
                         value={responses.b_plus_goal || ""}
-                        onChange={(e) => setResponses({...responses, b_plus_goal: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, b_plus_goal: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Implementation Strategy: How will you practice progress over perfection this week?
@@ -771,17 +779,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I will set a timer for tasks, share imperfect work with a friend, celebrate B+ efforts, practice done is better than perfect...'"
                         className="min-h-[100px] resize-none"
                         value={responses.implementation_strategy || ""}
-                        onChange={(e) => setResponses({...responses, implementation_strategy: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, implementation_strategy: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Progress Commitment: How committed are you to practicing progress over perfection?
                       </Label>
                       <Slider
                         value={[responses.progress_commitment || 5]}
-                        onValueChange={(value) => setResponses({...responses, progress_commitment: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, progress_commitment: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -803,7 +811,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Heart className="mr-2" size={16} />
                     Emotion Validation Studio
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -811,7 +819,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </Label>
                       <Select
                         value={responses.current_emotion || ""}
-                        onValueChange={(value) => setResponses({...responses, current_emotion: value})}
+                        onValueChange={(value) => setResponses({ ...responses, current_emotion: value })}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Name your current emotion..." />
@@ -828,7 +836,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Emotion Location: Where do you feel this emotion in your body?
@@ -837,10 +845,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Tight chest, shoulders up to my ears, butterflies in stomach, tension in my jaw...'"
                         className="min-h-[80px] resize-none"
                         value={responses.emotion_location || ""}
-                        onChange={(e) => setResponses({...responses, emotion_location: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, emotion_location: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Emotion Context: What situation or trigger brought up this emotion?
@@ -849,10 +857,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'A difficult conversation with my partner, work stress, remembering a past trauma, feeling criticized...'"
                         className="min-h-[80px] resize-none"
                         value={responses.emotion_context || ""}
-                        onChange={(e) => setResponses({...responses, emotion_context: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, emotion_context: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Validation Statement: Write a validating statement for your emotion
@@ -861,17 +869,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'It makes sense that I feel anxious about this situation. Anyone who has been through what I've been through would feel this way. My emotions are valid and important information...'"
                         className="min-h-[100px] resize-none"
                         value={responses.validation_statement || ""}
-                        onChange={(e) => setResponses({...responses, validation_statement: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, validation_statement: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Emotional Need: What does this emotion need from you right now?
                       </Label>
                       <RadioGroup
                         value={responses.emotional_need || ""}
-                        onValueChange={(value) => setResponses({...responses, emotional_need: value})}
+                        onValueChange={(value) => setResponses({ ...responses, emotional_need: value })}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="comfort" id="comfort" />
@@ -895,14 +903,14 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </div>
                       </RadioGroup>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Self-Validation Skill: How comfortable are you validating your own emotions?
                       </Label>
                       <Slider
                         value={[responses.validation_skill || 4]}
-                        onValueChange={(value) => setResponses({...responses, validation_skill: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, validation_skill: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -924,7 +932,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Heart className="mr-2" size={16} />
                     Grief Integration Sanctuary
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -932,7 +940,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </Label>
                       <Select
                         value={responses.grief_type || ""}
-                        onValueChange={(value) => setResponses({...responses, grief_type: value})}
+                        onValueChange={(value) => setResponses({ ...responses, grief_type: value })}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Choose what you are grieving..." />
@@ -949,7 +957,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Grief Story: What exactly did you lose, and what did it mean to you?
@@ -958,10 +966,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I lost my sense of safety when the abuse started. I lost the belief that the world was a safe place and that people could be trusted...'"
                         className="min-h-[120px] resize-none"
                         value={responses.grief_story || ""}
-                        onChange={(e) => setResponses({...responses, grief_story: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, grief_story: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Grief Waves: What triggers waves of grief for you?
@@ -970,17 +978,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Seeing happy families, anniversaries, certain songs, feeling vulnerable, witnessing trust between people...'"
                         className="min-h-[100px] resize-none"
                         value={responses.grief_triggers || ""}
-                        onChange={(e) => setResponses({...responses, grief_triggers: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, grief_triggers: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Honoring Your Loss: How can you honor what you have lost?
                       </Label>
                       <RadioGroup
                         value={responses.honoring_method || ""}
-                        onValueChange={(value) => setResponses({...responses, honoring_method: value})}
+                        onValueChange={(value) => setResponses({ ...responses, honoring_method: value })}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="ritual" id="ritual" />
@@ -1004,7 +1012,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </div>
                       </RadioGroup>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Grief Wisdom: What has your grief taught you about yourself or life?
@@ -1013,17 +1021,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'My grief has taught me how deeply I can love, how strong I actually am, how important it is to honor my feelings...'"
                         className="min-h-[100px] resize-none"
                         value={responses.grief_wisdom || ""}
-                        onChange={(e) => setResponses({...responses, grief_wisdom: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, grief_wisdom: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Integration Readiness: How ready are you to carry this grief with compassion?
                       </Label>
                       <Slider
                         value={[responses.integration_readiness || 4]}
-                        onValueChange={(value) => setResponses({...responses, integration_readiness: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, integration_readiness: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -1045,7 +1053,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Heart className="mr-2" size={16} />
                     Self-Forgiveness Practice
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -1055,10 +1063,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Staying in an abusive relationship too long, not protecting myself, trusting someone who hurt me, my reactions to trauma...'"
                         className="min-h-[100px] resize-none"
                         value={responses.forgiveness_issue || ""}
-                        onChange={(e) => setResponses({...responses, forgiveness_issue: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, forgiveness_issue: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Understanding Context: What circumstances led to this situation?
@@ -1067,10 +1075,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I was young and didn't know better, I was in survival mode, I was doing the best I could with what I knew then, I was trying to protect myself...'"
                         className="min-h-[100px] resize-none"
                         value={responses.context_understanding || ""}
-                        onChange={(e) => setResponses({...responses, context_understanding: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, context_understanding: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Lessons Learned: What have you learned from this experience?
@@ -1079,10 +1087,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I learned to trust my instincts, I learned what red flags look like, I learned that I am stronger than I thought, I learned to prioritize my safety...'"
                         className="min-h-[100px] resize-none"
                         value={responses.lessons_learned || ""}
-                        onChange={(e) => setResponses({...responses, lessons_learned: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, lessons_learned: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Forgiveness Letter: Write a forgiveness letter to yourself
@@ -1091,17 +1099,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Dear [Your name], I forgive you for... You were doing the best you could with what you knew. You were trying to survive and protect yourself. You are worthy of love and forgiveness...'"
                         className="min-h-[150px] resize-none"
                         value={responses.forgiveness_letter || ""}
-                        onChange={(e) => setResponses({...responses, forgiveness_letter: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, forgiveness_letter: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Moving Forward: How will you show yourself compassion going forward?
                       </Label>
                       <RadioGroup
                         value={responses.moving_forward || ""}
-                        onValueChange={(value) => setResponses({...responses, moving_forward: value})}
+                        onValueChange={(value) => setResponses({ ...responses, moving_forward: value })}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="daily_affirmations" id="daily_affirmations" />
@@ -1125,14 +1133,14 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </div>
                       </RadioGroup>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Forgiveness Progress: How ready do you feel to forgive yourself?
                       </Label>
                       <Slider
                         value={[responses.forgiveness_readiness || 4]}
-                        onValueChange={(value) => setResponses({...responses, forgiveness_readiness: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, forgiveness_readiness: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -1154,7 +1162,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Target className="mr-2" size={16} />
                     Interactive Trigger Mapping
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -1164,7 +1172,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Being criticized in front of others...'"
                         className="min-h-[60px] resize-none mb-3"
                         value={responses.trigger_1 || ""}
-                        onChange={(e) => setResponses({...responses, trigger_1: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, trigger_1: e.target.value })}
                       />
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Physical sensations when this happens:
@@ -1173,7 +1181,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Heart racing, face flushed, stomach tight...'"
                         className="min-h-[60px] resize-none mb-3"
                         value={responses.trigger_1_physical || ""}
-                        onChange={(e) => setResponses({...responses, trigger_1_physical: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, trigger_1_physical: e.target.value })}
                       />
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Typical thoughts that follow:
@@ -1182,10 +1190,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I'm so stupid, everyone thinks I'm incompetent...'"
                         className="min-h-[60px] resize-none"
                         value={responses.trigger_1_thoughts || ""}
-                        onChange={(e) => setResponses({...responses, trigger_1_thoughts: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, trigger_1_thoughts: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Trigger 2: Another significant trigger
@@ -1194,7 +1202,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Feeling ignored or excluded...'"
                         className="min-h-[60px] resize-none mb-3"
                         value={responses.trigger_2 || ""}
-                        onChange={(e) => setResponses({...responses, trigger_2: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, trigger_2: e.target.value })}
                       />
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Your behavioral response:
@@ -1203,7 +1211,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I withdraw and avoid everyone...'"
                         className="min-h-[60px] resize-none"
                         value={responses.trigger_2_behavior || ""}
-                        onChange={(e) => setResponses({...responses, trigger_2_behavior: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, trigger_2_behavior: e.target.value })}
                       />
                     </div>
 
@@ -1215,7 +1223,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'They all relate to feeling judged or not good enough...'"
                         className="min-h-[80px] resize-none"
                         value={responses.pattern_insight || ""}
-                        onChange={(e) => setResponses({...responses, pattern_insight: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, pattern_insight: e.target.value })}
                       />
                     </div>
                   </div>
@@ -1228,7 +1236,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <BookOpen className="mr-2" size={16} />
                     Interactive Story Examination
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -1238,10 +1246,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I'm not smart enough to succeed...'"
                         className="min-h-[80px] resize-none"
                         value={responses.limiting_story || ""}
-                        onChange={(e) => setResponses({...responses, limiting_story: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, limiting_story: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Evidence FOR this story:
@@ -1250,7 +1258,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="List any evidence that seems to support this story..."
                         className="min-h-[80px] resize-none mb-3"
                         value={responses.evidence_for || ""}
-                        onChange={(e) => setResponses({...responses, evidence_for: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, evidence_for: e.target.value })}
                       />
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Evidence AGAINST this story:
@@ -1259,10 +1267,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="List evidence that contradicts this story..."
                         className="min-h-[80px] resize-none"
                         value={responses.evidence_against || ""}
-                        onChange={(e) => setResponses({...responses, evidence_against: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, evidence_against: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Rewritten Story: How could you rewrite this story with compassion?
@@ -1271,7 +1279,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I am learning and growing. My intelligence shows up in unique ways...'"
                         className="min-h-[100px] resize-none"
                         value={responses.rewritten_story || ""}
-                        onChange={(e) => setResponses({...responses, rewritten_story: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, rewritten_story: e.target.value })}
                       />
                     </div>
                   </div>
@@ -1284,7 +1292,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Activity className="mr-2" size={16} />
                     Behavioral Pattern Tracker
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -1292,7 +1300,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </Label>
                       <RadioGroup
                         value={responses.stress_behavior || ""}
-                        onValueChange={(value) => setResponses({...responses, stress_behavior: value})}
+                        onValueChange={(value) => setResponses({ ...responses, stress_behavior: value })}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="isolate" id="isolate" />
@@ -1316,14 +1324,14 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </div>
                       </RadioGroup>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Rate how helpful this behavior is (1-10):
                       </Label>
                       <Slider
                         value={[responses.behavior_helpfulness || 5]}
-                        onValueChange={(value) => setResponses({...responses, behavior_helpfulness: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, behavior_helpfulness: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -1335,7 +1343,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </div>
                       <p className="text-center mt-2 font-medium">Rating: {responses.behavior_helpfulness || 5}/10</p>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Alternative Behavior: What's one healthier behavior you could try instead?
@@ -1344,7 +1352,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Take three deep breaths and call a trusted friend...'"
                         className="min-h-[80px] resize-none"
                         value={responses.alternative_behavior || ""}
-                        onChange={(e) => setResponses({...responses, alternative_behavior: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, alternative_behavior: e.target.value })}
                       />
                     </div>
                   </div>
@@ -1357,7 +1365,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Heart className="mr-2" size={16} />
                     Relationship Pattern Explorer
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -1365,7 +1373,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </Label>
                       <RadioGroup
                         value={responses.relationship_role || ""}
-                        onValueChange={(value) => setResponses({...responses, relationship_role: value})}
+                        onValueChange={(value) => setResponses({ ...responses, relationship_role: value })}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="rescuer" id="rescuer" />
@@ -1389,7 +1397,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </div>
                       </RadioGroup>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Recurring Pattern: What pattern keeps showing up in your relationships?
@@ -1398,10 +1406,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I always end up feeling responsible for others' emotions...'"
                         className="min-h-[80px] resize-none"
                         value={responses.recurring_pattern || ""}
-                        onChange={(e) => setResponses({...responses, recurring_pattern: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, recurring_pattern: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         New Response: How could you respond differently next time?
@@ -1410,7 +1418,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I could say: I care about you and I'm not responsible for fixing your problems...'"
                         className="min-h-[80px] resize-none"
                         value={responses.new_response || ""}
-                        onChange={(e) => setResponses({...responses, new_response: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, new_response: e.target.value })}
                       />
                     </div>
                   </div>
@@ -1423,7 +1431,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Brain className="mr-2" size={16} />
                     Thought Pattern Interrupt Practice
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -1433,17 +1441,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I always mess things up...'"
                         className="min-h-[60px] resize-none"
                         value={responses.negative_thought || ""}
-                        onChange={(e) => setResponses({...responses, negative_thought: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, negative_thought: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Thought Pattern Type:
                       </Label>
                       <RadioGroup
                         value={responses.thought_pattern_type || ""}
-                        onValueChange={(value) => setResponses({...responses, thought_pattern_type: value})}
+                        onValueChange={(value) => setResponses({ ...responses, thought_pattern_type: value })}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="catastrophizing" id="catastrophizing" />
@@ -1463,7 +1471,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </div>
                       </RadioGroup>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Interrupt Question: What question could you ask yourself to interrupt this thought?
@@ -1472,10 +1480,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Is this thought helpful? What evidence do I have?'"
                         className="min-h-[60px] resize-none"
                         value={responses.interrupt_question || ""}
-                        onChange={(e) => setResponses({...responses, interrupt_question: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, interrupt_question: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Replacement Thought: What more helpful thought could you practice instead?
@@ -1484,7 +1492,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I'm learning and improving. Mistakes help me grow.'"
                         className="min-h-[80px] resize-none"
                         value={responses.replacement_thought || ""}
-                        onChange={(e) => setResponses({...responses, replacement_thought: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, replacement_thought: e.target.value })}
                       />
                     </div>
                   </div>
@@ -1497,7 +1505,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Shield className="mr-2" size={16} />
                     Interactive Boundary Assessment
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -1505,7 +1513,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </Label>
                       <Slider
                         value={[responses.physical_boundaries || 5]}
-                        onValueChange={(value) => setResponses({...responses, physical_boundaries: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, physical_boundaries: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -1517,14 +1525,14 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </div>
                       <p className="text-center mt-2 font-medium">Rating: {responses.physical_boundaries || 5}/10</p>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Emotional Boundaries: How well do you protect yourself from taking on others' emotions?
                       </Label>
                       <Slider
                         value={[responses.emotional_boundaries || 5]}
-                        onValueChange={(value) => setResponses({...responses, emotional_boundaries: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, emotional_boundaries: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -1536,14 +1544,14 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </div>
                       <p className="text-center mt-2 font-medium">Rating: {responses.emotional_boundaries || 5}/10</p>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Time Boundaries: How effectively do you protect your time from being overcommitted?
                       </Label>
                       <RadioGroup
                         value={responses.time_boundaries || ""}
-                        onValueChange={(value) => setResponses({...responses, time_boundaries: value})}
+                        onValueChange={(value) => setResponses({ ...responses, time_boundaries: value })}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="poor" id="time_poor" />
@@ -1563,7 +1571,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </div>
                       </RadioGroup>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Your Biggest Boundary Challenge: What type of boundary is most difficult for you?
@@ -1572,7 +1580,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I struggle most with saying no to family requests, especially from my mother...'"
                         className="min-h-[80px] resize-none"
                         value={responses.biggest_challenge || ""}
-                        onChange={(e) => setResponses({...responses, biggest_challenge: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, biggest_challenge: e.target.value })}
                       />
                     </div>
                   </div>
@@ -1585,7 +1593,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <MessageSquare className="mr-2" size={16} />
                     No Practice Scenarios
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -1593,7 +1601,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </Label>
                       <Select
                         value={responses.scenario_1_response || ""}
-                        onValueChange={(value) => setResponses({...responses, scenario_1_response: value})}
+                        onValueChange={(value) => setResponses({ ...responses, scenario_1_response: value })}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Choose your response..." />
@@ -1606,14 +1614,14 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Scenario: Your boss asks you to stay late again, but you have personal commitments
                       </Label>
                       <Select
                         value={responses.scenario_2_response || ""}
-                        onValueChange={(value) => setResponses({...responses, scenario_2_response: value})}
+                        onValueChange={(value) => setResponses({ ...responses, scenario_2_response: value })}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Choose your response..." />
@@ -1626,7 +1634,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Practice Your Own No: Write a situation where you need to say no
@@ -1635,7 +1643,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Describe a real situation where you need to set a boundary..."
                         className="min-h-[60px] resize-none mb-3"
                         value={responses.personal_situation || ""}
-                        onChange={(e) => setResponses({...responses, personal_situation: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, personal_situation: e.target.value })}
                       />
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Your No Response:
@@ -1644,7 +1652,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Write how you would say no clearly and kindly..."
                         className="min-h-[60px] resize-none"
                         value={responses.personal_no_response || ""}
-                        onChange={(e) => setResponses({...responses, personal_no_response: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, personal_no_response: e.target.value })}
                       />
                     </div>
                   </div>
@@ -1657,7 +1665,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <MessageSquare className="mr-2" size={16} />
                     Communication Practice
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -1665,7 +1673,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </Label>
                       <Select
                         value={responses.relationship_type || ""}
-                        onValueChange={(value) => setResponses({...responses, relationship_type: value})}
+                        onValueChange={(value) => setResponses({ ...responses, relationship_type: value })}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select relationship type..." />
@@ -1680,7 +1688,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Specific Boundary Needed: What boundary do you need to communicate?
@@ -1689,10 +1697,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I need to set a boundary about not being available for work calls after 6 PM...'"
                         className="min-h-[80px] resize-none"
                         value={responses.specific_boundary || ""}
-                        onChange={(e) => setResponses({...responses, specific_boundary: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, specific_boundary: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <h5 className="font-medium text-gray-800 mb-3">Practice Script Framework:</h5>
                       <div className="space-y-3">
@@ -1702,7 +1710,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                             placeholder="I understand that you need/want..."
                             className="min-h-[50px] resize-none text-sm"
                             value={responses.acknowledge_script || ""}
-                            onChange={(e) => setResponses({...responses, acknowledge_script: e.target.value})}
+                            onChange={(e) => setResponses({ ...responses, acknowledge_script: e.target.value })}
                           />
                         </div>
                         <div>
@@ -1711,7 +1719,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                             placeholder="However, I am not able/willing to..."
                             className="min-h-[50px] resize-none text-sm"
                             value={responses.boundary_script || ""}
-                            onChange={(e) => setResponses({...responses, boundary_script: e.target.value})}
+                            onChange={(e) => setResponses({ ...responses, boundary_script: e.target.value })}
                           />
                         </div>
                         <div>
@@ -1720,7 +1728,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                             placeholder="What I can do is... / Here is what works for me..."
                             className="min-h-[50px] resize-none text-sm"
                             value={responses.alternative_script || ""}
-                            onChange={(e) => setResponses({...responses, alternative_script: e.target.value})}
+                            onChange={(e) => setResponses({ ...responses, alternative_script: e.target.value })}
                           />
                         </div>
                       </div>
@@ -1735,7 +1743,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Users className="mr-2" size={16} />
                     Workplace Boundary Practice
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -1743,7 +1751,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </Label>
                       <Select
                         value={responses.workplace_challenge || ""}
-                        onValueChange={(value) => setResponses({...responses, workplace_challenge: value})}
+                        onValueChange={(value) => setResponses({ ...responses, workplace_challenge: value })}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select your main challenge..." />
@@ -1758,7 +1766,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Professional Response: How would you address this professionally?
@@ -1767,17 +1775,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I want to ensure I deliver quality work. My current workload means I cannot take on additional projects without compromising existing commitments...'"
                         className="min-h-[100px] resize-none"
                         value={responses.professional_response || ""}
-                        onChange={(e) => setResponses({...responses, professional_response: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, professional_response: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Boundary Confidence: How confident do you feel setting this boundary?
                       </Label>
                       <Slider
                         value={[responses.boundary_confidence || 5]}
-                        onValueChange={(value) => setResponses({...responses, boundary_confidence: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, boundary_confidence: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -1789,7 +1797,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </div>
                       <p className="text-center mt-2 font-medium">Confidence: {responses.boundary_confidence || 5}/10</p>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Support Strategy: What support do you need to maintain this boundary?
@@ -1798,7 +1806,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I need to document these conversations, practice my responses, and have a backup plan for pushback...'"
                         className="min-h-[80px] resize-none"
                         value={responses.support_strategy || ""}
-                        onChange={(e) => setResponses({...responses, support_strategy: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, support_strategy: e.target.value })}
                       />
                     </div>
                   </div>
@@ -1811,7 +1819,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Heart className="mr-2" size={16} />
                     Relationship Boundary Explorer
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -1819,7 +1827,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </Label>
                       <Select
                         value={responses.relationship_focus || ""}
-                        onValueChange={(value) => setResponses({...responses, relationship_focus: value})}
+                        onValueChange={(value) => setResponses({ ...responses, relationship_focus: value })}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select relationship..." />
@@ -1834,7 +1842,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Boundary Violation Pattern: What pattern keeps happening in this relationship?
@@ -1843,17 +1851,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'My mother calls constantly and gets upset if I do not answer immediately. She guilt trips me about not being available enough...'"
                         className="min-h-[100px] resize-none"
                         value={responses.violation_pattern || ""}
-                        onChange={(e) => setResponses({...responses, violation_pattern: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, violation_pattern: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Your Typical Response: How do you usually react to this pattern?
                       </Label>
                       <RadioGroup
                         value={responses.typical_response || ""}
-                        onValueChange={(value) => setResponses({...responses, typical_response: value})}
+                        onValueChange={(value) => setResponses({ ...responses, typical_response: value })}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="give_in" id="give_in" />
@@ -1877,7 +1885,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </div>
                       </RadioGroup>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         New Boundary Strategy: What new approach will you try?
@@ -1886,7 +1894,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I will set specific call times and communicate that I check messages at set times. I will practice staying calm when she pushes back...'"
                         className="min-h-[100px] resize-none"
                         value={responses.new_strategy || ""}
-                        onChange={(e) => setResponses({...responses, new_strategy: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, new_strategy: e.target.value })}
                       />
                     </div>
                   </div>
@@ -1899,7 +1907,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Activity className="mr-2" size={16} />
                     Nervous System State Check-In
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -1907,7 +1915,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </Label>
                       <RadioGroup
                         value={responses.current_state || ""}
-                        onValueChange={(value) => setResponses({...responses, current_state: value})}
+                        onValueChange={(value) => setResponses({ ...responses, current_state: value })}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="ventral_vagal" id="ventral" />
@@ -1927,7 +1935,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </div>
                       </RadioGroup>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Activation Triggers: What situations typically activate your fight/flight response?
@@ -1936,10 +1944,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Conflict at work, loud sudden noises, feeling criticized, time pressure...'"
                         className="min-h-[80px] resize-none"
                         value={responses.activation_triggers || ""}
-                        onChange={(e) => setResponses({...responses, activation_triggers: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, activation_triggers: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Shutdown Triggers: What situations cause you to freeze or disconnect?
@@ -1948,17 +1956,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Overwhelming emotions, being yelled at, too many decisions, feeling unsafe...'"
                         className="min-h-[80px] resize-none"
                         value={responses.shutdown_triggers || ""}
-                        onChange={(e) => setResponses({...responses, shutdown_triggers: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, shutdown_triggers: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Body Awareness: Rate your current connection to body sensations
                       </Label>
                       <Slider
                         value={[responses.body_awareness || 5]}
-                        onValueChange={(value) => setResponses({...responses, body_awareness: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, body_awareness: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -1980,7 +1988,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Heart className="mr-2" size={16} />
                     Breathwork Practice Studio
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -1988,7 +1996,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </Label>
                       <Select
                         value={responses.breathing_technique || ""}
-                        onValueChange={(value) => setResponses({...responses, breathing_technique: value})}
+                        onValueChange={(value) => setResponses({ ...responses, breathing_technique: value })}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Choose a breathing technique..." />
@@ -2001,14 +2009,14 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Practice Duration: How long did you practice?
                       </Label>
                       <RadioGroup
                         value={responses.practice_duration || ""}
-                        onValueChange={(value) => setResponses({...responses, practice_duration: value})}
+                        onValueChange={(value) => setResponses({ ...responses, practice_duration: value })}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="1_min" id="1min" />
@@ -2028,14 +2036,14 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </div>
                       </RadioGroup>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Before Practice: How did you feel before starting the breathwork?
                       </Label>
                       <Slider
                         value={[responses.before_state || 5]}
-                        onValueChange={(value) => setResponses({...responses, before_state: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, before_state: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -2047,14 +2055,14 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </div>
                       <p className="text-center mt-2 font-medium">Before: {responses.before_state || 5}/10</p>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         After Practice: How do you feel after the breathwork?
                       </Label>
                       <Slider
                         value={[responses.after_state || 5]}
-                        onValueChange={(value) => setResponses({...responses, after_state: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, after_state: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -2066,7 +2074,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </div>
                       <p className="text-center mt-2 font-medium">After: {responses.after_state || 5}/10</p>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Breathwork Observations: What did you notice during the practice?
@@ -2075,7 +2083,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'My shoulders relaxed, my mind became quieter, I felt more present in my body...'"
                         className="min-h-[80px] resize-none"
                         value={responses.breathwork_observations || ""}
-                        onChange={(e) => setResponses({...responses, breathwork_observations: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, breathwork_observations: e.target.value })}
                       />
                     </div>
                   </div>
@@ -2088,7 +2096,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Activity className="mr-2" size={16} />
                     Body Awareness Explorer
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -2098,17 +2106,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="What do you notice? Tension in shoulders? Butterflies in stomach? Tingling? Warmth? Coolness? Describe any sensations..."
                         className="min-h-[100px] resize-none"
                         value={responses.body_scan_notes || ""}
-                        onChange={(e) => setResponses({...responses, body_scan_notes: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, body_scan_notes: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Grounding Practice: How connected do you feel to your physical support (chair, floor)?
                       </Label>
                       <RadioGroup
                         value={responses.grounding_level || ""}
-                        onValueChange={(value) => setResponses({...responses, grounding_level: value})}
+                        onValueChange={(value) => setResponses({ ...responses, grounding_level: value })}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="not_grounded" id="not_grounded" />
@@ -2128,14 +2136,14 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </div>
                       </RadioGroup>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Movement Preference: Which type of movement feels most regulating for you today?
                       </Label>
                       <Select
                         value={responses.movement_preference || ""}
-                        onValueChange={(value) => setResponses({...responses, movement_preference: value})}
+                        onValueChange={(value) => setResponses({ ...responses, movement_preference: value })}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Choose movement type..." />
@@ -2150,14 +2158,14 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Somatic Regulation: After body awareness and movement, how regulated do you feel?
                       </Label>
                       <Slider
                         value={[responses.somatic_regulation || 5]}
-                        onValueChange={(value) => setResponses({...responses, somatic_regulation: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, somatic_regulation: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -2179,7 +2187,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Brain className="mr-2" size={16} />
                     Vagus Nerve Activation Lab
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -2187,7 +2195,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </Label>
                       <Select
                         value={responses.vagus_technique || ""}
-                        onValueChange={(value) => setResponses({...responses, vagus_technique: value})}
+                        onValueChange={(value) => setResponses({ ...responses, vagus_technique: value })}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Choose technique..." />
@@ -2201,14 +2209,14 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Practice Experience: How did the technique feel?
                       </Label>
                       <RadioGroup
                         value={responses.technique_experience || ""}
-                        onValueChange={(value) => setResponses({...responses, technique_experience: value})}
+                        onValueChange={(value) => setResponses({ ...responses, technique_experience: value })}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="uncomfortable" id="uncomfortable" />
@@ -2228,7 +2236,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </div>
                       </RadioGroup>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Physical Sensations: What did you notice in your body during the practice?
@@ -2237,17 +2245,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Felt vibrations in my chest, tingling in throat, warmth spreading, tension releasing...'"
                         className="min-h-[80px] resize-none"
                         value={responses.physical_sensations || ""}
-                        onChange={(e) => setResponses({...responses, physical_sensations: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, physical_sensations: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Vagal Tone: Rate how activated/strong your vagus nerve feels after this practice
                       </Label>
                       <Slider
                         value={[responses.vagal_tone || 5]}
-                        onValueChange={(value) => setResponses({...responses, vagal_tone: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, vagal_tone: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -2269,7 +2277,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Shield className="mr-2" size={16} />
                     Personal Safety Anchor Builder
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -2279,10 +2287,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'The smell of lavender, soft blanket texture, sound of rain, warm tea, photo of my pet...'"
                         className="min-h-[80px] resize-none"
                         value={responses.sensory_anchors || ""}
-                        onChange={(e) => setResponses({...responses, sensory_anchors: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, sensory_anchors: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Movement Safety: What physical positions or movements help you feel safe and grounded?
@@ -2291,10 +2299,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Feet flat on floor, back against wall, hands on heart, gentle rocking, walking barefoot...'"
                         className="min-h-[80px] resize-none"
                         value={responses.movement_anchors || ""}
-                        onChange={(e) => setResponses({...responses, movement_anchors: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, movement_anchors: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Relational Safety: Who or what relationships help you feel most secure and supported?
@@ -2303,10 +2311,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'My best friend Sarah, my dog Max, memories of my grandmother, supportive therapist...'"
                         className="min-h-[80px] resize-none"
                         value={responses.relational_anchors || ""}
-                        onChange={(e) => setResponses({...responses, relational_anchors: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, relational_anchors: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Environmental Safety: What places or spaces naturally calm your nervous system?
@@ -2315,17 +2323,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'My bedroom corner, library, nature trails, coffee shop, bathroom (private space)...'"
                         className="min-h-[80px] resize-none"
                         value={responses.environmental_anchors || ""}
-                        onChange={(e) => setResponses({...responses, environmental_anchors: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, environmental_anchors: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Most Accessible Anchor: Which safety anchor can you access most easily in stressful moments?
                       </Label>
                       <Select
                         value={responses.primary_anchor || ""}
-                        onValueChange={(value) => setResponses({...responses, primary_anchor: value})}
+                        onValueChange={(value) => setResponses({ ...responses, primary_anchor: value })}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Choose your most accessible anchor..." />
@@ -2350,7 +2358,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Calendar className="mr-2" size={16} />
                     Nervous System Care Plan Builder
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -2360,17 +2368,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: '5 minutes of box breathing, gentle stretching, checking in with my body, setting daily intentions...'"
                         className="min-h-[100px] resize-none"
                         value={responses.morning_routine || ""}
-                        onChange={(e) => setResponses({...responses, morning_routine: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, morning_routine: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Midday Reset Practice: How will you recalibrate your nervous system during the day?
                       </Label>
                       <Select
                         value={responses.midday_practice || ""}
-                        onValueChange={(value) => setResponses({...responses, midday_practice: value})}
+                        onValueChange={(value) => setResponses({ ...responses, midday_practice: value })}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Choose your midday reset..." />
@@ -2385,7 +2393,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Stress Response Plan: What will you do when you notice nervous system activation?
@@ -2394,10 +2402,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'STOP what I am doing, take 3 deep breaths, check my nervous system state, use calming breath technique, find my safety anchor...'"
                         className="min-h-[100px] resize-none"
                         value={responses.stress_response_plan || ""}
-                        onChange={(e) => setResponses({...responses, stress_response_plan: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, stress_response_plan: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Evening Wind-Down: How will you help your nervous system transition to rest?
@@ -2406,17 +2414,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'No screens 1 hour before bed, gentle journaling, body scan, gratitude practice, creating calm environment...'"
                         className="min-h-[100px] resize-none"
                         value={responses.evening_routine || ""}
-                        onChange={(e) => setResponses({...responses, evening_routine: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, evening_routine: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Weekly Regulation Practices: What deeper practices will you do weekly for nervous system health?
                       </Label>
                       <RadioGroup
                         value={responses.weekly_practice || ""}
-                        onValueChange={(value) => setResponses({...responses, weekly_practice: value})}
+                        onValueChange={(value) => setResponses({ ...responses, weekly_practice: value })}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="nature_immersion" id="nature" />
@@ -2440,7 +2448,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </div>
                       </RadioGroup>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Integration Obstacles: What challenges might interfere with your nervous system care routine?
@@ -2449,10 +2457,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Time pressure at work, family demands, forgetting when stressed, feeling silly doing practices, perfectionism about doing it right...'"
                         className="min-h-[100px] resize-none"
                         value={responses.integration_obstacles || ""}
-                        onChange={(e) => setResponses({...responses, integration_obstacles: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, integration_obstacles: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Obstacle Solutions: How will you handle these challenges to maintain your practice?
@@ -2461,17 +2469,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Set phone reminders, start with just 2 minutes, practice during commute, remember that imperfect practice is better than no practice...'"
                         className="min-h-[120px] resize-none"
                         value={responses.obstacle_solutions || ""}
-                        onChange={(e) => setResponses({...responses, obstacle_solutions: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, obstacle_solutions: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Commitment Level: How committed are you to maintaining daily nervous system care?
                       </Label>
                       <Slider
                         value={[responses.commitment_level || 5]}
-                        onValueChange={(value) => setResponses({...responses, commitment_level: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, commitment_level: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -2493,7 +2501,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Target className="mr-2" size={16} />
                     Phoenix Method Growth Review
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -2501,7 +2509,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </Label>
                       <Slider
                         value={[responses.phase1_progress || 5]}
-                        onValueChange={(value) => setResponses({...responses, phase1_progress: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, phase1_progress: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -2513,14 +2521,14 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </div>
                       <p className="text-center mt-2 font-medium">Progress: {responses.phase1_progress || 5}/10</p>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Phase 2 - Honor Your Humanity: How much more self-compassionate are you now?
                       </Label>
                       <Slider
                         value={[responses.phase2_progress || 5]}
-                        onValueChange={(value) => setResponses({...responses, phase2_progress: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, phase2_progress: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -2532,14 +2540,14 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </div>
                       <p className="text-center mt-2 font-medium">Progress: {responses.phase2_progress || 5}/10</p>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Phase 3 - Observe Your Patterns: How aware are you now of your patterns and triggers?
                       </Label>
                       <Slider
                         value={[responses.phase3_progress || 5]}
-                        onValueChange={(value) => setResponses({...responses, phase3_progress: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, phase3_progress: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -2551,14 +2559,14 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </div>
                       <p className="text-center mt-2 font-medium">Progress: {responses.phase3_progress || 5}/10</p>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Phase 4 - Establish Boundaries: How effectively can you set and maintain boundaries?
                       </Label>
                       <Slider
                         value={[responses.phase4_progress || 5]}
-                        onValueChange={(value) => setResponses({...responses, phase4_progress: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, phase4_progress: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -2570,14 +2578,14 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </div>
                       <p className="text-center mt-2 font-medium">Progress: {responses.phase4_progress || 5}/10</p>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Phase 5 - Nurture Your Nervous System: How well can you regulate your nervous system?
                       </Label>
                       <Slider
                         value={[responses.phase5_progress || 5]}
-                        onValueChange={(value) => setResponses({...responses, phase5_progress: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, phase5_progress: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -2589,7 +2597,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </div>
                       <p className="text-center mt-2 font-medium">Progress: {responses.phase5_progress || 5}/10</p>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Greatest Transformation: What change are you most proud of?
@@ -2598,7 +2606,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I am most proud of learning to say no without guilt. This has transformed my relationships and energy levels...'"
                         className="min-h-[100px] resize-none"
                         value={responses.greatest_transformation || ""}
-                        onChange={(e) => setResponses({...responses, greatest_transformation: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, greatest_transformation: e.target.value })}
                       />
                     </div>
                   </div>
@@ -2611,7 +2619,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Target className="mr-2" size={16} />
                     Integration Action Planner
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -2621,10 +2629,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I will practice using my communication scripts with my partner, maintain boundaries with my family, and seek healthier friendships...'"
                         className="min-h-[100px] resize-none"
                         value={responses.relationship_integration || ""}
-                        onChange={(e) => setResponses({...responses, relationship_integration: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, relationship_integration: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Work/Career Integration: How will you use these skills professionally?
@@ -2633,17 +2641,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I will set clear work boundaries, use nervous system regulation during meetings, and communicate more authentically with colleagues...'"
                         className="min-h-[100px] resize-none"
                         value={responses.work_integration || ""}
-                        onChange={(e) => setResponses({...responses, work_integration: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, work_integration: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Daily Self-Care Integration: What practices will you maintain daily?
                       </Label>
                       <Select
                         value={responses.daily_practice || ""}
-                        onValueChange={(value) => setResponses({...responses, daily_practice: value})}
+                        onValueChange={(value) => setResponses({ ...responses, daily_practice: value })}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Choose your primary daily practice..." />
@@ -2658,7 +2666,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Trigger Management Plan: How will you handle your known triggers differently?
@@ -2667,17 +2675,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'When I feel criticized, I will pause, breathe, check my nervous system state, and respond from my regulated self rather than react...'"
                         className="min-h-[100px] resize-none"
                         value={responses.trigger_management || ""}
-                        onChange={(e) => setResponses({...responses, trigger_management: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, trigger_management: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Integration Confidence: How confident do you feel about implementing these changes?
                       </Label>
                       <Slider
                         value={[responses.integration_confidence || 5]}
-                        onValueChange={(value) => setResponses({...responses, integration_confidence: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, integration_confidence: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -2699,7 +2707,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Users className="mr-2" size={16} />
                     Relationship Evolution Tracker
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -2707,7 +2715,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </Label>
                       <Select
                         value={responses.transformed_relationship || ""}
-                        onValueChange={(value) => setResponses({...responses, transformed_relationship: value})}
+                        onValueChange={(value) => setResponses({ ...responses, transformed_relationship: value })}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select relationship type..." />
@@ -2723,7 +2731,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Relationship Transformation Story: How has this relationship evolved?
@@ -2732,17 +2740,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'My relationship with my mother has completely changed. I now set clear boundaries about topics we discuss, I do not take on her emotions, and I communicate from a place of love rather than fear...'"
                         className="min-h-[120px] resize-none"
                         value={responses.transformation_story || ""}
-                        onChange={(e) => setResponses({...responses, transformation_story: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, transformation_story: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         New Communication Patterns: What do you do differently in conversations?
                       </Label>
                       <RadioGroup
                         value={responses.communication_changes || ""}
-                        onValueChange={(value) => setResponses({...responses, communication_changes: value})}
+                        onValueChange={(value) => setResponses({ ...responses, communication_changes: value })}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="boundaries" id="boundaries" />
@@ -2766,7 +2774,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </div>
                       </RadioGroup>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Relationship Challenges: What challenges do you still face in relationships?
@@ -2775,17 +2783,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I still struggle with guilt when setting boundaries with my family. Sometimes I worry about being too direct...'"
                         className="min-h-[80px] resize-none"
                         value={responses.relationship_challenges || ""}
-                        onChange={(e) => setResponses({...responses, relationship_challenges: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, relationship_challenges: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Relationship Satisfaction: How satisfied are you with your relationships now?
                       </Label>
                       <Slider
                         value={[responses.relationship_satisfaction || 5]}
-                        onValueChange={(value) => setResponses({...responses, relationship_satisfaction: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, relationship_satisfaction: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -2807,7 +2815,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Heart className="mr-2" size={16} />
                     Phoenix Strengths Discovery
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -2815,7 +2823,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </Label>
                       <Select
                         value={responses.primary_strength || ""}
-                        onValueChange={(value) => setResponses({...responses, primary_strength: value})}
+                        onValueChange={(value) => setResponses({ ...responses, primary_strength: value })}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Choose your strongest Phoenix quality..." />
@@ -2830,7 +2838,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Strength Story: How has this strength developed through your healing journey?
@@ -2839,10 +2847,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'My empathy has grown through understanding my own pain. I can now sense when others are struggling and offer genuine support without taking on their emotions...'"
                         className="min-h-[120px] resize-none"
                         value={responses.strength_story || ""}
-                        onChange={(e) => setResponses({...responses, strength_story: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, strength_story: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Strength Application: How do you use this strength in your daily life?
@@ -2851,17 +2859,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I use my intuition to make better decisions about relationships and work. I trust my gut feelings more and they guide me toward healthier choices...'"
                         className="min-h-[100px] resize-none"
                         value={responses.strength_application || ""}
-                        onChange={(e) => setResponses({...responses, strength_application: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, strength_application: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Sharing Your Strength: How comfortable are you sharing this strength to help others?
                       </Label>
                       <RadioGroup
                         value={responses.sharing_comfort || ""}
-                        onValueChange={(value) => setResponses({...responses, sharing_comfort: value})}
+                        onValueChange={(value) => setResponses({ ...responses, sharing_comfort: value })}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="not_ready" id="not_ready" />
@@ -2895,7 +2903,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Eye className="mr-2" size={16} />
                     Future Self Visualization
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -2905,10 +2913,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I wake up feeling grounded and peaceful. I start my day with breathwork and set clear intentions. I move through my day with confidence, maintaining healthy boundaries naturally...'"
                         className="min-h-[120px] resize-none"
                         value={responses.daily_vision || ""}
-                        onChange={(e) => setResponses({...responses, daily_vision: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, daily_vision: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Relationship Vision: How do you show up in relationships when fully integrated?
@@ -2917,10 +2925,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I am present and authentic in all my relationships. I communicate clearly and lovingly. I maintain healthy boundaries while staying open-hearted...'"
                         className="min-h-[100px] resize-none"
                         value={responses.relationship_vision || ""}
-                        onChange={(e) => setResponses({...responses, relationship_vision: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, relationship_vision: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Challenge Response Vision: How does your integrated self handle stress and difficulties?
@@ -2929,10 +2937,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'When challenges arise, I pause and breathe. I stay connected to my body and respond from a regulated place. I see challenges as opportunities for growth...'"
                         className="min-h-[100px] resize-none"
                         value={responses.challenge_vision || ""}
-                        onChange={(e) => setResponses({...responses, challenge_vision: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, challenge_vision: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Purpose Vision: What meaningful contribution are you making from your integrated state?
@@ -2941,17 +2949,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I use my healing journey to help other women find their strength. I create safe spaces for authentic connection. My presence itself becomes healing for others...'"
                         className="min-h-[100px] resize-none"
                         value={responses.purpose_vision || ""}
-                        onChange={(e) => setResponses({...responses, purpose_vision: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, purpose_vision: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Vision Clarity: How clear and compelling is this future vision for you?
                       </Label>
                       <Slider
                         value={[responses.vision_clarity || 5]}
-                        onValueChange={(value) => setResponses({...responses, vision_clarity: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, vision_clarity: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -2973,7 +2981,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Heart className="mr-2" size={16} />
                     Phoenix Gifts Discovery
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -2981,7 +2989,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </Label>
                       <Select
                         value={responses.primary_gift || ""}
-                        onValueChange={(value) => setResponses({...responses, primary_gift: value})}
+                        onValueChange={(value) => setResponses({ ...responses, primary_gift: value })}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Choose your strongest Phoenix gift..." />
@@ -2996,7 +3004,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Gift Story: How did this gift develop through your healing journey?
@@ -3005,10 +3013,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'My empathy grew through experiencing deep pain myself. Now I can instantly recognize when someone is struggling and offer genuine understanding without taking on their emotions...'"
                         className="min-h-[120px] resize-none"
                         value={responses.gift_story || ""}
-                        onChange={(e) => setResponses({...responses, gift_story: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, gift_story: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Unique Perspective: What unique perspective do you have that others need to hear?
@@ -3017,10 +3025,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I understand how trauma affects the nervous system and can help others recognize when they are activated vs. shut down. I know it is possible to heal even from severe trauma...'"
                         className="min-h-[120px] resize-none"
                         value={responses.unique_perspective || ""}
-                        onChange={(e) => setResponses({...responses, unique_perspective: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, unique_perspective: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Gift Validation: How do you know this gift is real and valuable?
@@ -3029,17 +3037,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'People often come to me for advice, friends say I have a calming presence, I can help others see solutions they could not see before...'"
                         className="min-h-[100px] resize-none"
                         value={responses.gift_validation || ""}
-                        onChange={(e) => setResponses({...responses, gift_validation: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, gift_validation: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Sharing Readiness: How ready are you to share this gift with others?
                       </Label>
                       <Slider
                         value={[responses.sharing_readiness || 5]}
-                        onValueChange={(value) => setResponses({...responses, sharing_readiness: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, sharing_readiness: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -3061,7 +3069,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Target className="mr-2" size={16} />
                     Purpose Exploration Lab
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -3069,7 +3077,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </Label>
                       <Select
                         value={responses.service_format || ""}
-                        onValueChange={(value) => setResponses({...responses, service_format: value})}
+                        onValueChange={(value) => setResponses({ ...responses, service_format: value })}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Choose your preferred service format..." />
@@ -3084,14 +3092,14 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Target Audience: Who do you most feel called to serve?
                       </Label>
                       <RadioGroup
                         value={responses.target_audience || ""}
-                        onValueChange={(value) => setResponses({...responses, target_audience: value})}
+                        onValueChange={(value) => setResponses({ ...responses, target_audience: value })}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="trauma_survivors" id="trauma" />
@@ -3115,7 +3123,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </div>
                       </RadioGroup>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Purpose Vision: What specific change do you want to create in the world?
@@ -3124,10 +3132,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I want to help other women recognize that they can heal from narcissistic abuse and create healthy relationships. I want to show them it is possible to trust themselves again...'"
                         className="min-h-[120px] resize-none"
                         value={responses.purpose_vision || ""}
-                        onChange={(e) => setResponses({...responses, purpose_vision: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, purpose_vision: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Energy Assessment: Which service activities give you energy vs. drain you?
@@ -3136,17 +3144,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I feel energized when I see someone have a breakthrough or aha moment. I get drained by large groups but love intimate one-on-one conversations...'"
                         className="min-h-[100px] resize-none"
                         value={responses.energy_assessment || ""}
-                        onChange={(e) => setResponses({...responses, energy_assessment: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, energy_assessment: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Purpose Excitement: How excited do you feel about this potential purpose?
                       </Label>
                       <Slider
                         value={[responses.purpose_excitement || 5]}
-                        onValueChange={(value) => setResponses({...responses, purpose_excitement: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, purpose_excitement: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -3168,7 +3176,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Calendar className="mr-2" size={16} />
                     Purpose Action Planner
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -3178,10 +3186,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Research organizations that work with trauma survivors, start a blog about my healing journey, reach out to 3 people I could mentor, join a speaking group...'"
                         className="min-h-[120px] resize-none"
                         value={responses.immediate_actions || ""}
-                        onChange={(e) => setResponses({...responses, immediate_actions: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, immediate_actions: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Short-term Goals (3-6 Months): What do you want to accomplish in the near future?
@@ -3190,10 +3198,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Complete my first speaking engagement, mentor 2-3 people, write 10 blog posts, complete training in trauma-informed coaching...'"
                         className="min-h-[120px] resize-none"
                         value={responses.short_term_goals || ""}
-                        onChange={(e) => setResponses({...responses, short_term_goals: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, short_term_goals: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Long-term Vision (1-2 Years): What is your bigger vision for purposeful living?
@@ -3202,10 +3210,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Lead workshops for trauma survivors, write a book about my healing journey, create an online course, develop a support community...'"
                         className="min-h-[120px] resize-none"
                         value={responses.long_term_vision || ""}
-                        onChange={(e) => setResponses({...responses, long_term_vision: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, long_term_vision: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Support Needed: What resources, training, or support do you need to succeed?
@@ -3214,10 +3222,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Trauma-informed coaching certification, public speaking training, website development help, ongoing therapy for my own healing...'"
                         className="min-h-[100px] resize-none"
                         value={responses.support_needed || ""}
-                        onChange={(e) => setResponses({...responses, support_needed: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, support_needed: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Self-Care Integration: How will you maintain your own healing while serving others?
@@ -3226,17 +3234,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'Continue my own therapy, maintain daily nervous system regulation practices, set clear boundaries on service hours, have monthly check-ins with my support team...'"
                         className="min-h-[100px] resize-none"
                         value={responses.self_care_plan || ""}
-                        onChange={(e) => setResponses({...responses, self_care_plan: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, self_care_plan: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Commitment Level: How committed are you to pursuing this purpose path?
                       </Label>
                       <Slider
                         value={[responses.purpose_commitment || 5]}
-                        onValueChange={(value) => setResponses({...responses, purpose_commitment: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, purpose_commitment: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -3258,7 +3266,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Eye className="mr-2" size={16} />
                     Legacy Vision Creator
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -3268,10 +3276,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I want my children to see that healing is possible, that they can break cycles of trauma. I want my partner to experience a truly present and authentic relationship...'"
                         className="min-h-[120px] resize-none"
                         value={responses.personal_legacy || ""}
-                        onChange={(e) => setResponses({...responses, personal_legacy: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, personal_legacy: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Community Impact: What contribution do you want to make to your local community?
@@ -3280,10 +3288,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I want to help create support groups for trauma survivors in my city. I want to advocate for trauma-informed practices in schools and workplaces...'"
                         className="min-h-[120px] resize-none"
                         value={responses.community_impact || ""}
-                        onChange={(e) => setResponses({...responses, community_impact: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, community_impact: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Global Ripple Effect: How might your story and gifts serve people beyond your immediate circle?
@@ -3292,10 +3300,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I want my story to reach women around the world who feel trapped in toxic relationships. I want to show them that they are not alone and that transformation is possible...'"
                         className="min-h-[120px] resize-none"
                         value={responses.global_impact || ""}
-                        onChange={(e) => setResponses({...responses, global_impact: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, global_impact: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Generational Legacy: What legacy do you want to leave for future generations?
@@ -3304,17 +3312,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I want future generations in my family to inherit emotional intelligence, healthy relationship patterns, and the knowledge that they are worthy of love...'"
                         className="min-h-[120px] resize-none"
                         value={responses.generational_legacy || ""}
-                        onChange={(e) => setResponses({...responses, generational_legacy: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, generational_legacy: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Legacy Motivation: How motivated are you to create this legacy?
                       </Label>
                       <Slider
                         value={[responses.legacy_motivation || 5]}
-                        onValueChange={(value) => setResponses({...responses, legacy_motivation: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, legacy_motivation: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -3336,7 +3344,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     <Shield className="mr-2" size={16} />
                     Service Readiness Evaluator
                   </h4>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -3344,7 +3352,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </Label>
                       <Slider
                         value={[responses.emotional_stability || 5]}
-                        onValueChange={(value) => setResponses({...responses, emotional_stability: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, emotional_stability: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -3356,14 +3364,14 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                       </div>
                       <p className="text-center mt-2 font-medium">Stability: {responses.emotional_stability || 5}/10</p>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Boundary Confidence: How well can you maintain boundaries while helping others?
                       </Label>
                       <RadioGroup
                         value={responses.boundary_confidence || ""}
-                        onValueChange={(value) => setResponses({...responses, boundary_confidence: value})}
+                        onValueChange={(value) => setResponses({ ...responses, boundary_confidence: value })}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="weak" id="weak" />
@@ -3383,7 +3391,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </div>
                       </RadioGroup>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Trigger Management: How aware and prepared are you for potential triggers in service work?
@@ -3392,17 +3400,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I know that hearing about severe abuse might trigger my own memories. I have a plan to pause, breathe, and ground myself. I have my therapist on speed dial...'"
                         className="min-h-[100px] resize-none"
                         value={responses.trigger_management || ""}
-                        onChange={(e) => setResponses({...responses, trigger_management: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, trigger_management: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Support Systems: How strong are your support systems for your own continued healing?
                       </Label>
                       <RadioGroup
                         value={responses.support_strength || ""}
-                        onValueChange={(value) => setResponses({...responses, support_strength: value})}
+                        onValueChange={(value) => setResponses({ ...responses, support_strength: value })}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="inadequate" id="inadequate" />
@@ -3422,7 +3430,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         </div>
                       </RadioGroup>
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Areas for Growth: What areas do you need to strengthen before or while serving others?
@@ -3431,17 +3439,17 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         placeholder="Example: 'I need to strengthen my public speaking skills, learn more about professional boundaries, continue working on my own attachment patterns...'"
                         className="min-h-[100px] resize-none"
                         value={responses.growth_areas || ""}
-                        onChange={(e) => setResponses({...responses, growth_areas: e.target.value})}
+                        onChange={(e) => setResponses({ ...responses, growth_areas: e.target.value })}
                       />
                     </div>
-                    
+
                     <div className="bg-white rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">
                         Overall Readiness: How ready do you feel to begin serving others?
                       </Label>
                       <Slider
                         value={[responses.overall_readiness || 5]}
-                        onValueChange={(value) => setResponses({...responses, overall_readiness: value[0]})}
+                        onValueChange={(value) => setResponses({ ...responses, overall_readiness: value[0] })}
                         max={10}
                         min={1}
                         step={1}
@@ -3473,13 +3481,13 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                     placeholder="Use this space to reflect on your practice..."
                     className="min-h-[120px] resize-none"
                     value={responses.reflection_notes || ""}
-                    onChange={(e) => setResponses({...responses, reflection_notes: e.target.value})}
+                    onChange={(e) => setResponses({ ...responses, reflection_notes: e.target.value })}
                   />
                 </div>
               </div>
             )}
           </TabsContent>
-          
+
           <TabsContent value="neuroscience" className="space-y-4">
             {content.neuroscience && (
               <div className="bg-purple-50 rounded-lg p-4">
@@ -3490,7 +3498,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                 <p className="text-purple-800 text-sm leading-relaxed">{content.neuroscience}</p>
               </div>
             )}
-            
+
             {content.science && (
               <div className="bg-purple-50 rounded-lg p-4">
                 <h4 className="font-medium text-purple-900 mb-3 flex items-center">
@@ -3501,7 +3509,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
               </div>
             )}
           </TabsContent>
-          
+
           <TabsContent value="tips" className="space-y-4">
             {content.tips && (
               <div className="bg-yellow-50 rounded-lg p-4">
@@ -3519,7 +3527,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                 </ul>
               </div>
             )}
-            
+
             {content.variations && (
               <div className="bg-emerald-50 rounded-lg p-4">
                 <h4 className="font-medium text-emerald-900 mb-3 flex items-center">
@@ -3536,7 +3544,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                 </ul>
               </div>
             )}
-            
+
             {content.progressions && (
               <div className="bg-green-50 rounded-lg p-4">
                 <h4 className="font-medium text-green-900 mb-3 flex items-center">
@@ -3553,7 +3561,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                 </ul>
               </div>
             )}
-            
+
             {content.whenToUse && (
               <div className="bg-blue-50 rounded-lg p-4">
                 <h4 className="font-medium text-blue-900 mb-3 flex items-center">
@@ -3584,7 +3592,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
               <p className="text-teal-800 italic">{content.script}</p>
             </div>
           )}
-          
+
           {content.instructions && (
             <div className="bg-teal-50 rounded-lg p-4">
               <h4 className="font-medium text-teal-900 mb-3 flex items-center">
@@ -3666,7 +3674,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
             <TabsTrigger value="assessment">Assessment</TabsTrigger>
             <TabsTrigger value="understanding">Understanding</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="assessment" className="space-y-4">
             <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-4 mb-6">
               <h4 className="font-medium text-purple-900 mb-2 flex items-center">
@@ -3675,7 +3683,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
               </h4>
               <p className="text-sm text-purple-700">Check the symptoms that apply to you right now. This helps identify which nervous system state you're in.</p>
             </div>
-            
+
             {content.hyperarousal && (
               <div className="bg-red-50 rounded-lg p-4">
                 <h4 className="font-medium text-red-900 mb-3 flex items-center">
@@ -3691,10 +3699,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         checked={responses.hyperarousal?.includes(sign) || false}
                         onChange={(e) => {
                           const current = responses.hyperarousal || [];
-                          const updated = e.target.checked 
+                          const updated = e.target.checked
                             ? [...current, sign]
                             : current.filter((s: string) => s !== sign);
-                          setResponses({...responses, hyperarousal: updated});
+                          setResponses({ ...responses, hyperarousal: updated });
                         }}
                         className="rounded border-red-300 text-red-600 focus:ring-red-500"
                       />
@@ -3704,7 +3712,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                 </div>
               </div>
             )}
-            
+
             {content.windowOfTolerance && (
               <div className="bg-green-50 rounded-lg p-4">
                 <h4 className="font-medium text-green-900 mb-3 flex items-center">
@@ -3720,10 +3728,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         checked={responses.windowOfTolerance?.includes(sign) || false}
                         onChange={(e) => {
                           const current = responses.windowOfTolerance || [];
-                          const updated = e.target.checked 
+                          const updated = e.target.checked
                             ? [...current, sign]
                             : current.filter((s: string) => s !== sign);
-                          setResponses({...responses, windowOfTolerance: updated});
+                          setResponses({ ...responses, windowOfTolerance: updated });
                         }}
                         className="rounded border-green-300 text-green-600 focus:ring-green-500"
                       />
@@ -3733,7 +3741,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                 </div>
               </div>
             )}
-            
+
             {content.hypoarousal && (
               <div className="bg-blue-50 rounded-lg p-4">
                 <h4 className="font-medium text-blue-900 mb-3 flex items-center">
@@ -3749,10 +3757,10 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                         checked={responses.hypoarousal?.includes(sign) || false}
                         onChange={(e) => {
                           const current = responses.hypoarousal || [];
-                          const updated = e.target.checked 
+                          const updated = e.target.checked
                             ? [...current, sign]
                             : current.filter((s: string) => s !== sign);
-                          setResponses({...responses, hypoarousal: updated});
+                          setResponses({ ...responses, hypoarousal: updated });
                         }}
                         className="rounded border-blue-300 text-blue-600 focus:ring-blue-500"
                       />
@@ -3762,7 +3770,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                 </div>
               </div>
             )}
-            
+
             {content.practiceQuestions && Array.isArray(content.practiceQuestions) && (
               <div className="bg-gray-50 rounded-lg p-4">
                 <h4 className="font-medium text-gray-900 mb-3 flex items-center">
@@ -3791,41 +3799,41 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                 </div>
               </div>
             )}
-            
+
             {(responses.hyperarousal?.length > 0 || responses.windowOfTolerance?.length > 0 || responses.hypoarousal?.length > 0) && (
               <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-4 mt-6">
                 <h4 className="font-medium text-purple-900 mb-3 flex items-center">
                   <Brain className="mr-2" size={16} />
                   Your Current Assessment
                 </h4>
-                
+
                 {responses.hyperarousal?.length > 0 && (
                   <div className="mb-3">
                     <p className="text-sm text-red-700 font-medium mb-1">Hyperarousal signs: {responses.hyperarousal.length}</p>
                     <p className="text-xs text-red-600">Your nervous system may be in fight/flight mode. Consider grounding techniques.</p>
                   </div>
                 )}
-                
+
                 {responses.windowOfTolerance?.length > 0 && (
                   <div className="mb-3">
                     <p className="text-sm text-green-700 font-medium mb-1">Window of tolerance signs: {responses.windowOfTolerance.length}</p>
                     <p className="text-xs text-green-600">Great! These indicate your nervous system is in a regulated state.</p>
                   </div>
                 )}
-                
+
                 {responses.hypoarousal?.length > 0 && (
                   <div className="mb-3">
                     <p className="text-sm text-blue-700 font-medium mb-1">Hypoarousal signs: {responses.hypoarousal.length}</p>
                     <p className="text-xs text-blue-600">Your nervous system may be in shutdown mode. Gentle movement can help.</p>
                   </div>
                 )}
-                
+
                 <div className="text-xs text-purple-600 mt-3 pt-3 border-t border-purple-200">
                   💡 Remember: All responses are normal. This assessment helps you understand your current state so you can choose the right tools.
                 </div>
               </div>
             )}
-            
+
             {content.questions && (
               <div className="space-y-4">
                 <h4 className="font-medium text-gray-900 mb-3 flex items-center">
@@ -3852,7 +3860,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
               </div>
             )}
           </TabsContent>
-          
+
           <TabsContent value="understanding" className="space-y-4">
             {content.neuroscience && (
               <div className="bg-purple-50 rounded-lg p-4">
@@ -3867,7 +3875,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
         </Tabs>
       );
     }
-    
+
     if (exercise.type === 'planning') {
       return (
         <Tabs defaultValue="planning" className="w-full">
@@ -3875,7 +3883,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
             <TabsTrigger value="planning">Create Your Plan</TabsTrigger>
             <TabsTrigger value="science">Why This Works</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="planning" className="space-y-4">
             {content.protocolSteps && (
               <div className="bg-green-50 rounded-lg p-4">
@@ -3895,7 +3903,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                 </ol>
               </div>
             )}
-            
+
             {content.techniques && (
               <div className="bg-blue-50 rounded-lg p-4">
                 <h4 className="font-medium text-blue-900 mb-3 flex items-center">
@@ -3920,7 +3928,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
                 </div>
               </div>
             )}
-            
+
             {content.practicePlan && (
               <div className="bg-yellow-50 rounded-lg p-4">
                 <h4 className="font-medium text-yellow-900 mb-3 flex items-center">
@@ -3938,7 +3946,7 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
               </div>
             )}
           </TabsContent>
-          
+
           <TabsContent value="science" className="space-y-4">
             {content.neuroscience && (
               <div className="bg-purple-50 rounded-lg p-4">
@@ -3962,9 +3970,8 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
       <div className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-start space-x-3 flex-1">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-              isCompleted ? 'bg-green-100' : 'bg-gray-100'
-            }`}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${isCompleted ? 'bg-green-100' : 'bg-gray-100'
+              }`}>
               {isCompleted ? (
                 <CheckCircle2 className="text-green-600" size={20} />
               ) : (
@@ -3986,21 +3993,19 @@ export function ExerciseCard({ exercise, isCompleted = false, onComplete }: Exer
         {isExpanded && (
           <div className="mt-6 space-y-6">
             {renderContent()}
-            
+
             <div className="flex items-center justify-between pt-4 border-t border-gray-200">
               <div className="text-sm text-gray-500">
                 {isCompleted ? "✓ Completed" : "Ready to begin"}
               </div>
-              
-              {!isCompleted && (
-                <Button
-                  onClick={handleComplete}
-                  disabled={isSubmitting}
-                  className="phoenix-bg-primary hover:phoenix-bg-secondary text-white"
-                >
-                  {isSubmitting ? "Saving..." : "Mark Complete"}
-                </Button>
-              )}
+
+              <Button
+                onClick={handleComplete}
+                disabled={isSubmitting}
+                className="phoenix-bg-primary hover:phoenix-bg-secondary text-white"
+              >
+                {isSubmitting ? "Saving..." : (isCompleted ? "Update" : "Mark Complete")}
+              </Button>
             </div>
           </div>
         )}

@@ -79,7 +79,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const phaseId = parseInt(req.params.phaseId);
       const progress = await storage.getUserProgressForPhase(req.user!.id, phaseId);
       if (!progress) {
-        return res.status(404).json({ message: "Progress not found" });
+        // Return default progress structure instead of 404 to avoid frontend errors
+        return res.json({
+          id: 0,
+          userId: req.user!.id,
+          phaseId: phaseId,
+          status: "in_progress",
+          exercisesCompleted: 0,
+          totalExercises: 0,
+          completedAt: null,
+          updatedAt: new Date().toISOString()
+        });
       }
       res.json(progress);
     } catch (error) {
@@ -128,24 +138,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all exercise progress for a phase
+  app.get("/api/user/phases/:phaseId/exercises/progress", async (req, res) => {
+    try {
+      const phaseId = parseInt(req.params.phaseId);
+      const progress = await storage.getUserExerciseProgressForPhase(req.user!.id, phaseId);
+      res.json(progress);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch exercise progress" });
+    }
+  });
+
   // Update user exercise progress
   app.patch("/api/user/exercises/:exerciseId/progress", async (req, res) => {
     try {
       const exerciseId = parseInt(req.params.exerciseId);
       const updates = insertUserExerciseProgressSchema.partial().parse(req.body);
 
-      const progress = await storage.updateUserExerciseProgress(req.user!.id, exerciseId, updates);
+      // 1. Update individual exercise progress
+      let progress = await storage.updateUserExerciseProgress(req.user!.id, exerciseId, updates);
       if (!progress) {
-        // Create new progress entry if it doesn't exist
-        const newProgress = await storage.createUserExerciseProgress({
+        progress = await storage.createUserExerciseProgress({
           userId: req.user!.id,
           exerciseId,
           ...updates,
         });
-        return res.json(newProgress);
       }
+
+      // 2. Update aggregate phase progress
+      const exercise = await storage.getExercise(exerciseId);
+      if (exercise) {
+        const phaseId = exercise.phaseId;
+
+        // Get all exercises for phase to count total
+        const phaseExercises = await storage.getExercisesForPhase(phaseId);
+        const totalExercises = phaseExercises.length;
+
+        // Get user's progress on these exercises
+        const userExercisesProgress = await storage.getUserExerciseProgressForPhase(req.user!.id, phaseId);
+        const completedCount = userExercisesProgress.filter(p => p.isCompleted).length;
+
+        const isPhaseCompleted = completedCount === totalExercises && totalExercises > 0;
+
+        // Upsert user_progress
+        const existingPhaseProgress = await storage.getUserProgressForPhase(req.user!.id, phaseId);
+
+        if (existingPhaseProgress) {
+          await storage.updateUserProgress(req.user!.id, phaseId, {
+            exercisesCompleted: completedCount,
+            totalExercises: totalExercises,
+            status: isPhaseCompleted ? 'completed' : 'in_progress',
+            completedAt: isPhaseCompleted ? new Date() : null, // Only set if completed
+          });
+        } else {
+          await storage.createUserProgress({
+            userId: req.user!.id,
+            phaseId,
+            exercisesCompleted: completedCount,
+            totalExercises: totalExercises,
+            status: isPhaseCompleted ? 'completed' : 'in_progress',
+            completedAt: isPhaseCompleted ? new Date() : null,
+          });
+        }
+      }
+
       res.json(progress);
     } catch (error) {
+      console.error('Error updating exercise progress:', error);
       res.status(500).json({ message: "Failed to update exercise progress" });
     }
   });

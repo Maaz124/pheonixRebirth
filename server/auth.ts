@@ -54,7 +54,7 @@ export function setupAuth(app: Express) {
             try {
                 const user = await storage.getUserByUsername(username);
                 if (!user || !(await comparePasswords(password, user.password))) {
-                    return done(null, false, { message: "Invalid username or password" });
+                    return done(null, false, { message: "Invalid email or password" });
                 }
                 return done(null, user);
             } catch (error) {
@@ -67,9 +67,6 @@ export function setupAuth(app: Express) {
     passport.deserializeUser(async (id: number, done) => {
         try {
             const user = await storage.getUser(id);
-            if (user) {
-                // console.log(`[Auth] Deserialized user ${id}, subscription: ${user.subscriptionStatus}`);
-            }
             done(null, user);
         } catch (error) {
             done(error);
@@ -80,8 +77,9 @@ export function setupAuth(app: Express) {
         try {
             const existingUser = await storage.getUserByUsername(req.body.username);
             if (existingUser) {
-                return res.status(400).send("Username already exists");
+                return res.status(400).send("Email already exists");
             }
+
 
             const hashedPassword = await hashPassword(req.body.password);
             const user = await storage.createUser({
@@ -99,7 +97,7 @@ export function setupAuth(app: Express) {
     });
 
     app.post("/api/login", (req, res, next) => {
-        passport.authenticate("local", (err, user, info) => {
+        passport.authenticate("local", (err: any, user: any, info: any) => {
             if (err) return next(err);
             if (!user) {
                 return res.status(400).send(info?.message || "Login failed");

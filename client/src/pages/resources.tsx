@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/accordion";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
+import { useLocation } from "wouter";
 import jsPDF from "jspdf";
 import {
   Leaf,
@@ -37,6 +39,7 @@ import {
   Clock,
   Star,
   Check,
+  Lock,
 } from "lucide-react";
 
 interface ResourceContent {
@@ -776,6 +779,11 @@ export default function Resources() {
     return saved ? JSON.parse(saved) : [];
   });
   const { toast } = useToast();
+  const { user } = useAuth();
+  const [, setLocation] = useLocation();
+
+  // Use a safer check for access - handle potential missing user or status
+  const hasAccess = user?.subscriptionStatus === 'active' || user?.subscriptionStatus === 'lifetime';
 
   const toggleBookmark = (resourceId: number, resourceTitle: string) => {
     setBookmarks((prev) => {
@@ -888,12 +896,18 @@ export default function Resources() {
 
             <div className="flex gap-3 pt-4">
               <Button
-                className="flex-1 bg-orange-600 hover:bg-orange-700"
-                onClick={() => generatePDF(resource as Resource)}
+                className={`flex-1 ${hasAccess ? "bg-orange-600 hover:bg-orange-700" : "bg-slate-700 hover:bg-slate-800"}`}
+                onClick={() => {
+                  if (hasAccess) {
+                    generatePDF(resource as Resource);
+                  } else {
+                    setLocation("/subscribe");
+                  }
+                }}
                 data-testid="modal-download-pdf"
               >
-                <Download size={16} className="mr-2" />
-                Download PDF
+                {hasAccess ? <Download size={16} className="mr-2" /> : <Lock size={16} className="mr-2" />}
+                {hasAccess ? "Download PDF" : "Get Access"}
               </Button>
               <Button
                 variant={isBookmarked(resource.id) ? "default" : "outline"}
@@ -1167,15 +1181,19 @@ export default function Resources() {
                               </Button>
                               <Button
                                 size="sm"
-                                className="bg-orange-600 hover:bg-orange-700"
+                                className={hasAccess ? "bg-orange-600 hover:bg-orange-700" : "bg-slate-700 hover:bg-slate-800"}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  generatePDF(resource as Resource);
+                                  if (hasAccess) {
+                                    generatePDF(resource as Resource);
+                                  } else {
+                                    setLocation("/subscribe");
+                                  }
                                 }}
                                 data-testid={`download-resource-${resource.id}`}
                               >
-                                <Download size={16} className="mr-2" />
-                                Download
+                                {hasAccess ? <Download size={16} className="mr-2" /> : <Lock size={16} className="mr-2" />}
+                                {hasAccess ? "Download" : "Get Access"}
                               </Button>
                             </div>
                           </div>

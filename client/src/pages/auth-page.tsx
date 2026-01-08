@@ -68,6 +68,10 @@ export default function AuthPage() {
     );
 }
 
+// ... (imports remain)
+
+// ... (AuthPage component remains)
+
 function LoginForm({ onSubmit, isPending }: { onSubmit: (data: any) => void, isPending: boolean }) {
     const form = useForm({
         defaultValues: {
@@ -84,15 +88,16 @@ function LoginForm({ onSubmit, isPending }: { onSubmit: (data: any) => void, isP
                     name="username"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Username</FormLabel>
+                            <FormLabel>Email</FormLabel>
                             <FormControl>
-                                <Input {...field} />
+                                <Input type="email" placeholder="you@example.com" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
                 <FormField
+                    // ... (password field)
                     control={form.control}
                     name="password"
                     render={({ field }) => (
@@ -115,8 +120,14 @@ function LoginForm({ onSubmit, isPending }: { onSubmit: (data: any) => void, isP
 }
 
 function RegisterForm({ onSubmit, isPending }: { onSubmit: (data: InsertUser) => void, isPending: boolean }) {
+    // Extend schema to validate email
+    const registerSchema = insertUserSchema.omit({ initials: true }).extend({
+        username: insertUserSchema.shape.username.email("Please enter a valid email address"),
+        password: insertUserSchema.shape.password.min(6, "Password must be at least 6 characters"), // Optional: add better password rules
+    });
+
     const form = useForm<Omit<InsertUser, "initials">>({
-        resolver: zodResolver(insertUserSchema.omit({ initials: true })),
+        resolver: zodResolver(registerSchema),
         defaultValues: {
             username: "",
             password: "",
@@ -145,7 +156,7 @@ function RegisterForm({ onSubmit, isPending }: { onSubmit: (data: InsertUser) =>
                         <FormItem>
                             <FormLabel>Full Name</FormLabel>
                             <FormControl>
-                                <Input {...field} />
+                                <Input placeholder="John Doe" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -156,9 +167,9 @@ function RegisterForm({ onSubmit, isPending }: { onSubmit: (data: InsertUser) =>
                     name="username"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Username</FormLabel>
+                            <FormLabel>Email</FormLabel>
                             <FormControl>
-                                <Input {...field} />
+                                <Input type="email" placeholder="you@example.com" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>

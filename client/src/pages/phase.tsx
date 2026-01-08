@@ -11,14 +11,14 @@ import { ArrowLeft, Lightbulb, BookOpen, Target, Heart, Save } from "lucide-reac
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import type { Phase, UserProgress, Exercise, Assessment, JournalEntry, InsertJournalEntry } from "@shared/schema";
+import type { Phase, UserProgress, Exercise, Assessment, JournalEntry, InsertJournalEntry, UserExerciseProgress } from "@shared/schema";
 
 export default function PhasePage() {
   const { phaseId } = useParams<{ phaseId: string }>();
   const phaseIdNum = parseInt(phaseId || "0");
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
   // Reflection state
   const [reflections, setReflections] = useState({
     wins: "",
@@ -26,7 +26,7 @@ export default function PhasePage() {
     intention: ""
   });
   const [isSaving, setIsSaving] = useState(false);
-  
+
   // Navigation state
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedExerciseId, setSelectedExerciseId] = useState<number | null>(null);
@@ -51,6 +51,13 @@ export default function PhasePage() {
     enabled: !!phaseIdNum,
   });
 
+  const { data: exerciseProgress = [] } = useQuery<UserExerciseProgress[]>({
+    queryKey: ['/api/user/phases', phaseIdNum, 'exercises', 'progress'],
+    enabled: !!phaseIdNum,
+  });
+
+
+
   // Load existing journal entries for this phase
   const { data: journalEntries = [] } = useQuery<JournalEntry[]>({
     queryKey: ['/api/user/journal'],
@@ -60,18 +67,18 @@ export default function PhasePage() {
   // Find today's reflection entry
   useEffect(() => {
     const today = new Date().toDateString();
-    const todayReflection = journalEntries.find(entry => 
-      entry.phaseId === phaseIdNum && 
-      new Date(entry.createdAt).toDateString() === today &&
+    const todayReflection = journalEntries.find(entry =>
+      entry.phaseId === phaseIdNum &&
+      entry.createdAt && new Date(entry.createdAt).toDateString() === today &&
       entry.title?.includes('Daily Reflection')
     );
-    
+
     if (todayReflection && todayReflection.content) {
       try {
         const parsed = JSON.parse(todayReflection.content);
         setReflections({
           wins: parsed.wins || "",
-          challenges: parsed.challenges || "", 
+          challenges: parsed.challenges || "",
           intention: parsed.intention || ""
         });
       } catch (e) {
@@ -95,6 +102,14 @@ export default function PhasePage() {
       toast({
         title: "Exercise completed!",
         description: "Great work on your healing journey.",
+      });
+    },
+    onError: (error) => {
+      console.error('Exercise completion failed:', error);
+      toast({
+        title: "Error saving progress",
+        description: "Please try again. If the problem persists, refresh the page.",
+        variant: "destructive",
       });
     },
   });
@@ -124,7 +139,7 @@ export default function PhasePage() {
 
   // Save reflection mutation
   const saveReflectionMutation = useMutation({
-    mutationFn: async (reflectionData: InsertJournalEntry) => {
+    mutationFn: async (reflectionData: Omit<InsertJournalEntry, 'userId'>) => {
       const response = await apiRequest('POST', '/api/user/journal', reflectionData);
       return response.json();
     },
@@ -150,7 +165,7 @@ export default function PhasePage() {
     setIsSaving(true);
     const today = new Date();
     const reflectionContent = JSON.stringify(reflections);
-    
+
     saveReflectionMutation.mutate({
       title: `Daily Reflection - Phase ${phaseIdNum}`,
       content: reflectionContent,
@@ -172,7 +187,7 @@ export default function PhasePage() {
   const handleNavigateToExercise = (exerciseId: number) => {
     setSelectedExerciseId(exerciseId);
     setActiveTab("exercises");
-    
+
     // Scroll to exercise after tab switch
     setTimeout(() => {
       const exerciseElement = document.getElementById(`exercise-${exerciseId}`);
@@ -190,7 +205,7 @@ export default function PhasePage() {
   // Get navigation items based on actual exercises
   const getNavigationItems = () => {
     if (!exercises.length) return [];
-    
+
     return [
       {
         id: exercises.find(e => e.title.includes("Understanding"))?.id || 1,
@@ -229,7 +244,7 @@ export default function PhasePage() {
     const content = {
       1: {
         title: "Pause the Panic",
-        subtitle: "Learning to Regulate Your Nervous System", 
+        subtitle: "Learning to Regulate Your Nervous System",
         description: "Your nervous system has been working overtime to protect you. Now it's time to teach it that you're safe.",
         keyLearning: "Understanding Trauma's Impact on Your Body",
         insights: [
@@ -239,7 +254,7 @@ export default function PhasePage() {
         ]
       },
       2: {
-        title: "Heal the Hurt", 
+        title: "Heal the Hurt",
         subtitle: "Identifying and Processing Trauma Patterns",
         description: "Healing doesn't mean forgetting. It means integrating your experiences with compassion and wisdom.",
         keyLearning: "Recognizing Your Unique Trauma Responses",
@@ -251,7 +266,7 @@ export default function PhasePage() {
       },
       3: {
         title: "Own Your Narrative",
-        subtitle: "Rewriting Your Story from Survivor to Thriver", 
+        subtitle: "Rewriting Your Story from Survivor to Thriver",
         description: "You are not what happened to you. You are how you've grown, learned, and survived.",
         keyLearning: "Transforming Victim Stories into Survivor Strength",
         insights: [
@@ -305,7 +320,7 @@ export default function PhasePage() {
         ]
       }
     };
-    
+
     return content[phaseIdNum as keyof typeof content] || content[1];
   };
 
@@ -360,7 +375,7 @@ export default function PhasePage() {
               <p className="text-xl text-white/90">{phase.description}</p>
             </div>
           </div>
-          
+
           {progress && (
             <div className="bg-white/10 rounded-lg p-4 mt-6">
               <div className="flex items-center justify-between">
@@ -370,9 +385,12 @@ export default function PhasePage() {
                 </span>
               </div>
               <div className="w-full bg-white/20 rounded-full h-2 mt-2">
-                <div 
-                  className="bg-white h-2 rounded-full transition-all duration-500" 
-                  style={{ width: `${(progress.exercisesCompleted / progress.totalExercises) * 100}%` }}
+                <div
+                  className={`h-2 rounded-full transition-all duration-500 ${progress.exercisesCompleted === progress.totalExercises ? 'bg-green-400' : 'bg-white'
+                    }`}
+                  style={{
+                    width: `${Math.min((progress.exercisesCompleted / progress.totalExercises) * 100, 100)}%`
+                  }}
                 />
               </div>
             </div>
@@ -410,7 +428,7 @@ export default function PhasePage() {
                   <p className="phoenix-text-gray mb-6">
                     {getPhaseContent().description}
                   </p>
-                  
+
                   <Card className="bg-white rounded-xl p-6 mb-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Key Insights</h3>
                     <div className="space-y-4">
@@ -422,14 +440,14 @@ export default function PhasePage() {
                       ))}
                     </div>
                   </Card>
-                  
+
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                     <div className="flex items-center space-x-2 mb-2">
                       <Lightbulb className="text-yellow-600" size={20} />
                       <h4 className="font-medium text-yellow-800">Trauma-Informed Reminder</h4>
                     </div>
                     <p className="text-sm text-yellow-700">
-                      Healing isn't linear. Some days will feel harder than others, and that's completely normal. 
+                      Healing isn't linear. Some days will feel harder than others, and that's completely normal.
                       Be gentle with yourself as you practice these new skills.
                     </p>
                   </div>
@@ -444,20 +462,25 @@ export default function PhasePage() {
                       Complete these exercises at your own pace. Each one builds on the previous to deepen your understanding.
                     </p>
                   </div>
-                  
+
                   {exercises.length > 0 ? (
-                    exercises.map((exercise) => (
-                      <div 
-                        key={exercise.id} 
-                        id={`exercise-${exercise.id}`}
-                        className={selectedExerciseId === exercise.id ? "ring-2 ring-blue-500 rounded-lg" : ""}
-                      >
-                        <ExerciseCard
-                          exercise={exercise}
-                          onComplete={handleExerciseComplete}
-                        />
-                      </div>
-                    ))
+                    exercises.map((exercise) => {
+                      const progress = exerciseProgress.find(p => p.exerciseId === exercise.id);
+                      return (
+                        <div
+                          key={exercise.id}
+                          id={`exercise-${exercise.id}`}
+                          className={selectedExerciseId === exercise.id ? "ring-2 ring-blue-500 rounded-lg" : ""}
+                        >
+                          <ExerciseCard
+                            exercise={exercise}
+                            isCompleted={progress?.isCompleted}
+                            initialResponses={progress?.responses}
+                            onComplete={handleExerciseComplete}
+                          />
+                        </div>
+                      );
+                    })
                   ) : (
                     <Card className="p-8 text-center">
                       <p className="phoenix-text-gray text-lg mb-4">No exercises available yet for this phase.</p>
@@ -477,7 +500,7 @@ export default function PhasePage() {
                       These assessments help you understand your current patterns and track your progress.
                     </p>
                   </div>
-                  
+
                   {assessments.length > 0 ? (
                     assessments.map((assessment) => (
                       <InteractiveAssessment
@@ -501,7 +524,7 @@ export default function PhasePage() {
                 <Card className="p-8">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-bold text-gray-900">Reflection Space</h2>
-                    <Button 
+                    <Button
                       onClick={handleSaveReflection}
                       disabled={isSaving || saveReflectionMutation.isPending}
                       className="phoenix-bg-primary hover:phoenix-bg-secondary text-white"
@@ -510,7 +533,7 @@ export default function PhasePage() {
                       {isSaving ? 'Saving...' : 'Save'}
                     </Button>
                   </div>
-                  
+
                   <div className="space-y-6">
                     <div className="bg-pink-50 rounded-lg p-6">
                       <h3 className="font-semibold text-pink-900 mb-3">Today's Wins</h3>
@@ -522,7 +545,7 @@ export default function PhasePage() {
                         onChange={(e) => handleReflectionChange('wins', e.target.value)}
                       />
                     </div>
-                    
+
                     <div className="bg-blue-50 rounded-lg p-6">
                       <h3 className="font-semibold text-blue-900 mb-3">Challenges & Learning</h3>
                       <p className="text-blue-800 text-sm mb-4">What was difficult? What did it teach you about yourself?</p>
@@ -533,7 +556,7 @@ export default function PhasePage() {
                         onChange={(e) => handleReflectionChange('challenges', e.target.value)}
                       />
                     </div>
-                    
+
                     <div className="bg-green-50 rounded-lg p-6">
                       <h3 className="font-semibold text-green-900 mb-3">Tomorrow's Intention</h3>
                       <p className="text-green-800 text-sm mb-4">How will you apply what you learned today?</p>
@@ -545,9 +568,9 @@ export default function PhasePage() {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="flex space-x-4 mt-6">
-                    <Button 
+                    <Button
                       onClick={handleSaveReflection}
                       disabled={isSaving || saveReflectionMutation.isPending}
                       className="flex-1 phoenix-bg-primary hover:phoenix-bg-secondary text-white"
@@ -565,7 +588,7 @@ export default function PhasePage() {
               </TabsContent>
             </Tabs>
           </div>
-          
+
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Phase Navigation */}
@@ -573,14 +596,13 @@ export default function PhasePage() {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Navigation</h3>
               <div className="space-y-2">
                 {getNavigationItems().map((item) => (
-                  <Button 
+                  <Button
                     key={item.id}
-                    variant="ghost" 
-                    className={`w-full justify-start text-left h-auto p-3 ${
-                      selectedExerciseId === item.id 
-                        ? "phoenix-bg-primary phoenix-text-white" 
-                        : "phoenix-text-gray hover:phoenix-text-primary hover:bg-gray-50"
-                    }`}
+                    variant="ghost"
+                    className={`w-full justify-start text-left h-auto p-3 ${selectedExerciseId === item.id
+                      ? "phoenix-bg-primary phoenix-text-white"
+                      : "phoenix-text-gray hover:phoenix-text-primary hover:bg-gray-50"
+                      }`}
                     onClick={() => handleNavigateToExercise(item.id)}
                   >
                     <div className="flex items-start space-x-3">
@@ -593,26 +615,24 @@ export default function PhasePage() {
                   </Button>
                 ))}
               </div>
-              
+
               <div className="border-t pt-4 mt-4 space-y-2">
-                <Button 
-                  variant="ghost" 
-                  className={`w-full justify-start ${
-                    activeTab === "assessments" 
-                      ? "phoenix-bg-primary phoenix-text-white" 
-                      : "phoenix-text-gray hover:phoenix-text-primary"
-                  }`}
+                <Button
+                  variant="ghost"
+                  className={`w-full justify-start ${activeTab === "assessments"
+                    ? "phoenix-bg-primary phoenix-text-white"
+                    : "phoenix-text-gray hover:phoenix-text-primary"
+                    }`}
                   onClick={() => handleNavigateToTab("assessments")}
                 >
                   📋 Assessments
                 </Button>
-                <Button 
-                  variant="ghost" 
-                  className={`w-full justify-start ${
-                    activeTab === "reflect" 
-                      ? "phoenix-bg-primary phoenix-text-white" 
-                      : "phoenix-text-gray hover:phoenix-text-primary"
-                  }`}
+                <Button
+                  variant="ghost"
+                  className={`w-full justify-start ${activeTab === "reflect"
+                    ? "phoenix-bg-primary phoenix-text-white"
+                    : "phoenix-text-gray hover:phoenix-text-primary"
+                    }`}
                   onClick={() => handleNavigateToTab("reflect")}
                 >
                   💭 Reflection Space
@@ -624,22 +644,22 @@ export default function PhasePage() {
             <Card className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Tools</h3>
               <div className="space-y-3">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full justify-start"
                   onClick={() => handleNavigateToExercise(exercises.find(e => e.title.includes("Grounding"))?.id || 2)}
                 >
                   🆘 Emergency Grounding
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full justify-start"
                   onClick={() => handleNavigateToExercise(exercises.find(e => e.title.includes("Breathing"))?.id || 3)}
                 >
                   💨 Quick Breathing
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full justify-start"
                   onClick={() => handleNavigateToExercise(exercises.find(e => e.title.includes("Cold"))?.id || 5)}
                 >
