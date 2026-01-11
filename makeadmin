@@ -1,0 +1,1 @@
+docker exec 09b6b2f742d1 psql -U postgres -d phoenix_rebirth -c "UPDATE users SET is_admin = true WHERE username = 'maaz@g.com';"

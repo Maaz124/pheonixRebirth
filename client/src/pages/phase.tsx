@@ -7,7 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ExerciseCard } from "@/components/exercise-card";
 import { InteractiveAssessment } from "@/components/interactive-assessment";
-import { ArrowLeft, Lightbulb, BookOpen, Target, Heart, Save } from "lucide-react";
+import { ArrowLeft, Lightbulb, BookOpen, Target, Heart, Save, Download } from "lucide-react";
+import jsPDF from "jspdf";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -99,6 +100,7 @@ export default function PhasePage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/user/progress'] });
       queryClient.invalidateQueries({ queryKey: ['/api/user/progress', phaseIdNum] });
+      queryClient.invalidateQueries({ queryKey: ['/api/user/phases', phaseIdNum, 'exercises', 'progress'] });
       toast({
         title: "Exercise completed!",
         description: "Great work on your healing journey.",
@@ -181,6 +183,175 @@ export default function PhasePage() {
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleDownloadProgress = () => {
+    if (!phase) return;
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const maxWidth = pageWidth - margin * 2;
+    let yPosition = 20;
+
+    const addText = (text: string, fontSize: number, isBold: boolean = false, color: [number, number, number] = [0, 0, 0]) => {
+      doc.setFontSize(fontSize);
+      doc.setFont("helvetica", isBold ? "bold" : "normal");
+      doc.setTextColor(color[0], color[1], color[2]);
+      const lines = doc.splitTextToSize(text, maxWidth);
+
+      if (yPosition + lines.length * fontSize * 0.4 > doc.internal.pageSize.getHeight() - 20) {
+        doc.addPage();
+        yPosition = 20;
+      }
+
+      doc.text(lines, margin, yPosition);
+      yPosition += lines.length * fontSize * 0.4 + 4;
+    };
+
+    const addSectionHeader = (text: string) => {
+      yPosition += 8;
+      doc.setFillColor(124, 58, 237); // Purple for Phase theme
+      doc.rect(margin, yPosition - 6, maxWidth, 10, "F");
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(255, 255, 255);
+      doc.text(text, margin + 4, yPosition);
+      yPosition += 12;
+    };
+
+    // Title
+    doc.setFillColor(124, 58, 237);
+    doc.rect(0, 0, pageWidth, 40, "F");
+    doc.setFontSize(22);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(255, 255, 255);
+    doc.text(`Phase ${phase.order}: ${phase.name}`, pageWidth / 2, 25, { align: "center" });
+
+    yPosition = 50;
+
+    // Progress Overview
+    addSectionHeader("PROGRESS OVERVIEW");
+    const completionText = progress
+      ? `Exercises Completed: ${progress.exercisesCompleted} of ${progress.totalExercises}`
+      : "Progress data not available";
+    addText(completionText, 12, true);
+    addText(phase.description, 10, false, [60, 60, 60]);
+    yPosition += 5;
+
+    // Reflections
+    if (reflections.wins || reflections.challenges || reflections.intention) {
+      addSectionHeader("MY REFLECTIONS");
+      if (reflections.wins) {
+        addText("Recent Wins:", 11, true);
+        addText(reflections.wins, 10);
+      }
+      if (reflections.challenges) {
+        addText("Challenges & Learning:", 11, true);
+        addText(reflections.challenges, 10);
+      }
+      if (reflections.intention) {
+        addText("Intention:", 11, true);
+        addText(reflections.intention, 10);
+      }
+      yPosition += 5;
+    }
+
+    // Exercises Detail
+    addSectionHeader("EXERCISE LOG");
+    exercises.forEach((exercise, index) => {
+      const exProgress = exerciseProgress.find(p => p.exerciseId === exercise.id);
+      const status = exProgress?.isCompleted ? "COMPLETED" : "PENDING";
+      const color: [number, number, number] = exProgress?.isCompleted ? [0, 150, 0] : [150, 150, 150];
+
+      addText(`${index + 1}. ${exercise.title} - ${status}`, 11, true, color);
+
+      // Print responses with readable questions
+      if (exProgress?.responses) {
+        try {
+          const questionMap: Record<string, string> = {
+            // Self-Compassion Lab
+            current_challenge: "What situation are you struggling with right now?",
+            critic_voice: "What is your inner critic saying about this situation?",
+            mindfulness_response: "Mindfulness: Acknowledging suffering without being consumed by it",
+            common_humanity: "Common Humanity: How might others feel in this situation?",
+            self_kindness: "Self-Kindness: What would you tell a dear friend?",
+            challenging_component: "Which component feels most challenging?",
+            physical_compassion: "Physical Self-Compassion Experience",
+            compassion_comfort: "Self-Compassion Comfort Level (1-10)",
+            integration_plan: "Integration Plan for the week",
+
+            // Inner Critic (RAIN)
+            critic_thought: "1. Recognize: What critical thought are you having?",
+            body_feelings: "2. Allow: What are you feeling in your body?",
+            needs: "3. Investigate: What do you need right now?",
+            compassionate_response: "4. Nurture: Compassionate response to yourself",
+
+            // Somatic Practice
+            body_scan: "Body Scan: Where do you feel stress/tension?",
+            comfort_level: "Soothing Touch Comfort Level (1-10)",
+            touch_reflection: "Reflection: How did the soothing touch feel?",
+
+            // Shame ResilienceBuilder
+            shame_trigger: "Shame Trigger: What situation triggered shame?",
+            shame_sensations: "Physical Sensations: How did it feel in your body?",
+            reality_check: "Reality Check: What would you tell a friend?",
+            support_network: "Reaching Out: Who could you share this with?",
+            shame_message: "Recognize Shame: What message are you hearing?",
+            friend_response: "Friend Response Strategy",
+            support_person: "Chosen Support Person",
+            shame_narrative: "Speak Shame: Naming the experience",
+            resilience_level: "Shame Resilience Level (1-10)",
+
+            // Emotional Validation
+            current_emotion: "Current Emotion",
+            emotion_validation: "Why is this emotion valid and important?",
+            self_care_need: "Self-Compassion: What do you need right now?",
+
+            // Perfectionism
+            perfectionism_area: "Primary Perfectionist Area",
+            perfectionist_thought: "What does your perfectionist voice say?",
+            progress_reframe: "Progress Reframe",
+            b_plus_goal: "B+ Goal Setting",
+            implementation_strategy: "Implementation Strategy",
+            progress_commitment: "Progress Commitment Level (1-10)"
+          };
+
+          const resp = exProgress.responses as any;
+          Object.entries(resp).forEach(([key, val]) => {
+            // Skip if value is empty/null object (but allow 0 or false)
+            if (val !== null && typeof val !== 'object') {
+              const questionText = questionMap[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+              // Check for page break before adding Q&A block
+              if (yPosition + 15 > doc.internal.pageSize.getHeight() - 20) {
+                doc.addPage();
+                yPosition = 20;
+              }
+
+              // Question
+              doc.setFont("helvetica", "bold");
+              doc.setFontSize(10);
+              doc.setTextColor(80, 80, 80);
+              const qLines = doc.splitTextToSize(`Q: ${questionText}`, maxWidth - 5);
+              doc.text(qLines, margin + 5, yPosition);
+              yPosition += qLines.length * 4 + 1;
+
+              // Answer
+              doc.setFont("helvetica", "normal");
+              doc.setFontSize(10);
+              doc.setTextColor(40, 40, 40);
+              const aLines = doc.splitTextToSize(`A: ${val}`, maxWidth - 5);
+              doc.text(aLines, margin + 5, yPosition);
+              yPosition += aLines.length * 4 + 4;
+            }
+          });
+        } catch (e) { }
+      }
+      yPosition += 2;
+    });
+
+    doc.save(`Phoenix_Phase_${phase.order}_Progress.pdf`);
   };
 
   // Navigation helpers
@@ -374,6 +545,16 @@ export default function PhasePage() {
               <h1 className="text-3xl font-bold">Phase {phase.order}: {phase.name}</h1>
               <p className="text-xl text-white/90">{phase.description}</p>
             </div>
+          </div>
+          <div className="flex justify-end mt-4">
+            <Button
+              onClick={handleDownloadProgress}
+              variant="secondary"
+              className="bg-white/20 hover:bg-white/30 text-white border-none"
+            >
+              <Download className="mr-2" size={16} />
+              Download Report
+            </Button>
           </div>
 
           {progress && (

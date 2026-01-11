@@ -6,7 +6,8 @@ import { Check, Star, Heart } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import type { User } from "@shared/schema";
 
-const pricingTiers = [
+
+const staticTiers = [
   {
     id: "free",
     name: "Phoenix Spark",
@@ -53,6 +54,17 @@ const pricingTiers = [
 export default function Pricing() {
   const { data: user } = useQuery<User>({
     queryKey: ['/api/user/current'],
+  });
+
+  const { data: config } = useQuery<{ subscriptionPrice: string }>({
+    queryKey: ['/api/config'],
+  });
+
+  const pricingTiers = staticTiers.map(tier => {
+    if (tier.id === 'essential' && config?.subscriptionPrice) {
+      return { ...tier, price: parseInt(config.subscriptionPrice) };
+    }
+    return tier;
   });
 
   const handleSubscribe = (tierId: string) => {

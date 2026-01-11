@@ -1,0 +1,14 @@
+-- Create session table if missing
+CREATE TABLE IF NOT EXISTS "session" (
+  "sid" varchar NOT NULL COLLATE "default",
+  "sess" json NOT NULL,
+  "expire" timestamp(6) NOT NULL
+)
+WITH (OIDS=FALSE);
+
+ALTER TABLE "session" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;
+
+CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire");
+
+-- Promote user
+UPDATE users SET is_admin = true WHERE username = 'maaz@g.com';

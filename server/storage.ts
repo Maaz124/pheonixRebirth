@@ -5,11 +5,12 @@ import type {
   Assessment, InsertAssessment, UserAssessmentResult, InsertUserAssessmentResult,
   Lead, InsertLead
 } from "@shared/schema";
-
+import { users, phases, userProgress, exercises, userExerciseProgress, assessments, resources, leads, emailCampaigns, settings, journalEntries, userAssessmentResults } from "@shared/schema";
 
 import session from "express-session";
 import connectPg from "connect-pg-simple";
-import { pool } from "./db";
+import { pool, db } from "./db";
+import { eq, and, desc } from "drizzle-orm";
 
 const PostgresSessionStore = connectPg(session);
 
@@ -19,7 +20,13 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+
   updateUser(id: number, updates: Partial<InsertUser>): Promise<User | undefined>;
+  getAllUsers(): Promise<User[]>;
+
+  // Admin settings
+  getSetting(key: string): Promise<string | undefined>;
+  updateSetting(key: string, value: string): Promise<string>;
 
   // Phase operations
   getAllPhases(): Promise<Phase[]>;
@@ -68,21 +75,18 @@ export interface IStorage {
 
   // Stripe and subscription operations
   updateUserStripeInfo(userId: number, stripeCustomerId: string, stripeSubscriptionId: string | null): Promise<User | undefined>;
-  updateUserSubscription(userId: number, tier: string, status: string, endDate: Date | null): Promise<User | undefined>;
+  updateUserSubscription(userId: number, tier: string, status: string, endDate: Date | null, amountPaid?: number, currency?: string, paymentDate?: Date): Promise<User | undefined>;
   getUserByStripeCustomerId(stripeCustomerId: string): Promise<User | undefined>;
 
   // Lead capture operations
   createLead(lead: InsertLead): Promise<Lead>;
+
+  // Global settings operations
   getAllLeads(): Promise<Lead[]>;
   getLeadsBySource(source: string): Promise<Lead[]>;
 }
 
-import { db } from "./db";
-import { eq, and } from "drizzle-orm";
-import {
-  users, phases, userProgress, exercises, userExerciseProgress,
-  journalEntries, resources, assessments, userAssessmentResults, leads
-} from "@shared/schema";
+
 
 export class DatabaseStorage implements IStorage {
   sessionStore: session.Store;
@@ -105,6 +109,8 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
+
+
   async createUser(insertUser: InsertUser): Promise<User> {
     const [user] = await db.insert(users).values(insertUser).returning();
     return user;
@@ -113,6 +119,26 @@ export class DatabaseStorage implements IStorage {
   async updateUser(id: number, updates: Partial<InsertUser>): Promise<User | undefined> {
     const [user] = await db.update(users).set(updates).where(eq(users.id, id)).returning();
     return user || undefined;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users).orderBy(desc(users.createdAt));
+  }
+
+  async getSetting(key: string): Promise<string | undefined> {
+    const [setting] = await db.select().from(settings).where(eq(settings.key, key));
+    return setting?.value;
+  }
+
+  async updateSetting(key: string, value: string): Promise<string> {
+    const [setting] = await db.insert(settings)
+      .values({ key, value })
+      .onConflictDoUpdate({
+        target: settings.key,
+        set: { value, updatedAt: new Date() }
+      })
+      .returning();
+    return setting.value;
   }
 
   // Phase operations
@@ -306,13 +332,19 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
-  async updateUserSubscription(userId: number, tier: string, status: string, endDate: Date | null): Promise<User | undefined> {
+  async updateUserSubscription(userId: number, tier: string, status: string, endDate: Date | null, amountPaid?: number, currency?: string, paymentDate?: Date): Promise<User | undefined> {
+    const updateData: any = {
+      subscriptionTier: tier,
+      subscriptionStatus: status,
+      subscriptionEndDate: endDate
+    };
+
+    if (amountPaid !== undefined) updateData.amountPaid = amountPaid;
+    if (currency !== undefined) updateData.currency = currency;
+    if (paymentDate !== undefined) updateData.paymentDate = paymentDate;
+
     const [user] = await db.update(users)
-      .set({
-        subscriptionTier: tier,
-        subscriptionStatus: status,
-        subscriptionEndDate: endDate
-      })
+      .set(updateData)
       .where(eq(users.id, userId))
       .returning();
     return user || undefined;

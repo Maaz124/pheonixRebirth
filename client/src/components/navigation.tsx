@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, LayoutDashboard } from "lucide-react";
 
 export function Navigation() {
   const [location] = useLocation();
@@ -24,7 +24,12 @@ export function Navigation() {
     { href: "/journal", label: "Journal" },
     { href: "/blog", label: "Blog" },
     ...(isSubscribed ? [] : [{ href: "/pricing", label: "Pricing" }]),
+    ...(user?.isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
   ];
+
+  if (location.startsWith("/admin")) {
+    return null;
+  }
 
   return (
     <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
@@ -74,6 +79,14 @@ export function Navigation() {
                   </div>
                 </div>
                 <DropdownMenuSeparator />
+                {user.isAdmin && (
+                  <Link href="/admin">
+                    <DropdownMenuItem className="cursor-pointer">
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      <span>Admin Dashboard</span>
+                    </DropdownMenuItem>
+                  </Link>
+                )}
                 <DropdownMenuItem onClick={() => logoutMutation.mutate()} className="text-red-600 cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>

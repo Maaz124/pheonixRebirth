@@ -14,6 +14,10 @@ export const users = pgTable("users", {
   subscriptionTier: text("subscription_tier").notNull().default("free"),
   subscriptionStatus: text("subscription_status").notNull().default("inactive"),
   subscriptionEndDate: timestamp("subscription_end_date"),
+  isAdmin: boolean("is_admin").notNull().default(false),
+  amountPaid: integer("amount_paid").default(0),
+  currency: text("currency").default("usd"),
+  paymentDate: timestamp("payment_date"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -40,6 +44,13 @@ export const emailCampaigns = pgTable("email_campaigns", {
   sendAfterDays: integer("send_after_days").notNull().default(0),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const settings = pgTable("settings", {
+  id: serial("id").primaryKey(),
+  key: text("key").notNull().unique(),
+  value: text("value").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const phases = pgTable("phases", {
@@ -201,3 +212,10 @@ export type InsertUserAssessmentResult = z.infer<typeof insertUserAssessmentResu
 
 export type Lead = typeof leads.$inferSelect;
 export type InsertLead = z.infer<typeof insertLeadSchema>;
+
+// Session table for connect-pg-simple
+export const sessions = pgTable("session", {
+  sid: text("sid").primaryKey(),
+  sess: jsonb("sess").notNull(),
+  expire: timestamp("expire", { precision: 6 }).notNull(),
+});

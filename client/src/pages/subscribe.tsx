@@ -7,13 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 
-// Make sure to call `loadStripe` outside of a component's render to avoid
-// recreating the `Stripe` object on every render.
-if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
-}
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+// Initialize Stripe promise
+let stripePromise: Promise<any> | null = null;
 
 const SubscribeForm = ({ selectedTier }: { selectedTier: string }) => {
   const stripe = useStripe();
@@ -114,10 +111,22 @@ export default function Subscribe() {
       });
   }, []);
 
+  // Fetch dynamic price and Stripe key
+  const { data: config } = useQuery<{ subscriptionPrice: string; stripePublishableKey: string }>({
+    queryKey: ['/api/config'],
+  });
+
+  // Initialize Stripe once key is available
+  if (config?.stripePublishableKey && !stripePromise) {
+    stripePromise = loadStripe(config.stripePublishableKey);
+  }
+
+  const displayPrice = config?.subscriptionPrice ? `$${config.subscriptionPrice}` : "$147";
+
   const tierInfo = {
     essential: {
       name: "Phoenix Rise",
-      price: "$147",
+      price: displayPrice,
       description: "Complete access to the 7-phase recovery program (One-Time Payment)"
     }
   };
@@ -220,9 +229,16 @@ export default function Subscribe() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Elements stripe={stripePromise} options={{ clientSecret }}>
-                <SubscribeForm selectedTier={selectedTier} />
-              </Elements>
+              {config?.stripePublishableKey && stripePromise ? (
+                <Elements stripe={stripePromise} options={{ clientSecret }}>
+                  <SubscribeForm selectedTier={selectedTier} />
+                </Elements>
+              ) : (
+                <div className="text-center p-4">
+                  <p className="text-red-500 mb-2">Stripe configuration missing.</p>
+                  <p className="text-sm text-gray-500">Please contact support to complete your purchase.</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

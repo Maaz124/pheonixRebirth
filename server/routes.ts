@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
 import { storage } from "./storage";
@@ -6,15 +6,22 @@ import {
   insertJournalEntrySchema,
   insertUserAssessmentResultSchema,
   insertUserProgressSchema,
-  insertUserExerciseProgressSchema
+  insertUserExerciseProgressSchema,
+  insertLeadSchema
 } from "@shared/schema";
+import { EmailService } from "./email";
+import { leadMagnetSequence } from "./email-sequences";
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+// Helper to get Stripe instance with dynamic key
+async function getStripe() {
+  const secretKey = await storage.getSetting("stripe_secret_key");
+  if (!secretKey) {
+    throw new Error("Stripe secret key not configured in settings");
+  }
+  return new Stripe(secretKey, {
+    apiVersion: "2025-06-30.basil" as any,
+  });
 }
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2025-06-30.basil" as any, // Cast to any to avoid strict type checking issues if types mismatch
-});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Middleware to check authentication for API routes
@@ -37,6 +44,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(401).json({ message: "Unauthorized" });
     }
     next();
+  });
+
+  const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
+    if (!req.isAuthenticated() || !req.user?.isAdmin) {
+      return res.status(403).json({ message: "Forbidden: Admin access required" });
+    }
+    next();
+  };
+
+  // Public config endpoint
+  app.get("/api/config", async (req, res) => {
+    try {
+      const priceSetting = await storage.getSetting("subscription_price");
+      const publishableKey = await storage.getSetting("stripe_publishable_key");
+
+      res.json({
+        subscriptionPrice: priceSetting || "147",
+        stripePublishableKey: publishableKey
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch config" });
+    }
+  });
+
+  // Lead Capture
+  app.post("/api/leads", async (req, res) => {
+    try {
+      const leadData = insertLeadSchema.parse(req.body);
+      const lead = await storage.createLead(leadData);
+
+      // Trigger email sequence
+      if (lead.email) {
+        try {
+          // Get the first email in the sequence (Welcome email)
+          const welcomeEmail = leadMagnetSequence.find(e => e.id === "lm-welcome");
+          if (welcomeEmail) {
+            const personalizedContent = welcomeEmail.content
+              .replace("{{firstName}}", lead.firstName || "Friend")
+              .replace("{{assessmentPhase}}", "Assessment") // Placeholder until we link assessment
+              .replace("{{nextSteps}}", "healing")
+              .replace("{{nervousSystemState}}", "regulated");
+
+            await EmailService.sendEmail(
+              lead.email,
+              welcomeEmail.subject,
+              personalizedContent
+            );
+          }
+        } catch (emailError) {
+          console.error("Failed to send welcome email:", emailError);
+          // Don't fail the request if email fails, just log it
+        }
+      }
+
+      res.status(201).json(lead);
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: "Failed to capture lead" });
+      }
+    }
+  });
+
+  // Admin Routes
+  app.get("/api/admin/users", requireAdmin, async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
+  app.get("/api/admin/settings/:key", requireAdmin, async (req, res) => {
+    try {
+      const value = await storage.getSetting(req.params.key);
+      res.json({ value });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch setting" });
+    }
+  });
+
+  app.post("/api/admin/settings", requireAdmin, async (req, res) => {
+    try {
+      const { key, value } = req.body;
+      const updated = await storage.updateSetting(key, value);
+      res.json({ value: updated });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update setting" });
+    }
   });
 
   // Get all phases (now protected)
@@ -331,6 +429,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create or get Stripe customer
       let customerId = user.stripeCustomerId;
       if (!customerId) {
+        const stripe = await getStripe();
         const customer = await stripe.customers.create({
           email: user.username,
           name: user.name,
@@ -339,17 +438,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.updateUserStripeInfo(userId, customerId, null);
       }
 
-      // Define pricing for one-time payments
-      const priceMap: Record<string, number> = {
-        'essential': 14700, // $147.00
-      };
+      // Fetch dynamic price from settings
+      const priceSetting = await storage.getSetting("subscription_price");
+      let amount = 14700; // Default fallback ($147.00)
 
-      const amount = priceMap[tier];
-      if (!amount) {
-        return res.status(400).json({ message: "Invalid tier" });
+      if (priceSetting) {
+        amount = Math.round(parseFloat(priceSetting) * 100);
       }
 
+
+
       // Create PaymentIntent
+      const stripe = await getStripe();
       const paymentIntent = await stripe.paymentIntents.create({
         amount,
         currency: "usd",
@@ -400,6 +500,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Retrieve the payment intent from Stripe
+      const stripe = await getStripe();
       const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent);
 
       if (paymentIntent.status === 'succeeded') {
@@ -408,7 +509,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         if (userId && parseInt(userId) === req.user.id) {
           console.log(`Verifying payment for user ${userId}, activating ${tier} tier`);
-          await storage.updateUserSubscription(req.user.id, tier, 'lifetime', null);
+          await storage.updateUserSubscription(
+            req.user.id,
+            tier,
+            'lifetime',
+            null,
+            paymentIntent.amount_received,
+            paymentIntent.currency,
+            new Date()
+          );
 
           return res.json({
             success: true,
@@ -439,6 +548,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Verify signature using the raw body buffer
       // Note: req.rawBody is populated by the express.json verify callback
+      const stripe = await getStripe();
       event = stripe.webhooks.constructEvent(
         (req as any).rawBody,
         signature,

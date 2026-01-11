@@ -15,6 +15,7 @@ import Blog from "@/pages/blog";
 import LeadMagnet from "@/pages/lead-magnet";
 import NotFound from "@/pages/not-found";
 import AuthPage from "@/pages/auth-page";
+import AdminPage from "@/pages/admin-page";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
 
@@ -32,6 +33,7 @@ function Router() {
         <ProtectedRoute path="/resources" component={Resources} />
         <ProtectedRoute path="/journal" component={Journal} />
         <ProtectedRoute path="/subscribe" component={Subscribe} />
+        <ProtectedRoute path="/admin" component={AdminPage} />
 
         <Route path="/pricing" component={Pricing} />
         <Route path="/blog" component={Blog} />
