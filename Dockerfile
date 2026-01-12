@@ -23,11 +23,15 @@ RUN addgroup -S phoenix && adduser -S phoenix -G phoenix
 
 # Copy necessary files from builder
 COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY database_data ./database_data
+COPY drizzle.config.ts ./drizzle.config.ts
+COPY shared ./shared
 
-# Install production dependencies only
-RUN npm ci --only=production
+# Entrypoint script
+COPY docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
 
 # Change ownership to non-root user
 RUN chown -R phoenix:phoenix /app
@@ -42,5 +46,5 @@ EXPOSE 5000
 ENV NODE_ENV=production
 ENV PORT=5000
 
-# Start the application
-CMD ["npm", "run", "start"]
+# Start the application via entrypoint
+ENTRYPOINT ["./docker-entrypoint.sh"]
