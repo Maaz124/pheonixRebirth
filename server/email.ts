@@ -10,11 +10,14 @@ export class EmailService {
             throw new Error("Email configuration missing. Please check Admin Panel settings.");
         }
 
+        const cleanUser = user.trim();
+        const cleanPass = pass.replace(/\s+/g, '');
+
         return nodemailer.createTransport({
             service: "gmail",
             auth: {
-                user: user.value,
-                pass: pass.value,
+                user: cleanUser,
+                pass: cleanPass,
             },
         });
     }
@@ -25,7 +28,7 @@ export class EmailService {
             const user = await storage.getSetting("gmail_user");
 
             const info = await transporter.sendMail({
-                from: `"Phoenix Method" <${user?.value}>`,
+                from: `"Phoenix Method" <${user}>`,
                 to,
                 subject,
                 html,

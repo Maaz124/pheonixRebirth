@@ -11,6 +11,7 @@ import {
 } from "@shared/schema";
 import { EmailService } from "./email";
 import { leadMagnetSequence } from "./email-sequences";
+import { marked } from "marked";
 
 // Helper to get Stripe instance with dynamic key
 async function getStripe() {
@@ -86,10 +87,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
               .replace("{{nextSteps}}", "healing")
               .replace("{{nervousSystemState}}", "regulated");
 
+            const bodyHtml = await marked.parse(personalizedContent);
+
+            const htmlContent = `
+               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+                 <div style="background: linear-gradient(135deg, #FF6B6B, #FF8E53); padding: 20px; border-radius: 8px 8px 0 0; text-align: center;">
+                    <h1 style="color: white; margin: 0;">Phoenix Method™</h1>
+                 </div>
+                 <div style="padding: 24px; background: #fff; border: 1px solid #eee;">
+                   ${bodyHtml}
+                   
+                   ${welcomeEmail.ctaText ? `
+                     <div style="text-align: center; margin-top: 30px;">
+                       <a href="https://phoenix-method.replit.app${welcomeEmail.ctaUrl}" style="background-color: #FF6B6B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">
+                         ${welcomeEmail.ctaText}
+                       </a>
+                     </div>
+                   ` : ''}
+                 </div>
+                 <div style="text-align: center; padding: 20px; font-size: 12px; color: #888;">
+                   <p>© ${new Date().getFullYear()} Phoenix Method. All rights reserved.</p>
+                 </div>
+               </div>
+             `;
+
             await EmailService.sendEmail(
               lead.email,
               welcomeEmail.subject,
-              personalizedContent
+              htmlContent
             );
           }
         } catch (emailError) {
