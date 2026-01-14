@@ -706,6 +706,93 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Blog Routes
+  app.get("/api/blog", async (req, res) => {
+    try {
+      // If admin, return all. If public, return only published
+      if (req.isAuthenticated() && req.user?.isAdmin) {
+        const posts = await storage.getAllBlogPosts();
+        res.json(posts);
+      } else {
+        const posts = await storage.getPublishedBlogPosts();
+        res.json(posts);
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch blog posts" });
+    }
+  });
+
+  app.get("/api/blog/:slug", async (req, res) => {
+    try {
+      const post = await storage.getBlogPostBySlug(req.params.slug);
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+
+      // If not published and not admin, hide it
+      if (!post.isPublished && (!req.isAuthenticated() || !req.user?.isAdmin)) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+
+      res.json(post);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch blog post" });
+    }
+  });
+
+  app.post("/api/blog", requireAdmin, async (req, res) => {
+    try {
+      const { title, content, excerpt, category, tags, coverImage, isPublished, slug } = req.body;
+      // Basic validation
+      if (!title || !content || !slug) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      const post = await storage.createBlogPost({
+        title,
+        content,
+        excerpt: excerpt || "",
+        slug,
+        category: category || "General",
+        tags: tags || [],
+        coverImage,
+        author: req.user!.name,
+        isPublished: !!isPublished,
+      });
+      res.status(201).json(post);
+    } catch (error: any) {
+      console.error(error);
+      res.status(500).json({ message: error.message || "Failed to create blog post" });
+    }
+  });
+
+  app.patch("/api/blog/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updates = req.body;
+      const post = await storage.updateBlogPost(id, updates);
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      res.json(post);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update blog post" });
+    }
+  });
+
+  app.delete("/api/blog/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteBlogPost(id);
+      if (!success) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete blog post" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

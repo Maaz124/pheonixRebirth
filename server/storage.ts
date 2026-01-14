@@ -3,9 +3,9 @@ import type {
   Exercise, InsertExercise, UserExerciseProgress, InsertUserExerciseProgress,
   JournalEntry, InsertJournalEntry, Resource, InsertResource,
   Assessment, InsertAssessment, UserAssessmentResult, InsertUserAssessmentResult,
-  Lead, InsertLead
+  Lead, InsertLead, BlogPost, InsertBlogPost
 } from "@shared/schema";
-import { users, phases, userProgress, exercises, userExerciseProgress, assessments, resources, leads, emailCampaigns, settings, journalEntries, userAssessmentResults } from "@shared/schema";
+import { users, phases, userProgress, exercises, userExerciseProgress, assessments, resources, leads, emailCampaigns, settings, journalEntries, userAssessmentResults, blogPosts } from "@shared/schema";
 
 import session from "express-session";
 import connectPg from "connect-pg-simple";
@@ -84,6 +84,15 @@ export interface IStorage {
   // Global settings operations
   getAllLeads(): Promise<Lead[]>;
   getLeadsBySource(source: string): Promise<Lead[]>;
+
+  // Blog operations
+  getAllBlogPosts(): Promise<BlogPost[]>;
+  getPublishedBlogPosts(): Promise<BlogPost[]>;
+  getBlogPost(id: number): Promise<BlogPost | undefined>;
+  getBlogPostBySlug(slug: string): Promise<BlogPost | undefined>;
+  createBlogPost(post: InsertBlogPost): Promise<BlogPost>;
+  updateBlogPost(id: number, post: Partial<InsertBlogPost>): Promise<BlogPost | undefined>;
+  deleteBlogPost(id: number): Promise<boolean>;
 }
 
 
@@ -367,6 +376,42 @@ export class DatabaseStorage implements IStorage {
 
   async getLeadsBySource(source: string): Promise<Lead[]> {
     return await db.select().from(leads).where(eq(leads.source, source));
+  }
+
+  // Blog operations
+  async getAllBlogPosts(): Promise<BlogPost[]> {
+    return await db.select().from(blogPosts).orderBy(desc(blogPosts.createdAt));
+  }
+
+  async getPublishedBlogPosts(): Promise<BlogPost[]> {
+    return await db.select().from(blogPosts)
+      .where(eq(blogPosts.isPublished, true))
+      .orderBy(desc(blogPosts.publishedAt));
+  }
+
+  async getBlogPost(id: number): Promise<BlogPost | undefined> {
+    const [post] = await db.select().from(blogPosts).where(eq(blogPosts.id, id));
+    return post || undefined;
+  }
+
+  async getBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
+    const [post] = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug));
+    return post || undefined;
+  }
+
+  async createBlogPost(insertPost: InsertBlogPost): Promise<BlogPost> {
+    const [post] = await db.insert(blogPosts).values(insertPost as any).returning();
+    return post;
+  }
+
+  async updateBlogPost(id: number, updates: Partial<InsertBlogPost>): Promise<BlogPost | undefined> {
+    const [post] = await db.update(blogPosts).set(updates as any).where(eq(blogPosts.id, id)).returning();
+    return post || undefined;
+  }
+
+  async deleteBlogPost(id: number): Promise<boolean> {
+    const result = await db.delete(blogPosts).where(eq(blogPosts.id, id));
+    return (result.rowCount ?? 0) > 0;
   }
 }
 

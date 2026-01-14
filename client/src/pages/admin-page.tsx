@@ -8,12 +8,18 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
-import { Loader2, Users, CreditCard, DollarSign, Search, Settings, LogOut, LayoutDashboard, Mail } from "lucide-react";
+import { Loader2, Users, CreditCard, DollarSign, Search, Settings, LogOut, LayoutDashboard, Mail, BookOpen, Plus, Pencil, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { format } from "date-fns";
 import { Link } from "wouter";
+import RichTextEditor from "@/components/rich-text-editor";
+import { BlogPost, InsertBlogPost } from "@shared/schema";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea"; // Assuming we have this, or fallback to native
+import { Switch } from "@/components/ui/switch"; // Assuming we have this
+import { Label } from "@/components/ui/label";
 
-type Tab = 'users' | 'configuration' | 'email';
+type Tab = 'users' | 'configuration' | 'email' | 'blog';
 
 export default function AdminPage() {
     const { user: currentUser } = useAuth();
@@ -66,6 +72,14 @@ export default function AdminPage() {
                         <Mail className="mr-2 h-4 w-4" />
                         Email Settings
                     </Button>
+                    <Button
+                        variant={activeTab === 'blog' ? 'secondary' : 'ghost'}
+                        className="w-full justify-start"
+                        onClick={() => setActiveTab('blog')}
+                    >
+                        <BookOpen className="mr-2 h-4 w-4" />
+                        Blog Management
+                    </Button>
                 </nav>
 
                 <div className="p-4 border-t border-gray-100">
@@ -84,6 +98,7 @@ export default function AdminPage() {
                     {activeTab === 'users' && <UsersView />}
                     {activeTab === 'configuration' && <ConfigurationView />}
                     {activeTab === 'email' && <EmailSettingsView />}
+                    {activeTab === 'blog' && <BlogsView />}
                 </div>
             </main>
         </div>
@@ -440,5 +455,228 @@ function EmailSettingsView() {
                 </CardContent>
             </Card>
         </div>
+    );
+}
+
+function BlogsView() {
+    const { toast } = useToast();
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
+    const [searchTerm, setSearchTerm] = useState("");
+
+    const { data: posts, isLoading } = useQuery<BlogPost[]>({
+        queryKey: ["/api/blog"],
+    });
+
+    const createPostMutation = useMutation({
+        mutationFn: async (data: any) => {
+            const res = await apiRequest("POST", "/api/blog", data);
+            return res.json();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["/api/blog"] });
+            setIsDialogOpen(false);
+            setEditingPost(null);
+            toast({ title: "Success", description: "Blog post created successfully." });
+        },
+        onError: (err: any) => {
+            toast({ title: "Error", description: err.message, variant: "destructive" });
+        }
+    });
+
+    const updatePostMutation = useMutation({
+        mutationFn: async ({ id, data }: { id: number, data: any }) => {
+            const res = await apiRequest("PATCH", `/api/blog/${id}`, data);
+            return res.json();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["/api/blog"] });
+            setIsDialogOpen(false);
+            setEditingPost(null);
+            toast({ title: "Success", description: "Blog post updated successfully." });
+        },
+        onError: (err: any) => {
+            toast({ title: "Error", description: err.message, variant: "destructive" });
+        }
+    });
+
+    const deletePostMutation = useMutation({
+        mutationFn: async (id: number) => {
+            await apiRequest("DELETE", `/api/blog/${id}`);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["/api/blog"] });
+            toast({ title: "Success", description: "Blog post deleted successfully." });
+        },
+    });
+
+    const filteredPosts = posts?.filter(post =>
+        post.title.toLowerCase().includes(searchTerm.toLowerCase())
+    ) || [];
+
+    return (
+        <div className="space-y-8">
+            <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-900">Blog Management</h2>
+                <Button onClick={() => { setEditingPost(null); setIsDialogOpen(true); }}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    New Post
+                </Button>
+            </div>
+
+            <Card>
+                <CardHeader>
+                    <div className="relative max-w-sm">
+                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Search posts..."
+                            className="pl-8"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    {isLoading ? <Loader2 className="animate-spin h-8 w-8 mx-auto" /> : (
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Title</TableHead>
+                                    <TableHead>Category</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead>Published At</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {filteredPosts.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="text-center py-8">No posts found.</TableCell>
+                                    </TableRow>
+                                ) : filteredPosts.map(post => (
+                                    <TableRow key={post.id}>
+                                        <TableCell className="font-medium">{post.title}</TableCell>
+                                        <TableCell><Badge variant="outline">{post.category}</Badge></TableCell>
+                                        <TableCell>
+                                            <Badge variant={post.isPublished ? "default" : "secondary"}>
+                                                {post.isPublished ? "Published" : "Draft"}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell>{post.publishedAt ? format(new Date(post.publishedAt), 'MMM d, yyyy') : '-'}</TableCell>
+                                        <TableCell className="text-right space-x-2">
+                                            <Button variant="ghost" size="icon" onClick={() => { setEditingPost(post); setIsDialogOpen(true); }}>
+                                                <Pencil className="h-4 w-4" />
+                                            </Button>
+                                            <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-700" onClick={() => {
+                                                if (confirm("Are you sure you want to delete this post?")) {
+                                                    deletePostMutation.mutate(post.id);
+                                                }
+                                            }}>
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    )}
+                </CardContent>
+            </Card>
+
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>{editingPost ? "Edit Blog Post" : "Create Blog Post"}</DialogTitle>
+                    </DialogHeader>
+                    <BlogForm
+                        initialData={editingPost}
+                        onSubmit={(data) => {
+                            if (editingPost) {
+                                updatePostMutation.mutate({ id: editingPost.id, data });
+                            } else {
+                                createPostMutation.mutate(data);
+                            }
+                        }}
+                        onCancel={() => setIsDialogOpen(false)}
+                    />
+                </DialogContent>
+            </Dialog>
+        </div>
+    );
+}
+
+function BlogForm({ initialData, onSubmit, onCancel }: { initialData: BlogPost | null, onSubmit: (data: any) => void, onCancel: () => void }) {
+    const [content, setContent] = useState(initialData?.content || "");
+    const [title, setTitle] = useState(initialData?.title || "");
+    const [slug, setSlug] = useState(initialData?.slug || "");
+
+    // Auto-generate slug from title if empty and creating
+    const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setTitle(e.target.value);
+        if (!initialData && !slug) {
+            setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''));
+        }
+    };
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        onSubmit({
+            title: formData.get('title'),
+            slug: formData.get('slug'),
+            excerpt: formData.get('excerpt'),
+            category: formData.get('category'),
+            content: content,
+            coverImage: formData.get('coverImage'),
+            isPublished: formData.get('isPublished') === 'on',
+        });
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label htmlFor="title">Title</Label>
+                    <Input id="title" name="title" value={title} onChange={handleTitleChange} required />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="slug">Slug (URL)</Label>
+                    <Input id="slug" name="slug" value={slug} onChange={e => setSlug(e.target.value)} required />
+                </div>
+            </div>
+
+            <div className="space-y-2">
+                <Label htmlFor="excerpt">Excerpt</Label>
+                <Textarea id="excerpt" name="excerpt" defaultValue={initialData?.excerpt || ""} required />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label htmlFor="category">Category</Label>
+                    <Input id="category" name="category" defaultValue={initialData?.category || "General"} required />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="coverImage">Cover Image URL</Label>
+                    <Input id="coverImage" name="coverImage" defaultValue={initialData?.coverImage || ""} />
+                </div>
+            </div>
+
+            <div className="space-y-2">
+                <Label>Content (Rich Text Editor)</Label>
+                <div className="min-h-[300px] border rounded-md">
+                    <RichTextEditor value={content} onChange={setContent} />
+                </div>
+            </div>
+
+            <div className="flex items-center space-x-2 pt-10">
+                <Switch id="isPublished" name="isPublished" defaultChecked={initialData ? initialData.isPublished : false} />
+                <Label htmlFor="isPublished">Publish immediately</Label>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4">
+                <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
+                <Button type="submit">Save Post</Button>
+            </div>
+        </form>
     );
 }
