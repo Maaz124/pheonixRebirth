@@ -2,6 +2,10 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
 import { storage } from "./storage";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import express from "express";
 import {
   insertJournalEntrySchema,
   insertUserAssessmentResultSchema,
@@ -12,6 +16,24 @@ import {
 import { EmailService } from "./email";
 import { leadMagnetSequence } from "./email-sequences";
 import { marked } from "marked";
+
+// Configure storage for multer
+const uploadDir = path.join(process.cwd(), "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
+const uploadStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage: uploadStorage });
 
 // Helper to get Stripe instance with dynamic key
 async function getStripe() {
@@ -25,6 +47,9 @@ async function getStripe() {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Serve uploaded files statically
+  app.use('/uploads', express.static(uploadDir));
+
   // Middleware to check authentication for API routes
   app.use("/api", (req, res, next) => {
     // List of public paths that don't require authentication
@@ -47,7 +72,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     if (!req.isAuthenticated()) {
-      console.log(`[API Middleware] Blocking ${req.path}`);
+      // console.log(`[API Middleware] Blocking ${req.path}`);
       return res.status(401).json({ message: "Unauthorized" });
     }
     next();
@@ -59,6 +84,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     next();
   };
+
+  // File Upload Endpoint
+  app.post("/api/upload", upload.single('file'), (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+      const fileUrl = `/uploads/${req.file.filename}`;
+      res.json({ url: fileUrl });
+    } catch (error) {
+      console.error("Upload error:", error);
+      res.status(500).json({ message: "Failed to upload file" });
+    }
+  });
 
   // Public config endpoint
   app.get("/api/config", async (req, res) => {

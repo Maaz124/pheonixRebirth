@@ -1,23 +1,22 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link } from "wouter"; // Keeping Link if used elsewhere, but maybe removable
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, User, Search, ArrowRight } from "lucide-react";
-
 import { useQuery } from "@tanstack/react-query";
 import { BlogPost } from "@shared/schema";
 import { Loader2 } from "lucide-react";
-
-// Removed hardcoded blogPosts
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const categories = ["All", "Neuroscience", "Recovery", "Boundaries", "Trauma", "Self-Compassion", "PTSD"];
 
 export default function Blog() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
 
   const { data: blogPosts = [], isLoading } = useQuery<BlogPost[]>({
     queryKey: ['/api/blog'],
@@ -94,7 +93,7 @@ export default function Blog() {
                 <Card key={post.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group">
                   <div className="aspect-video overflow-hidden">
                     <img
-                      src={post.image}
+                      src={post.coverImage || "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=600&h=300&fit=crop"}
                       alt={post.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
@@ -104,7 +103,7 @@ export default function Blog() {
                       <Badge variant="secondary">{post.category}</Badge>
                       <div className="flex items-center gap-1">
                         <Calendar size={14} />
-                        {new Date(post.publishedAt).toLocaleDateString()}
+                        {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'Draft'}
                       </div>
                       <div className="flex items-center gap-1">
                         <Clock size={14} />
@@ -125,12 +124,10 @@ export default function Blog() {
                         <User size={16} className="text-gray-400" />
                         <span className="text-sm text-gray-600">{post.author}</span>
                       </div>
-                      <Link href={`/blog/${post.slug}`}>
-                        <Button variant="ghost" size="sm" className="group-hover:text-orange-600">
-                          Read More
-                          <ArrowRight size={16} className="ml-1" />
-                        </Button>
-                      </Link>
+                      <Button variant="ghost" size="sm" className="group-hover:text-orange-600" onClick={() => setSelectedPost(post)}>
+                        Read More
+                        <ArrowRight size={16} className="ml-1" />
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -164,7 +161,7 @@ export default function Blog() {
                 <Card key={post.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group">
                   <div className="aspect-video overflow-hidden">
                     <img
-                      src={post.image}
+                      src={post.coverImage || "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=600&h=300&fit=crop"}
                       alt={post.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
@@ -190,15 +187,13 @@ export default function Blog() {
                       <div className="flex items-center gap-2">
                         <Calendar size={14} className="text-gray-400" />
                         <span className="text-sm text-gray-600">
-                          {new Date(post.publishedAt).toLocaleDateString()}
+                          {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'Draft'}
                         </span>
                       </div>
-                      <Link href={`/blog/${post.slug}`}>
-                        <Button variant="ghost" size="sm" className="group-hover:text-orange-600">
-                          Read
-                          <ArrowRight size={16} className="ml-1" />
-                        </Button>
-                      </Link>
+                      <Button variant="ghost" size="sm" className="group-hover:text-orange-600" onClick={() => setSelectedPost(post)}>
+                        Read
+                        <ArrowRight size={16} className="ml-1" />
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -234,6 +229,43 @@ export default function Blog() {
           </p>
         </div>
       </section>
+
+      <Dialog open={!!selectedPost} onOpenChange={(open) => !open && setSelectedPost(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+          <ScrollArea className="h-full w-full">
+            <div className="p-6">
+              <DialogHeader className="mb-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Badge>{selectedPost?.category}</Badge>
+                  <span className="text-sm text-gray-500 flex items-center gap-1">
+                    <Calendar size={14} />
+                    {selectedPost?.publishedAt ? new Date(selectedPost.publishedAt).toLocaleDateString() : ''}
+                  </span>
+                </div>
+                <DialogTitle className="text-3xl font-bold leading-tight mb-4">{selectedPost?.title}</DialogTitle>
+                <DialogDescription className="text-lg text-gray-700">
+                  {selectedPost?.excerpt}
+                </DialogDescription>
+              </DialogHeader>
+
+              {selectedPost?.coverImage && (
+                <div className="aspect-video w-full overflow-hidden rounded-lg mb-8">
+                  <img
+                    src={selectedPost.coverImage}
+                    alt={selectedPost.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+
+              <div
+                className="prose prose-orange max-w-none"
+                dangerouslySetInnerHTML={{ __html: selectedPost?.content || '' }}
+              />
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

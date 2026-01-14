@@ -650,14 +650,45 @@ function BlogForm({ initialData, onSubmit, onCancel }: { initialData: BlogPost |
                 <Textarea id="excerpt" name="excerpt" defaultValue={initialData?.excerpt || ""} required />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
-                    <Input id="category" name="category" defaultValue={initialData?.category || "General"} required />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="coverImage">Cover Image URL</Label>
-                    <Input id="coverImage" name="coverImage" defaultValue={initialData?.coverImage || ""} />
+            <div className="space-y-2">
+                <Label htmlFor="category">Category</Label>
+                <Input id="category" name="category" defaultValue={initialData?.category || "General"} required />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="coverImage">Cover Image</Label>
+                <div className="flex gap-2">
+                    <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                                const formData = new FormData();
+                                formData.append('file', file);
+                                try {
+                                    const res = await fetch('/api/upload', {
+                                        method: 'POST',
+                                        body: formData,
+                                    });
+                                    const data = await res.json();
+                                    if (data.url) {
+                                        const input = document.getElementById('coverImage') as HTMLInputElement;
+                                        if (input) input.value = data.url;
+                                    }
+                                } catch (err) {
+                                    console.error('Upload failed', err);
+                                }
+                            }
+                        }}
+                    />
+                    <Input
+                        id="coverImage"
+                        name="coverImage"
+                        defaultValue={initialData?.coverImage || ""}
+                        placeholder="Image URL or upload"
+                        className="hidden" // Hidden but stores the URL
+                    />
+                    {/* Show preview if available */}
                 </div>
             </div>
 
