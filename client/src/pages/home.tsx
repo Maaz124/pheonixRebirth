@@ -63,9 +63,10 @@ export default function Home() {
 
   const { data: userProgress = [] } = useQuery<UserProgress[]>({
     queryKey: ['/api/user/progress'],
+    enabled: !!user,
   });
 
-  const currentPhase = phases.find(p => p.order === user?.currentPhase);
+  const currentPhase = user ? phases.find(p => p.order === user?.currentPhase) : null;
   const currentProgress = userProgress.find(p => p.phaseId === currentPhase?.id);
 
   const weeklyProgress = {
@@ -85,7 +86,7 @@ export default function Home() {
       <Hero />
 
       {/* Current Phase Focus */}
-      {currentPhase && (
+      {currentPhase && user && (
         <section className="py-12 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="phoenix-gradient rounded-2xl p-8 text-white mb-8">
@@ -138,6 +139,7 @@ export default function Home() {
                     phase={phase}
                     progress={progress}
                     isSubscribed={isSubscribed}
+                    isGuest={!user}
                   />
                 );
               })
@@ -151,165 +153,173 @@ export default function Home() {
       </section>
 
       {/* Today's Tools & Progress */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* Quick Tools */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Tools</h3>
-              <div className="space-y-3">
-                <Button
-                  onClick={() => setActiveQuickTool('grounding')}
-                  className="w-full bg-teal-50 hover:bg-teal-100 phoenix-text-accent py-3 rounded-lg font-medium transition-colors"
-                >
-                  <Leaf className="mr-2" size={16} />
-                  5-Minute Grounding
-                </Button>
-                <Button
-                  onClick={() => setActiveQuickTool('journal')}
-                  className="w-full bg-blue-50 hover:bg-blue-100 phoenix-text-primary py-3 rounded-lg font-medium transition-colors"
-                >
-                  <BookOpen className="mr-2" size={16} />
-                  Quick Check-In
-                </Button>
-                <Button
-                  onClick={() => setActiveQuickTool('compassion')}
-                  className="w-full bg-pink-50 hover:bg-pink-100 phoenix-text-secondary py-3 rounded-lg font-medium transition-colors"
-                >
-                  <Heart className="mr-2" size={16} />
-                  Self-Compassion Break
-                </Button>
-              </div>
-            </div>
-
-            {/* Progress Tracking */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">This Week's Progress</h3>
-              <div className="space-y-4">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm phoenix-text-gray">Boundary exercises</span>
-                    <span className="text-sm font-medium phoenix-text-success">
-                      {weeklyProgress.boundaryExercises.completed}/{weeklyProgress.boundaryExercises.total}
-                    </span>
+      {
+        user && (
+          <section className="py-16 bg-white">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="grid lg:grid-cols-3 gap-8">
+                {/* Quick Tools */}
+                <div className="bg-white rounded-2xl shadow-lg p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Tools</h3>
+                  <div className="space-y-3">
+                    <Button
+                      onClick={() => setActiveQuickTool('grounding')}
+                      className="w-full bg-teal-50 hover:bg-teal-100 phoenix-text-accent py-3 rounded-lg font-medium transition-colors"
+                    >
+                      <Leaf className="mr-2" size={16} />
+                      5-Minute Grounding
+                    </Button>
+                    <Button
+                      onClick={() => setActiveQuickTool('journal')}
+                      className="w-full bg-blue-50 hover:bg-blue-100 phoenix-text-primary py-3 rounded-lg font-medium transition-colors"
+                    >
+                      <BookOpen className="mr-2" size={16} />
+                      Quick Check-In
+                    </Button>
+                    <Button
+                      onClick={() => setActiveQuickTool('compassion')}
+                      className="w-full bg-pink-50 hover:bg-pink-100 phoenix-text-secondary py-3 rounded-lg font-medium transition-colors"
+                    >
+                      <Heart className="mr-2" size={16} />
+                      Self-Compassion Break
+                    </Button>
                   </div>
-                  <Progress
-                    value={(weeklyProgress.boundaryExercises.completed / weeklyProgress.boundaryExercises.total) * 100}
-                    className="h-2"
-                  />
                 </div>
 
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm phoenix-text-gray">Journal entries</span>
-                    <span className="text-sm font-medium phoenix-text-success">
-                      {weeklyProgress.journalEntries.completed}/{weeklyProgress.journalEntries.total}
-                    </span>
-                  </div>
-                  <Progress
-                    value={(weeklyProgress.journalEntries.completed / weeklyProgress.journalEntries.total) * 100}
-                    className="h-2"
-                  />
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm phoenix-text-gray">Mindfulness practice</span>
-                    <span className="text-sm font-medium phoenix-text-success">
-                      {weeklyProgress.mindfulnessPractice.completed}/{weeklyProgress.mindfulnessPractice.total}
-                    </span>
-                  </div>
-                  <Progress
-                    value={(weeklyProgress.mindfulnessPractice.completed / weeklyProgress.mindfulnessPractice.total) * 100}
-                    className="h-2"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Recent Achievements */}
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <Award className="mr-2 phoenix-text-secondary" size={20} />
-                Recent Wins
-              </h3>
-              <div className="space-y-3">
-                {achievements.map((achievement, index) => (
-                  <div key={index} className="flex items-center space-x-3 p-3 bg-white rounded-lg">
-                    <span className="text-xl">{achievement.icon}</span>
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900 text-sm">{achievement.title}</p>
-                      <p className="text-xs phoenix-text-gray">{achievement.description}</p>
+                {/* Progress Tracking */}
+                <div className="bg-white rounded-2xl shadow-lg p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">This Week's Progress</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm phoenix-text-gray">Boundary exercises</span>
+                        <span className="text-sm font-medium phoenix-text-success">
+                          {weeklyProgress.boundaryExercises.completed}/{weeklyProgress.boundaryExercises.total}
+                        </span>
+                      </div>
+                      <Progress
+                        value={(weeklyProgress.boundaryExercises.completed / weeklyProgress.boundaryExercises.total) * 100}
+                        className="h-2"
+                      />
                     </div>
-                    <Badge variant="secondary" className="text-xs">{achievement.date}</Badge>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm phoenix-text-gray">Journal entries</span>
+                        <span className="text-sm font-medium phoenix-text-success">
+                          {weeklyProgress.journalEntries.completed}/{weeklyProgress.journalEntries.total}
+                        </span>
+                      </div>
+                      <Progress
+                        value={(weeklyProgress.journalEntries.completed / weeklyProgress.journalEntries.total) * 100}
+                        className="h-2"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm phoenix-text-gray">Mindfulness practice</span>
+                        <span className="text-sm font-medium phoenix-text-success">
+                          {weeklyProgress.mindfulnessPractice.completed}/{weeklyProgress.mindfulnessPractice.total}
+                        </span>
+                      </div>
+                      <Progress
+                        value={(weeklyProgress.mindfulnessPractice.completed / weeklyProgress.mindfulnessPractice.total) * 100}
+                        className="h-2"
+                      />
+                    </div>
                   </div>
-                ))}
+                </div>
+
+                {/* Recent Achievements */}
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <Award className="mr-2 phoenix-text-secondary" size={20} />
+                    Recent Wins
+                  </h3>
+                  <div className="space-y-3">
+                    {achievements.map((achievement, index) => (
+                      <div key={index} className="flex items-center space-x-3 p-3 bg-white rounded-lg">
+                        <span className="text-xl">{achievement.icon}</span>
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900 text-sm">{achievement.title}</p>
+                          <p className="text-xs phoenix-text-gray">{achievement.description}</p>
+                        </div>
+                        <Badge variant="secondary" className="text-xs">{achievement.date}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
+          </section>
+        )
+      }
 
       {/* Insights & Growth */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Your Growth Journey</h2>
-            <p className="text-lg phoenix-text-gray max-w-2xl mx-auto">
-              Track your progress and celebrate the small victories that lead to lasting change
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-900">Monthly Progress</h3>
-                <TrendingUp className="phoenix-text-primary" size={20} />
-              </div>
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="phoenix-text-gray">Exercises Completed</span>
-                  <span className="font-medium">23/30</span>
-                </div>
-                <Progress value={77} className="h-2" />
-                <div className="flex justify-between text-sm">
-                  <span className="phoenix-text-gray">Boundaries Practiced</span>
-                  <span className="font-medium">15</span>
-                </div>
-                <Progress value={60} className="h-2" />
-              </div>
-            </Card>
-
-            <Card className="p-6 bg-gradient-to-br from-green-50 to-teal-50">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-900">Stress Levels</h3>
-                <TrendingUp className="phoenix-text-success" size={20} />
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold phoenix-text-success mb-2">6.2</div>
-                <p className="text-sm phoenix-text-gray mb-3">Average this week</p>
-                <div className="text-xs phoenix-text-success bg-green-100 px-2 py-1 rounded-full inline-block">
-                  ↓ 2.1 points lower than last month
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6 bg-gradient-to-br from-purple-50 to-pink-50">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-900">Healing Streak</h3>
-                <Calendar className="phoenix-text-secondary" size={20} />
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold phoenix-text-secondary mb-2">12</div>
-                <p className="text-sm phoenix-text-gray mb-3">Consecutive days</p>
-                <p className="text-xs phoenix-text-secondary">
-                  Keep going! Consistency builds resilience.
+      {
+        user && (
+          <section className="py-16 bg-white">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">Your Growth Journey</h2>
+                <p className="text-lg phoenix-text-gray max-w-2xl mx-auto">
+                  Track your progress and celebrate the small victories that lead to lasting change
                 </p>
               </div>
-            </Card>
-          </div>
-        </div>
-      </section>
+
+              <div className="grid md:grid-cols-3 gap-8">
+                <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-gray-900">Monthly Progress</h3>
+                    <TrendingUp className="phoenix-text-primary" size={20} />
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="phoenix-text-gray">Exercises Completed</span>
+                      <span className="font-medium">23/30</span>
+                    </div>
+                    <Progress value={77} className="h-2" />
+                    <div className="flex justify-between text-sm">
+                      <span className="phoenix-text-gray">Boundaries Practiced</span>
+                      <span className="font-medium">15</span>
+                    </div>
+                    <Progress value={60} className="h-2" />
+                  </div>
+                </Card>
+
+                <Card className="p-6 bg-gradient-to-br from-green-50 to-teal-50">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-gray-900">Stress Levels</h3>
+                    <TrendingUp className="phoenix-text-success" size={20} />
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold phoenix-text-success mb-2">6.2</div>
+                    <p className="text-sm phoenix-text-gray mb-3">Average this week</p>
+                    <div className="text-xs phoenix-text-success bg-green-100 px-2 py-1 rounded-full inline-block">
+                      ↓ 2.1 points lower than last month
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="p-6 bg-gradient-to-br from-purple-50 to-pink-50">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-gray-900">Healing Streak</h3>
+                    <Calendar className="phoenix-text-secondary" size={20} />
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold phoenix-text-secondary mb-2">12</div>
+                    <p className="text-sm phoenix-text-gray mb-3">Consecutive days</p>
+                    <p className="text-xs phoenix-text-secondary">
+                      Keep going! Consistency builds resilience.
+                    </p>
+                  </div>
+                </Card>
+              </div>
+            </div>
+          </section>
+        )
+      }
 
       {/* Daily Affirmation */}
       <section className="py-12 bg-gradient-to-br from-pink-50 to-purple-50">
@@ -379,6 +389,6 @@ export default function Home() {
           </div>
         </div>
       </footer>
-    </main>
+    </main >
   );
 }

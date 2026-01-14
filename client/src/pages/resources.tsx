@@ -898,7 +898,9 @@ export default function Resources() {
               <Button
                 className={`flex-1 ${hasAccess ? "bg-orange-600 hover:bg-orange-700" : "bg-slate-700 hover:bg-slate-800"}`}
                 onClick={() => {
-                  if (hasAccess) {
+                  if (!user) {
+                    setLocation("/auth");
+                  } else if (hasAccess) {
                     generatePDF(resource as Resource);
                   } else {
                     setLocation("/subscribe");
@@ -907,7 +909,7 @@ export default function Resources() {
                 data-testid="modal-download-pdf"
               >
                 {hasAccess ? <Download size={16} className="mr-2" /> : <Lock size={16} className="mr-2" />}
-                {hasAccess ? "Download PDF" : "Get Access"}
+                {!user ? "Login to Continue" : hasAccess ? "Download PDF" : "Get Access"}
               </Button>
               <Button
                 variant={isBookmarked(resource.id) ? "default" : "outline"}
@@ -1184,7 +1186,9 @@ export default function Resources() {
                                 className={hasAccess ? "bg-orange-600 hover:bg-orange-700" : "bg-slate-700 hover:bg-slate-800"}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  if (hasAccess) {
+                                  if (!user) {
+                                    setLocation("/auth");
+                                  } else if (hasAccess) {
                                     generatePDF(resource as Resource);
                                   } else {
                                     setLocation("/subscribe");
@@ -1193,7 +1197,7 @@ export default function Resources() {
                                 data-testid={`download-resource-${resource.id}`}
                               >
                                 {hasAccess ? <Download size={16} className="mr-2" /> : <Lock size={16} className="mr-2" />}
-                                {hasAccess ? "Download" : "Get Access"}
+                                {!user ? "Login to Continue" : hasAccess ? "Download" : "Get Access"}
                               </Button>
                             </div>
                           </div>

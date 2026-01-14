@@ -15,7 +15,7 @@ import { marked } from "marked";
 
 // Helper to get Stripe instance with dynamic key
 async function getStripe() {
-  const secretKey = await storage.getSetting("stripe_secret_key");
+  const secretKey = (await storage.getSetting("stripe_secret_key")) || process.env.STRIPE_SECRET_KEY;
   if (!secretKey) {
     throw new Error("Stripe secret key not configured in settings");
   }
@@ -34,14 +34,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       "/logout",
       "/stripe/webhook",
       "/leads",
-      "/newsletter"
+      "/newsletter",
+      "/phases",
+      "/resources"
     ];
 
-    if (publicPaths.some(path => req.path.startsWith(path))) {
+    const isPublic = publicPaths.some(path => req.path.startsWith(path));
+    console.log(`[API Middleware] ${req.method} ${req.path} - Public: ${isPublic}, Auth: ${req.isAuthenticated()}`);
+
+    if (isPublic) {
       return next();
     }
 
     if (!req.isAuthenticated()) {
+      console.log(`[API Middleware] Blocking ${req.path}`);
       return res.status(401).json({ message: "Unauthorized" });
     }
     next();

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,9 +20,11 @@ interface ExerciseCardProps {
   isCompleted?: boolean;
   initialResponses?: any;
   onComplete: (exerciseId: number, responses?: any) => void;
+  isGuest?: boolean;
 }
 
-export function ExerciseCard({ exercise, isCompleted = false, initialResponses, onComplete }: ExerciseCardProps) {
+export function ExerciseCard({ exercise, isCompleted = false, initialResponses, onComplete, isGuest }: ExerciseCardProps) {
+  const [, setLocation] = useLocation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [responses, setResponses] = useState<any>(initialResponses || {});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -4000,11 +4003,11 @@ export function ExerciseCard({ exercise, isCompleted = false, initialResponses, 
               </div>
 
               <Button
-                onClick={handleComplete}
+                onClick={() => isGuest ? setLocation("/auth") : handleComplete()}
                 disabled={isSubmitting}
                 className="phoenix-bg-primary hover:phoenix-bg-secondary text-white"
               >
-                {isSubmitting ? "Saving..." : (isCompleted ? "Update" : "Mark Complete")}
+                {isSubmitting ? "Saving..." : (isGuest ? "Login to Save" : (isCompleted ? "Update" : "Mark Complete"))}
               </Button>
             </div>
           </div>

@@ -28,10 +28,10 @@ function Router() {
         <Route path="/auth" component={AuthPage} />
 
         <ProtectedRoute path="/dashboard" component={Home} />
-        <ProtectedRoute path="/phase/:phaseId" component={Phase} />
-        <ProtectedRoute path="/phases" component={Home} />
-        <ProtectedRoute path="/resources" component={Resources} />
-        <ProtectedRoute path="/journal" component={Journal} />
+        <Route path="/phase/:phaseId" component={Phase} />
+        <Route path="/phases" component={Home} />
+        <Route path="/resources" component={Resources} />
+        <Route path="/journal" component={Journal} />
         <ProtectedRoute path="/subscribe" component={Subscribe} />
         <ProtectedRoute path="/admin" component={AdminPage} />
 

@@ -8,9 +8,10 @@ interface PhaseCardProps {
   phase: Phase;
   progress?: UserProgress;
   isSubscribed?: boolean;
+  isGuest?: boolean;
 }
 
-export function PhaseCard({ phase, progress, isSubscribed }: PhaseCardProps) {
+export function PhaseCard({ phase, progress, isSubscribed, isGuest }: PhaseCardProps) {
   // Phase 1 is always unlocked.
   // Other phases are locked if not subscribed, regardless of progress or isLocked flag.
   const isPhaseUnlocked = phase.id === 1 || (!!isSubscribed && (!phase.isLocked || !!progress));
@@ -136,7 +137,13 @@ export function PhaseCard({ phase, progress, isSubscribed }: PhaseCardProps) {
           {progress ? `${progress.exercisesCompleted}` : '0'} of {progress?.totalExercises || '0'} exercises completed
         </span>
 
-        {isPhaseUnlocked ? (
+        {isGuest ? (
+          <Link href={`/phase/${phase.id}`}>
+            <Button className="phoenix-bg-primary hover:phoenix-bg-secondary text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+              Explore Phase
+            </Button>
+          </Link>
+        ) : isPhaseUnlocked ? (
           // Standard Access Logic: Phase is unlocked (Phase 1 or Subscribed)
           ((!progress && (!phase.isLocked || phase.id === 1)) || progress?.status === 'in_progress') ? (
             <Link href={`/phase/${phase.id}`}>

@@ -10,12 +10,16 @@ import { Slider } from "@/components/ui/slider";
 import { Lock, Plus, Edit, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/use-auth";
+import { useLocation } from "wouter";
 import type { JournalEntry, InsertJournalEntry } from "@shared/schema";
 
 export default function Journal() {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
-  
+
   const [isCreating, setIsCreating] = useState(false);
   const [editingEntry, setEditingEntry] = useState<JournalEntry | null>(null);
   const [formData, setFormData] = useState<Partial<InsertJournalEntry>>({
@@ -74,6 +78,7 @@ export default function Journal() {
 
   const { data: entries = [] } = useQuery<JournalEntry[]>({
     queryKey: ['/api/user/journal'],
+    enabled: !!user,
   });
 
   const createEntryMutation = useMutation({
@@ -155,6 +160,11 @@ export default function Journal() {
   });
 
   const handleSubmit = () => {
+    if (!user) {
+      setLocation("/auth");
+      return;
+    }
+
     if (!formData.content?.trim()) {
       toast({
         title: "Error",
@@ -165,9 +175,9 @@ export default function Journal() {
     }
 
     if (editingEntry) {
-      updateEntryMutation.mutate({ 
-        id: editingEntry.id, 
-        data: formData as InsertJournalEntry 
+      updateEntryMutation.mutate({
+        id: editingEntry.id,
+        data: formData as InsertJournalEntry
       });
     } else {
       createEntryMutation.mutate(formData as InsertJournalEntry);
@@ -209,7 +219,7 @@ export default function Journal() {
   };
 
   return (
-    <main className="py-8">
+    <main className="py-8" >
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-8">
@@ -229,7 +239,7 @@ export default function Journal() {
               <p className="text-sm phoenix-text-gray mb-4">
                 How did practicing boundaries feel today? What did you notice about your emotions and responses?
               </p>
-              
+
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="title" className="text-sm font-medium text-gray-900">
@@ -243,7 +253,7 @@ export default function Journal() {
                     className="mt-1"
                   />
                 </div>
-                
+
                 <div>
                   <Label htmlFor="content" className="text-sm font-medium text-gray-900">
                     Your thoughts and feelings
@@ -258,7 +268,7 @@ export default function Journal() {
                 </div>
               </div>
             </div>
-            
+
             <div className="grid md:grid-cols-2 gap-6 mb-6">
               <div>
                 <Label className="block text-sm font-medium text-gray-900 mb-2">
@@ -278,7 +288,7 @@ export default function Journal() {
                   <span>10</span>
                 </div>
               </div>
-              
+
               <div>
                 <Label className="block text-sm font-medium text-gray-900 mb-2">
                   Mood Today
@@ -298,7 +308,7 @@ export default function Journal() {
                 </Select>
               </div>
             </div>
-            
+
             <div className="flex items-center justify-between">
               <span className="text-sm phoenix-text-gray">
                 <Lock className="inline mr-1" size={16} />
@@ -317,7 +327,7 @@ export default function Journal() {
                   disabled={createEntryMutation.isPending || updateEntryMutation.isPending}
                   className="px-6 py-2 phoenix-bg-primary hover:phoenix-bg-secondary text-white rounded-lg transition-colors"
                 >
-                  {createEntryMutation.isPending || updateEntryMutation.isPending ? 'Saving...' : 'Save Entry'}
+                  {createEntryMutation.isPending || updateEntryMutation.isPending ? 'Saving...' : !user ? 'Login to Continue' : 'Save Entry'}
                 </Button>
               </div>
             </div>
@@ -340,7 +350,7 @@ export default function Journal() {
         {/* Recent Entries */}
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Journal Entries</h2>
-          
+
           {entries.length === 0 ? (
             <Card className="p-8 text-center">
               <p className="phoenix-text-gray text-lg mb-4">You haven't written any journal entries yet.</p>
@@ -377,13 +387,13 @@ export default function Journal() {
                           </Button>
                         </div>
                       </div>
-                      
+
                       {entry.title && (
                         <p className="text-sm phoenix-text-gray mb-2">
                           {formatDate(entry.createdAt!)}
                         </p>
                       )}
-                      
+
                       <div className="flex items-center space-x-4 mb-3">
                         {entry.mood && (
                           <span className="text-sm phoenix-text-gray">
@@ -398,7 +408,7 @@ export default function Journal() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <p className="text-sm phoenix-text-gray leading-relaxed">
                     {entry.content.length > 200 ? `${entry.content.substring(0, 200)}...` : entry.content}
                   </p>
@@ -408,6 +418,6 @@ export default function Journal() {
           )}
         </div>
       </div>
-    </main>
+    </main >
   );
 }

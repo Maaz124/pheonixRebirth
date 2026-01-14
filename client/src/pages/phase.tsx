@@ -9,8 +9,9 @@ import { ExerciseCard } from "@/components/exercise-card";
 import { InteractiveAssessment } from "@/components/interactive-assessment";
 import { ArrowLeft, Lightbulb, BookOpen, Target, Heart, Save, Download } from "lucide-react";
 import jsPDF from "jspdf";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { apiRequest } from "@/lib/queryClient";
 import type { Phase, UserProgress, Exercise, Assessment, JournalEntry, InsertJournalEntry, UserExerciseProgress } from "@shared/schema";
 
@@ -18,7 +19,9 @@ export default function PhasePage() {
   const { phaseId } = useParams<{ phaseId: string }>();
   const phaseIdNum = parseInt(phaseId || "0");
   const { toast } = useToast();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
 
   // Reflection state
   const [reflections, setReflections] = useState({
@@ -39,7 +42,7 @@ export default function PhasePage() {
 
   const { data: progress, isLoading: progressLoading } = useQuery<UserProgress>({
     queryKey: ['/api/user/progress', phaseIdNum],
-    enabled: !!phaseIdNum,
+    enabled: !!phaseIdNum && !!user,
   });
 
   const { data: exercises = [], isLoading: exercisesLoading } = useQuery<Exercise[]>({
@@ -54,7 +57,7 @@ export default function PhasePage() {
 
   const { data: exerciseProgress = [] } = useQuery<UserExerciseProgress[]>({
     queryKey: ['/api/user/phases', phaseIdNum, 'exercises', 'progress'],
-    enabled: !!phaseIdNum,
+    enabled: !!phaseIdNum && !!user,
   });
 
 
@@ -62,7 +65,7 @@ export default function PhasePage() {
   // Load existing journal entries for this phase
   const { data: journalEntries = [] } = useQuery<JournalEntry[]>({
     queryKey: ['/api/user/journal'],
-    enabled: !!phaseIdNum,
+    enabled: !!phaseIdNum && !!user,
   });
 
   // Find today's reflection entry
@@ -132,10 +135,18 @@ export default function PhasePage() {
   });
 
   const handleExerciseComplete = (exerciseId: number, responses?: any) => {
+    if (!user) {
+      setLocation("/auth");
+      return;
+    }
     completeExerciseMutation.mutate({ exerciseId, responses });
   };
 
   const handleAssessmentSubmit = (assessmentId: number, responses: any) => {
+    if (!user) {
+      setLocation("/auth");
+      return;
+    }
     submitAssessmentMutation.mutate({ assessmentId, responses });
   };
 
@@ -164,6 +175,10 @@ export default function PhasePage() {
   });
 
   const handleSaveReflection = () => {
+    if (!user) {
+      setLocation("/auth");
+      return;
+    }
     setIsSaving(true);
     const today = new Date();
     const reflectionContent = JSON.stringify(reflections);
@@ -187,6 +202,10 @@ export default function PhasePage() {
 
   const handleDownloadProgress = () => {
     if (!phase) return;
+    if (!user) {
+      setLocation("/auth");
+      return;
+    }
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -552,8 +571,8 @@ export default function PhasePage() {
               variant="secondary"
               className="bg-white/20 hover:bg-white/30 text-white border-none"
             >
-              <Download className="mr-2" size={16} />
-              Download Report
+              {user ? <Download className="mr-2" size={16} /> : <div className="mr-2">🔒</div>}
+              {user ? "Download Report" : "Login to Download"}
             </Button>
           </div>
 
@@ -658,6 +677,7 @@ export default function PhasePage() {
                             isCompleted={progress?.isCompleted}
                             initialResponses={progress?.responses}
                             onComplete={handleExerciseComplete}
+                            isGuest={!user}
                           />
                         </div>
                       );
@@ -688,6 +708,7 @@ export default function PhasePage() {
                         key={assessment.id}
                         assessment={assessment}
                         onSubmit={(responses) => handleAssessmentSubmit(assessment.id, responses)}
+                        isGuest={!user}
                       />
                     ))
                   ) : (
@@ -710,8 +731,8 @@ export default function PhasePage() {
                       disabled={isSaving || saveReflectionMutation.isPending}
                       className="phoenix-bg-primary hover:phoenix-bg-secondary text-white"
                     >
-                      <Save className="mr-2" size={16} />
-                      {isSaving ? 'Saving...' : 'Save'}
+                      {user ? <Save className="mr-2" size={16} /> : <div className="mr-2">🔒</div>}
+                      {isSaving ? 'Saving...' : (user ? 'Save' : 'Login to Save')}
                     </Button>
                   </div>
 
@@ -756,8 +777,8 @@ export default function PhasePage() {
                       disabled={isSaving || saveReflectionMutation.isPending}
                       className="flex-1 phoenix-bg-primary hover:phoenix-bg-secondary text-white"
                     >
-                      <Save className="mr-2" size={16} />
-                      {isSaving ? 'Saving Reflection...' : 'Save Reflection'}
+                      {user ? <Save className="mr-2" size={16} /> : <div className="mr-2">🔒</div>}
+                      {isSaving ? 'Saving Reflection...' : (user ? 'Save Reflection' : 'Login to Save')}
                     </Button>
                     <Link href="/journal" className="flex-1">
                       <Button variant="outline" className="w-full">

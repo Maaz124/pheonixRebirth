@@ -13,9 +13,10 @@ import type { Assessment } from "@shared/schema";
 interface InteractiveAssessmentProps {
   assessment: Assessment;
   onSubmit: (responses: any) => void;
+  isGuest?: boolean;
 }
 
-export function InteractiveAssessment({ assessment, onSubmit }: InteractiveAssessmentProps) {
+export function InteractiveAssessment({ assessment, onSubmit, isGuest }: InteractiveAssessmentProps) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [responses, setResponses] = useState<any>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,7 +32,7 @@ export function InteractiveAssessment({ assessment, onSubmit }: InteractiveAsses
 
   const handleCheckboxChange = (questionId: string, option: string, checked: boolean) => {
     const currentAnswers = (responses[questionId] as string[]) || [];
-    const updatedAnswers = checked 
+    const updatedAnswers = checked
       ? [...currentAnswers, option]
       : currentAnswers.filter(answer => answer !== option);
     setResponses({ ...responses, [questionId]: updatedAnswers });
@@ -60,12 +61,12 @@ export function InteractiveAssessment({ assessment, onSubmit }: InteractiveAsses
 
   const getResults = () => {
     if (!assessment.scoringRubric) return null;
-    
+
     const rubric = assessment.scoringRubric as any;
-    
+
     if (assessment.title.includes("Boundary")) {
       const boundaryScore = Object.values(responses).reduce((sum: number, val: any) => sum + Number(val), 0) / Object.keys(responses).length;
-      
+
       if (boundaryScore <= 3) {
         return {
           category: "Developing Boundaries",
@@ -84,7 +85,7 @@ export function InteractiveAssessment({ assessment, onSubmit }: InteractiveAsses
           color: "blue",
           suggestions: [
             "Practice boundary scripts in safe relationships",
-            "Work on reducing guilt around saying no", 
+            "Work on reducing guilt around saying no",
             "Celebrate small boundary wins"
           ]
         };
@@ -103,10 +104,10 @@ export function InteractiveAssessment({ assessment, onSubmit }: InteractiveAsses
     }
 
     if (assessment.title.includes("Nervous System")) {
-      const dominantResponse = Object.values(responses).find(val => 
+      const dominantResponse = Object.values(responses).find(val =>
         Object.values(rubric).some((patterns: any) => patterns.includes(val))
       );
-      
+
       let responseType = "Mixed Response";
       Object.entries(rubric).forEach(([key, patterns]) => {
         if ((patterns as string[]).includes(dominantResponse as string)) {
@@ -126,7 +127,7 @@ export function InteractiveAssessment({ assessment, onSubmit }: InteractiveAsses
         },
         flightResponse: {
           description: "Your instinct is to escape or avoid stressful situations. This protected you, but may limit your life now.",
-          color: "yellow", 
+          color: "yellow",
           suggestions: [
             "Practice staying present for short periods during mild stress",
             "Use breathing exercises to calm your nervous system",
@@ -169,7 +170,7 @@ export function InteractiveAssessment({ assessment, onSubmit }: InteractiveAsses
 
   if (showResults) {
     const results = getResults();
-    
+
     return (
       <Card className="p-8">
         <div className="text-center mb-6">
@@ -184,7 +185,7 @@ export function InteractiveAssessment({ assessment, onSubmit }: InteractiveAsses
           <div className="space-y-6">
             <div className={`bg-${results.color}-50 border border-${results.color}-200 rounded-lg p-6`}>
               <h4 className={`text-lg font-semibold text-${results.color}-900 mb-2`}>
-                Your Pattern: {results.category}
+                {(results as any).category ? `Your Pattern: ${(results as any).category}` : 'Your Assessment Result'}
               </h4>
               <p className={`text-${results.color}-800`}>{results.description}</p>
             </div>
@@ -240,9 +241,9 @@ export function InteractiveAssessment({ assessment, onSubmit }: InteractiveAsses
             {currentQuestion + 1} of {questions.length}
           </span>
         </div>
-        
+
         <Progress value={progress} className="h-2 mb-4" />
-        
+
         <p className="text-gray-600 text-sm">{assessment.description}</p>
       </div>
 
@@ -260,8 +261,8 @@ export function InteractiveAssessment({ assessment, onSubmit }: InteractiveAsses
               {question.options.map((option: string, index: number) => (
                 <div key={index} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
                   <RadioGroupItem value={option} id={`${question.id}-${index}`} />
-                  <Label 
-                    htmlFor={`${question.id}-${index}`} 
+                  <Label
+                    htmlFor={`${question.id}-${index}`}
                     className="text-gray-700 cursor-pointer flex-1"
                   >
                     {option}
@@ -348,8 +349,8 @@ export function InteractiveAssessment({ assessment, onSubmit }: InteractiveAsses
           disabled={!hasResponse() || isSubmitting}
           className="phoenix-bg-primary hover:phoenix-bg-secondary text-white"
         >
-          {isSubmitting ? "Submitting..." : 
-           currentQuestion === questions.length - 1 ? "Complete Assessment" : "Next"}
+          {isSubmitting ? "Submitting..." :
+            currentQuestion === questions.length - 1 ? (isGuest ? "Login to Submit" : "Complete Assessment") : "Next"}
         </Button>
       </div>
     </Card>
