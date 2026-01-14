@@ -613,7 +613,7 @@ function BlogForm({ initialData, onSubmit, onCancel }: { initialData: BlogPost |
     // Auto-generate slug from title if empty and creating
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTitle(e.target.value);
-        if (!initialData && !slug) {
+        if (!initialData) {
             setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''));
         }
     };
@@ -634,15 +634,10 @@ function BlogForm({ initialData, onSubmit, onCancel }: { initialData: BlogPost |
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor="title">Title</Label>
-                    <Input id="title" name="title" value={title} onChange={handleTitleChange} required />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="slug">Slug (URL)</Label>
-                    <Input id="slug" name="slug" value={slug} onChange={e => setSlug(e.target.value)} required />
-                </div>
+            <div className="space-y-2">
+                <Label htmlFor="title">Title</Label>
+                <Input id="title" name="title" value={title} onChange={handleTitleChange} required />
+                <Input type="hidden" id="slug" name="slug" value={slug} />
             </div>
 
             <div className="space-y-2">
