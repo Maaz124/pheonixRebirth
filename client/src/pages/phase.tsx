@@ -23,6 +23,20 @@ export default function PhasePage() {
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
 
+  const hasAccess = user?.subscriptionStatus === 'active' || user?.subscriptionStatus === 'lifetime' || user?.isAdmin;
+  const isLocked = phaseIdNum > 1 && !hasAccess;
+
+  useEffect(() => {
+    if (isLocked) {
+      toast({
+        title: "Access Restricted",
+        description: "Phase 2 and beyond are available to premium members only. Please subscribe to continue your journey.",
+        variant: "destructive",
+      });
+      setLocation("/subscribe");
+    }
+  }, [isLocked, setLocation, toast]);
+
   // Reflection state
   const [reflections, setReflections] = useState({
     wins: "",
