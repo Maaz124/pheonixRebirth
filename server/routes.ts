@@ -487,6 +487,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Handle free tier subscription (when price is 0)
+  app.post("/api/subscribe-free", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { tier } = req.body;
+      const userId = req.user.id;
+
+      // 1. Verify that the price is actually 0
+      const priceSetting = await storage.getSetting("subscription_price");
+
+      // If price is not explicitly "0", reject the request
+      if (priceSetting !== "0") {
+        return res.status(400).json({ message: "Free subscription is not available." });
+      }
+
+      // 2. Grant access
+      // We use 'lifetime' status to match the paid tier logic for one-time payments
+      await storage.updateUserSubscription(
+        userId,
+        tier || 'essential',
+        'lifetime',
+        null,
+        0, // Amount paid
+        'usd',
+        new Date()
+      );
+
+      res.json({
+        success: true,
+        message: "Free subscription activated",
+        subscriptionStatus: 'lifetime'
+      });
+    } catch (error: any) {
+      console.error('Free subscription error:', error);
+      res.status(500).json({ message: "Failed to process free subscription" });
+    }
+  });
+
   // Create Stripe Payment Intent for one-time payment
   app.post("/api/create-payment-intent", async (req, res) => {
     try {

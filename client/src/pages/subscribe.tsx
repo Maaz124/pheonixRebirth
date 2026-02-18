@@ -82,13 +82,27 @@ export default function Subscribe() {
   const [selectedTier, setSelectedTier] = useState("essential");
 
   // Get tier from URL params
+  // Fetch dynamic price and Stripe key
+  const { data: config, isLoading: isConfigLoading } = useQuery<{ subscriptionPrice: string; stripePublishableKey: string }>({
+    queryKey: ['/api/config'],
+  });
+
+  // Get tier from URL params and initialize
   useEffect(() => {
+    // Wait for config to load before making decisions
+    if (isConfigLoading) return;
+
     const urlParams = new URLSearchParams(window.location.search);
     const tier = urlParams.get('tier') || 'essential';
-
     setSelectedTier(tier);
 
-    // Create payment intent
+    // If price is 0, we skip Stripe initialization entirely
+    if (config?.subscriptionPrice === "0") {
+      setLoading(false);
+      return;
+    }
+
+    // Only create payment intent if we have a price > 0
     apiRequest("POST", "/api/create-payment-intent", {
       tier
     })
@@ -109,12 +123,7 @@ export default function Subscribe() {
         console.error('Error creating payment intent:', error);
         setLoading(false);
       });
-  }, []);
-
-  // Fetch dynamic price and Stripe key
-  const { data: config } = useQuery<{ subscriptionPrice: string; stripePublishableKey: string }>({
-    queryKey: ['/api/config'],
-  });
+  }, [isConfigLoading, config]); // Re-run when config loads
 
   // Initialize Stripe once key is available
   if (config?.stripePublishableKey && !stripePromise) {
@@ -133,12 +142,68 @@ export default function Subscribe() {
 
   const currentTier = tierInfo[selectedTier as keyof typeof tierInfo] || tierInfo.essential;
 
-  if (loading) {
+  if (loading || !config) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-orange-600" />
           <p className="text-gray-600">Setting up secure checkout...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Free Tier Flow
+  if (config && (config.subscriptionPrice === "0" || parseInt(config.subscriptionPrice) === 0)) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="max-w-md mx-auto">
+            <Link href="/pricing">
+              <Button variant="ghost" className="mb-4">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Pricing
+              </Button>
+            </Link>
+
+            <Card>
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl">Complete Registration</CardTitle>
+                <CardDescription>
+                  Join the Phoenix Method™ community.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="text-center p-6 bg-green-50 rounded-lg border border-green-100">
+                  <p className="text-lg font-medium text-green-800">Total Due: $0.00</p>
+                  <p className="text-sm text-green-600 mt-1">Free Access (Limited Time)</p>
+                </div>
+
+                <Button
+                  className="w-full bg-orange-600 hover:bg-orange-700"
+                  size="lg"
+                  onClick={async () => {
+                    try {
+                      setLoading(true);
+                      const res = await apiRequest("POST", "/api/subscribe-free", { tier: selectedTier });
+                      if (!res.ok) throw new Error("Failed to process");
+
+                      // Update local query cache if needed, or just redirect
+                      window.location.href = `/dashboard?payment=success`;
+                    } catch (error) {
+                      console.error(error);
+                      setLoading(false);
+                      // Show error toast
+                    }
+                  }}
+                  disabled={loading}
+                >
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  Confirm & Join Now
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     );
