@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { Loader2, Users, CreditCard, DollarSign, Search, Settings, LogOut, LayoutDashboard, Mail, BookOpen, Plus, Pencil, Trash2, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { Link } from "wouter";
 import RichTextEditor from "@/components/rich-text-editor";
@@ -242,6 +242,8 @@ function UsersView() {
     );
 }
 
+// ... existing imports ...
+
 function ConfigurationView() {
     const { toast } = useToast();
     const [priceInput, setPriceInput] = useState("");
@@ -251,6 +253,32 @@ function ConfigurationView() {
     const { data: priceSetting } = useQuery<{ value: string }>({
         queryKey: ["/api/admin/settings/subscription_price"],
     });
+
+    const { data: stripePublishableKeySetting } = useQuery<{ value: string }>({
+        queryKey: ["/api/admin/settings/stripe_publishable_key"],
+    });
+
+    const { data: stripeSecretKeySetting } = useQuery<{ value: string }>({
+        queryKey: ["/api/admin/settings/stripe_secret_key"],
+    });
+
+    useEffect(() => {
+        if (priceSetting?.value) {
+            setPriceInput(priceSetting.value);
+        }
+    }, [priceSetting]);
+
+    useEffect(() => {
+        if (stripePublishableKeySetting?.value) {
+            setStripePublishableKey(stripePublishableKeySetting.value);
+        }
+    }, [stripePublishableKeySetting]);
+
+    useEffect(() => {
+        if (stripeSecretKeySetting?.value) {
+            setStripeSecretKey(stripeSecretKeySetting.value);
+        }
+    }, [stripeSecretKeySetting]);
 
     const currentPrice = priceSetting?.value || "0";
 
@@ -262,7 +290,16 @@ function ConfigurationView() {
         onSuccess: (_, variables) => {
             if (variables.key === "subscription_price") {
                 queryClient.invalidateQueries({ queryKey: ["/api/admin/settings/subscription_price"] });
+                // Also invalidate public config so pricing page updates immediately
+                queryClient.invalidateQueries({ queryKey: ["/api/config"] });
             }
+            if (variables.key === "stripe_publishable_key") {
+                queryClient.invalidateQueries({ queryKey: ["/api/admin/settings/stripe_publishable_key"] });
+            }
+            if (variables.key === "stripe_secret_key") {
+                queryClient.invalidateQueries({ queryKey: ["/api/admin/settings/stripe_secret_key"] });
+            }
+
             toast({
                 title: "Settings updated",
                 description: "Configuration has been saved successfully.",

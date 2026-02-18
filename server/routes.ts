@@ -61,7 +61,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       "/leads",
       "/newsletter",
       "/phases",
-      "/resources"
+      "/resources",
+      "/blog",
+      "/config"
     ];
 
     const isPublic = publicPaths.some(path => req.path.startsWith(path));

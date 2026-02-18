@@ -5,7 +5,7 @@ import type { User, UserProgress, Phase } from "@shared/schema";
 
 export function Hero() {
   const { data: user } = useQuery<User>({
-    queryKey: ['/api/user/current'],
+    queryKey: ['/api/user'],
   });
 
   const { data: phases = [] } = useQuery<Phase[]>({
@@ -30,7 +30,7 @@ export function Hero() {
           <p className="text-xl text-white/90 max-w-3xl mx-auto mb-8">
             A trauma-informed coaching framework designed for emotionally exhausted women rising from trauma, anxiety, or narcissistic abuse.
           </p>
-          
+
           {/* Progress Overview */}
           <Card className="bg-white rounded-2xl shadow-lg p-8 max-w-4xl mx-auto">
             <div className="flex items-center justify-between mb-6">
@@ -39,14 +39,14 @@ export function Hero() {
                 {completedPhases}/{totalPhases} phases complete
               </span>
             </div>
-            
+
             <div className="w-full bg-gray-200 rounded-full h-2 mb-6">
-              <div 
-                className="phoenix-gradient h-2 rounded-full transition-all duration-500" 
+              <div
+                className="phoenix-gradient h-2 rounded-full transition-all duration-500"
                 style={{ width: `${progressPercentage}%` }}
               />
             </div>
-            
+
             <ProgressTracker phases={phases} userProgress={userProgress} />
           </Card>
         </div>

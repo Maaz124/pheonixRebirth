@@ -53,19 +53,36 @@ const staticTiers = [
 
 export default function Pricing() {
   const { data: user } = useQuery<User>({
-    queryKey: ['/api/user/current'],
+    queryKey: ['/api/user'],
   });
 
-  const { data: config } = useQuery<{ subscriptionPrice: string }>({
+  const { data: config, isLoading: isConfigLoading } = useQuery<{ subscriptionPrice: string }>({
     queryKey: ['/api/config'],
   });
 
   const pricingTiers = staticTiers.map(tier => {
-    if (tier.id === 'essential' && config?.subscriptionPrice) {
-      return { ...tier, price: parseInt(config.subscriptionPrice) };
+    if (tier.id === 'essential') {
+      // If we have a dynamic price, use it. 
+      // If still loading, we might want to wait or show a skeleton, 
+      // but for now we'll stick to the fallback 147 ONLY if config is undefined AND not loading? 
+      // Actually, better to just use the config price if available, else default.
+      // But to avoid "flashing" the wrong price, we can check isLoading.
+
+      if (config?.subscriptionPrice) {
+        return { ...tier, price: parseInt(config.subscriptionPrice) };
+      }
     }
     return tier;
   });
+
+  // Optional: Show loading state if config is fetching to prevent flash of default price
+  if (isConfigLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+      </div>
+    );
+  }
 
   const handleSubscribe = (tierId: string) => {
     if (tierId === 'free') {
